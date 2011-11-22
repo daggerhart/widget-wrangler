@@ -62,7 +62,7 @@ function ww_admin_sidebar_panel($pid)
     
     // get post meta for this post
     // array of chosen widgets
-    if ($active = get_post_meta($pid,'ww_post_widgets',TRUE))
+    if ($active = ww_get_post_widgets($pid))
     {
       $active_array = unserialize($active);
       $default_message = "Defaults are Disabled. This page is wrangling widgets on its own.";
@@ -278,7 +278,7 @@ function ww_save_post($id)
   
   //save what we have
   $this_post_widgets = serialize($active_widgets);
-  update_post_meta( $id, 'ww_post_widgets', $this_post_widgets);
+  ww_update_post_widgets( $id, $this_post_widgets);
   
   // get defaults without- disabled for comparison
   $defaults = unserialize(get_option('ww_default_widgets'));
@@ -289,7 +289,7 @@ function ww_save_post($id)
   if($_POST['ww-reset-widgets-to-default'] == "on" ||
      ($this_post_widgets == $defaults))
   {
-    delete_post_meta( $id, 'ww_post_widgets'); 
+    ww_delete_post_widgets( $id); 
   }
 }
 add_action( 'save_post', 'ww_save_post' );

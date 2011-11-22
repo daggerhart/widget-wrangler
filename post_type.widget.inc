@@ -274,13 +274,20 @@ class Widget_Wrangler {
     if($clone_class)
     {
       $instance = unserialize($data['clone-instance']);
-      
+
       // create instance form
       ob_start();
         eval('$w = new '.$clone_class.'(); $w->form($instance);');
         $instance_form = ob_get_clean();
-      print $instance_form;
+        
+      $hide_title_checked = ($data['hide_title']) ? 'checked="checked"' : '';
       ?>
+        <label>
+          <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> Hide the Widget's title on display
+        </label>
+        <div class="ww-clone-form">
+          <?php print $instance_form; ?>
+        </div>
         <input type="hidden" name="ww-data[clone][clone-instance]" value="Placeholder" />
       <?php
     }
@@ -316,7 +323,7 @@ class Widget_Wrangler {
     $data = $this->data;
     
     // default to checked upon creation
-    $rewrite_output_checked = (isset($$data['rewrite-output'])) ? 'checked="checked"' : '';
+    $rewrite_output_checked = (isset($data['rewrite-output'])) ? 'checked="checked"' : '';
     $adv_template_checked = (isset($data['adv-template'])) ? 'checked="checked"' : '';
     $wpautop_checked = (isset($data['wpautop']) || (($_GET['action'] == null) && ($_GET['post_type'] == 'widget'))) ? 'checked="checked"' : '';
     
@@ -328,7 +335,7 @@ class Widget_Wrangler {
         <div>
           <h4>Rewrite output</h4>
           <div id="ww-advanced-field">
-            <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> Enable Advanced Parsing</label>
+            <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> Rewrite the output of this widget</label>
             <div id="ww-advanced-template">
               <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> Template the Advanced Parsing Area</label> <em>(Do not use with Cloned Widgets.  Details below)</em>
             </div>

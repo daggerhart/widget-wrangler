@@ -1,8 +1,43 @@
 <?php
+function ww_update_post_widgets($post_id, $post_widgets = ''){
+  global $wpdb;
+  $table = $wpdb->prefix."ww_post_widgets";
+  $set = array(
+    'widgets' => $post_widgets,
+  );
+  $where = array(
+    'post_id' => $post_id,
+  );
+  
+  // If can't update, insert
+  // $wpdb->update responds false on errors
+  if(!$wpdb->update($table, $set, $where))
+  {
+    // send along the post_id
+    $set['post_id'] = $post_id;
+    
+    $wpdb->insert($table, $set);
+  }
+}
+function ww_delete_post_widgets($post_id){
+  if(is_numeric($post_id))
+  {
+    global $wpdb;
+    $table_name = $wpdb->prefix."ww_post_widgets";
+    
+    $sql = "DELETE FROM ".$table_name." WHERE post_id = ".$post_id;
+    $wpdb->query($sql);
+  }
+}
 function ww_get_post_widgets($post_id){
   global $wpdb;
   $sql = "SELECT widgets FROM ".$wpdb->prefix."ww_post_widgets WHERE post_id = ".$post_id;
-  return $wpdb->get_row($sql);
+  if($results = $wpdb->get_row($sql)){
+    //print_r($results);
+    return $results->widgets;
+  } else {
+    return false;
+  }
 }
 function ww_get_widget_data($post_id){
   global $wpdb;
@@ -79,35 +114,42 @@ function ww_get_single_widget($post_id){
  */
 function ww_theme_single_widget($widget)
 {
-  if ($widget->widget_type == "standard")
-  {
-    // maybe they don't want auto p ?
-    if ($widget->widget_data['wpautop'] == "on"){
-      $widget->post_content = wpautop($widget->post_content);
-    }
-    
-    // apply shortcode
-    $widget->post_content = do_shortcode($widget->post_content);  
-    
-    // see if this should use advanced parsing
-    if($data['adv_enabled']){
-      $themed = ww_adv_parse_widget($widget);
-    }
-    else{
-      $themed = ww_template_widget($widget);
-    }
-  }
-  else if($widget->widget_type == "clone"){
-    $widget->widget_data['clone-instance']['ID'] = $widget->ID;
-    $widget->widget_data['clone-instance']['post_name'] = $widget->post_name;
-    $widget->widget_data['clone-instance']['post_t'] = $widget->post_title;
+  // widget type determins templating
+  switch($widget->widget_type)
+  { 
+    case 'clone':
+      $widget->widget_data['clone-instance']['ID'] = $widget->ID;
+      $widget->widget_data['clone-instance']['post_name'] = $widget->post_name;
+      $widget->widget_data['clone-instance']['post_title'] = $widget->post_title;
 
-    $themed = ww_the_widget($widget->widget_data['clone-class'], $widget->widget_data['clone-instance']);
+      $themed = ww_the_widget($widget->widget_data);
+      break;
+    
+    case 'standard':
+    default:
+      // maybe they don't want auto p ?
+      if ($widget->widget_data['wpautop'] == "on"){
+        $widget->post_content = wpautop($widget->post_content);
+      }
+      
+      // apply shortcode
+      $widget->post_content = do_shortcode($widget->post_content);  
+      
+      // see if this should use advanced parsing
+      if($widget->widget_data['rewrite-output']){
+        $themed = ww_rewrite_output_widget($widget);
+      }
+      else{
+        $themed = ww_template_widget($widget);
+      }
+      break;
   }
   return $themed;
 }
 /*
  * Look for possible custom templates, then default to widget-template.php
+ * 
+ * @param object $widget Widget as object from db
  * @return templated widget
  */ 
 function ww_template_widget($widget)
@@ -124,7 +166,7 @@ function ww_template_widget($widget)
   }
   // fallback on default template
   else{
-    include WW_PLUGIN_DIR. '/widget-template.php';
+    include WW_PLUGIN_DIR. '/templates/widget.php';
   }
   $templated = ob_get_clean();
   
@@ -134,16 +176,16 @@ function ww_template_widget($widget)
  * Handle the advanced parsing for a widget
  * @return advanced parsed widget
  */
-function ww_adv_parse_widget($widget)
+function ww_rewrite_output_widget($widget)
 {
   // make $post and $page available
   global $post;
   $page = $post;
   
   // handle advanced templating
-  if($widget->adv_template)
+  if($widget->widget_data['adv-template'])
   {  
-    $returned_array = eval('?>'.$widget->parse);
+    $returned_array = eval('?>'.$widget->widget_data['custom-output']);
     if (is_array($returned_array)){
       $widget->post_title = $returned_array['title'];
       $widget->post_content = $returned_array['content'];
@@ -159,7 +201,7 @@ function ww_adv_parse_widget($widget)
     $replace = array($widget->post_title, $widget->post_content);
     
     // find and replace title and content tokens
-    $parsed = preg_replace($pattern,$replace,$widget->parse);
+    $parsed = preg_replace($pattern,$replace,$widget->widget_data['custom-output']);
     
     // execute adv parsing area
     ob_start();
@@ -200,8 +242,9 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
     $widgets_array = unserialize($postspage_string);
   }
   // look for post meta data
-  else if ($widgets_string = get_post_meta($post->ID,'ww_post_widgets', TRUE)){
+  else if ($widgets_string = ww_get_post_widgets($post->ID)){
     $widgets_array = unserialize($widgets_string);
+    //print_r($widgets_array);
   }
   // try defaults instead
   else if ($defaults_string = get_option('ww_default_widgets')){
@@ -219,6 +262,7 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
     // custom sorting with callback
     usort($widgets_array[$sidebar_slug],'ww_cmp');
     $sorted_widgets = array_reverse($widgets_array[$sidebar_slug]);
+    //print_r($sorted_widgets);
     while($i < $total)
     {
       if($widget = ww_get_single_widget($widgets_array[$sidebar_slug][$i]['id'])){
@@ -266,15 +310,16 @@ function ww_settings_set_default()
 /**
  * Taken from wp-includes/widgets.php, adjusted for my needs
  * 
- * @param string $widget the widget's PHP class name (see default-widgets.php)
- * @param array $instance the widget's instance settings
+ * @param array $widget data including the widget's PHP class name (see default-widgets.php)
+ * 
  * @return void
  **/
-function ww_the_widget($widget, $instance = array(), $echo = false)
+function ww_the_widget($widget_data, $echo = false)
 {
+  $instance = $widget->widget_data['clone-instance'];
   // load widget from widget factory ?
   global $wp_widget_factory;
-  $widget_obj = $wp_widget_factory->widgets[$widget];
+  $widget_obj = $wp_widget_factory->widgets[$widget_data['clone-class']];
  
   if ( !is_a($widget_obj, 'WP_Widget') )
    return;
@@ -296,6 +341,11 @@ function ww_the_widget($widget, $instance = array(), $echo = false)
   $obj->post_name     = $instance['post_name'];
   $obj->post_title    = ($array[0]) ? $array[0]: $instance['title'];
   $obj->post_content  = $array[1];
+  
+  // hide title if desired
+  if($widget_data['hide_title']){
+    unset($obj->post_title);
+  }
   
   // template with WW template
   if ($echo){
