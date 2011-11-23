@@ -4,6 +4,8 @@
  *
  * $sidebars = all sidebars
  */
+
+$sidebars = unserialize(get_option('ww_sidebars'));
 ?>
 <div class='wrap'>
   <h2>Widget Sidebars</h2>

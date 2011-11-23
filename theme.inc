@@ -11,52 +11,84 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
   global $post;
   $sidebars = ww_get_all_sidebars();
   $output = '';
+  $op = ww_get_page_op();
   
-  // See if this is a category page
-  if(is_category())
+  switch ($op)
   {
-    global $wpdb;
-    // get first category
-    $category = array_pop(get_the_category());  
+    // tags and categories are controlled the same way
+    case 'tag':
+    case 'category':
+      global $wpdb;
+      // get first category
+      if($op == 'category') {
+        $category = array_pop(get_the_category());  
+      }
+      else if ($op == 'tag'){
+        $category = array_pop(get_the_tags());
+      }
+      
+      // get the space
+      $spaces_table = $wpdb->prefix.'ww_widget_spaces';
+      $relation_table = $wpdb->prefix.'ww_space_term_relationships';
+      
+      // look for spaces for this category
+      $sql = "SELECT r.space_id, s.widgets
+              FROM ".$relation_table." as r
+              LEFT JOIN ".$spaces_table." as s ON r.space_id = s.id
+              WHERE r.term_id = ".$category->term_id."
+              LIMIT 1";
+      $row = $wpdb->get_row($sql);
+      
+      // make the array
+      if($row->space_id){
+        $widgets_array = unserialize($row->widgets);
+      }
+      break;
     
-    $spaces_table = $wpdb->prefix.'ww_widget_spaces';
-    $relation_table = $wpdb->prefix.'ww_space_term_relationships';
+    case 'single':
+    case 'page':
+      $widgets = ww_get_post_widgets($post->ID);
+      $widgets_array = unserialize($widgets);
+      break;
     
-    // look for spaces for this category
-    $sql = "SELECT r.space_id, s.widgets
-            FROM ".$relation_table." as r
-            LEFT JOIN ".$spaces_table." as s ON r.space_id = s.id
-            WHERE r.term_id = ".$category->term_id."
-            LIMIT 1";
-    $row = $wpdb->get_row($sql);
-    if($row->space_id){
-      $widgets_array = unserialize($row->widgets);
+    /*
+     * Default widget spaces
+     */
+    case 'home':
+      // see if this is the Posts (blog) page
+      if(get_option('show_on_front') == 'posts'){
+        // posts page is space 2
+        $space = ww_get_space(2);
+        $widgets_array = unserialize($space->widgets);
+      }
+      break;
+
+    case 'search':
+      // search page is default space 3
+      $space = ww_get_space(3);
+      $widgets_array = unserialize($space->widgets);
+      break;
+    
+    case '404':
+      // 404 page is default space 4
+      $space = ww_get_space(4);
+      $widgets_array = unserialize($space->widgets);
+      break;
+  }
+  
+  // if still no widgets, fall back to defaults
+  if (!is_array($widgets_array))
+  {
+    // space 1 is the default widgets
+    if($space = ww_get_space(1)){
+      $widgets_array = unserialize($space->widgets);      
+    }
+    // no widgets in post and no defaults
+    else {
+      return;
     }
   }
   
-  // see if this is the Posts (blog) page
-  else if(is_home() && (get_option('show_on_front') == 'posts'))
-  {
-    // potss page is space 2
-    $space = ww_get_space(2);
-    $widgets_array = unserialize($space->widgets);
-  }
-  // look for post meta data
-  else if ($widgets_string = ww_get_post_widgets($post->ID))
-  {
-    $widgets_array = unserialize($widgets_string);
-    //print_r($widgets_array);
-  }
-  // try defaults instead
-  else if ($space = ww_get_space(1))
-  {
-    // space 1 is the default widgets
-    $widgets_array = unserialize($space->widgets);
-  }
-  // no widgets in post and no defaults
-  else{
-    return;
-  }
   // handle widgets
   if (is_array($widgets_array[$sidebar_slug]))
   {
@@ -66,7 +98,7 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
     // custom sorting with callback
     usort($widgets_array[$sidebar_slug],'ww_cmp');
     $sorted_widgets = array_reverse($widgets_array[$sidebar_slug]);
-    //print_r($sorted_widgets);
+    
     while($i < $total)
     {
       if($widget = ww_get_single_widget($widgets_array[$sidebar_slug][$i]['id'])){
@@ -74,10 +106,11 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
       }
       $i++;
     }
+    // output the widgets  
+    print $output;
   }
-  
-  print $output;
 }
+
 /**
  * Taken from wp-includes/widgets.php, adjusted for my needs
  * 
@@ -128,112 +161,109 @@ function ww_the_widget($widget_data, $echo = false)
 }
 
 /*
- * Put all widgets into a list for output
+ * Apply templating and parsing to a single widget
+ * 
+ * @return themed widget for output or templating
  */
-function ww_create_sortable_widgets($widgets, $ref_array, $sidebars)
+function ww_theme_single_widget($widget)
 {
-  $i = 0;
-  foreach($widgets as $widget)
-  {
-    $temp = array();
-    $keys = ww_array_searchRecursive($widget->ID, $ref_array);
-    // fix widgets with no title
-    if ($widget->post_title == ""){
-      $widget->post_title = "(no title) - Widget ID: ".$widget->ID;
-    }
+  // widget type determines templating
+  switch($widget->widget_type)
+  { 
+    case 'clone':
+      $widget->widget_data['clone-instance']['ID'] = $widget->ID;
+      $widget->widget_data['clone-instance']['post_name'] = $widget->post_name;
+      $widget->widget_data['clone-instance']['post_title'] = $widget->post_title;
+
+      $themed = ww_the_widget($widget->widget_data);
+      break;
     
-    // look for appropriate sidebar, default to disabled
-    if ($keys[0] == '' || (!array_key_exists($keys[0], $sidebars))){
-      $keys[0] = "disabled";
-    }
-    
-    // setup initial info
-    $sidebar_slug = $keys[0];
-   
-    // get weight
-    $weight = $ref_array[$sidebar_slug][$keys[1]]['weight'];
-    
-    // build select box
-    $sidebars_options = "<option value='disabled'>Disabled</option>";
-    foreach($sidebars as $slug => $sidebar){
-      ($slug == $sidebar_slug) ? $selected = "selected='selected'" : $selected = '';
-      $sidebars_options.= "<option name='".$slug."' value='".$slug."' ".$selected.">".$sidebar."</option>";   
-    }
-    
-    // add item to our temp array
-    $temp[$weight] = "<li class='ww-item ".$sidebar_slug." nojs' width='100%'>
-                        <input class='ww-widget-weight' name='ww-widgets[".$widget->post_name."][weight] type='text' size='2' value='$weight' />
-                        <select name='ww-widgets[".$widget->post_name."][sidebar]'>
-                        ".$sidebars_options."
-                        </select>
-                        <input class='ww-widget-name' name='ww-widgets[".$widget->post_name."][name]' type='hidden' value='".$widget->post_name."' />
-                        <input class='ww-widget-id' name='ww-widgets[".$widget->post_name."][id]' type='hidden' value='".$widget->ID."' />
-                        ".$widget->post_title."
-                      </li>";
-                      
-    // place into output array
-    if ($sidebar_slug == 'disabled'){
-      $output['disabled'][] = $temp[$weight];
-    }
-    else{
-      $output['active'][$sidebar_slug][$weight] = $temp[$weight];
-    }
-    
-    $i++;
+    case 'standard':
+    default:
+      // maybe they don't want auto p ?
+      if ($widget->widget_data['wpautop'] == "on"){
+        $widget->post_content = wpautop($widget->post_content);
+      }
+      
+      // apply shortcode
+      $widget->post_content = do_shortcode($widget->post_content);  
+      
+      // see if this should use advanced parsing
+      if($widget->widget_data['rewrite-output']){
+        $themed = ww_rewrite_output_widget($widget);
+      }
+      else{
+        $themed = ww_template_widget($widget);
+      }
+      break;
   }
-  return $output;
+  return $themed;
 }
 /*
- * Theme the output for editing widgets on a page
- */
-function ww_theme_sortable_widgets($panel_array)
+ * Look for possible custom templates, then default to widget-template.php
+ * 
+ * @param object $widget Widget as object from db
+ * @return templated widget
+ */ 
+function ww_template_widget($widget)
 {
-  $sidebars = ww_get_all_sidebars();
-  $output = $panel_array['open'];
+  ob_start();
   
-  // loop through sidebars and add active widgets to list
-  if (is_array($sidebars))
-  {
-    foreach($sidebars as $slug => $sidebar)
-    {
-      // open the list
-      $output.= "<h4>".$sidebar."</h4>";
-      $output.= "<ul name='".$slug."' id='ww-sidebar-".$slug."-items' class='inner ww-sortable' width='100%'>";
-      
-      if (is_array($panel_array['active'][$slug])) {
-        // loop through sidebar array and add items to list
-        foreach($panel_array['active'][$slug] as $item){
-          $output.= $item;
-        }
-        $style = "style='display: none;'";
-      }
-      else {
-        $style = '';
-      }
-      // close the list
-      $output.= "<li class='ww-no-widgets' ".$style.">No Widgets in this sidebar.</li>";
-      $output.= "</ul>";
-    }
+  // look for template in theme folder w/ widget ID first
+  if (file_exists(TEMPLATEPATH . "/widget-".$widget->ID.".php")){
+    include TEMPLATEPATH . "/widget-".$widget->ID.".php";
   }
-  
-  // disabled list
-  $output.= "<h4>Disabled</h4><ul name='disabled' id='ww-disabled-items' class='inner ww-sortable' width='100%'>";
-  
-  // loop through and add disabled widgets to list
-  if (is_array($panel_array['disabled'])){
-    foreach ($panel_array['disabled'] as $disabled){
-      $output.= $disabled;
-    }
-    $style = "style='display: none;'";
+  // fallback to standard widget template in theme
+  else if (file_exists(TEMPLATEPATH . "/widget.php")){
+    include TEMPLATEPATH . "/widget.php";
   }
+  // fallback on default template
   else{
-    $style = '';
+    include WW_PLUGIN_DIR. '/templates/widget.php';
   }
-  // close disabled list
-  $output.= "<li class='ww-no-widgets' ".$style.">No disabled Widgets</li>";
-  $output.= "</ul>";
+  $templated = ob_get_clean();
   
-  $output.= $panel_array['close'];
+  return $templated;
+}
+/*
+ * Handle the advanced parsing for a widget
+ * 
+ * @return advanced parsed widget
+ */
+function ww_rewrite_output_widget($widget)
+{
+  // make $post and $page available
+  global $post;
+  $page = $post;
   
-  print $output;
+  // handle advanced templating
+  if($widget->widget_data['adv-template'])
+  {  
+    $returned_array = eval('?>'.$widget->widget_data['custom-output']);
+    if (is_array($returned_array)){
+      $widget->post_title = $returned_array['title'];
+      $widget->post_content = $returned_array['content'];
+      $output = ww_template_widget($widget);
+    }
+    else {
+      $output = "<!-- Error:  This widget did not return an array. -->";
+    }
+  }
+  else
+  {
+    $pattern = array('/{{title}}/','/{{content}}/');
+    $replace = array($widget->post_title, $widget->post_content);
+    
+    // find and replace title and content tokens
+    $parsed = preg_replace($pattern,$replace,$widget->widget_data['custom-output']);
+    
+    // execute adv parsing area
+    ob_start();
+      eval('?>'.$parsed);
+      $output = ob_get_clean();
+      // fix for recent post widget not resetting the query
+      $post = $page;
+  }
+  
+  return $output;
 }

@@ -24,27 +24,50 @@ define('WW_PLUGIN_DIR', dirname(__FILE__));
 define('WW_PLUGIN_URL', get_bloginfo('wpurl')."/wp-content/plugins/widget-wrangler");
 
 // functions
-include WW_PLUGIN_DIR.'/functions.inc';
-include WW_PLUGIN_DIR.'/theme.inc';
+include_once WW_PLUGIN_DIR.'/functions.inc';
+// theme functions
+include_once WW_PLUGIN_DIR.'/theme.inc';
 
 // add the widget post type class
-include WW_PLUGIN_DIR.'/post_type.widget.inc';
-
-// include admin panel and helper functions
-include WW_PLUGIN_DIR.'/form-admin.inc';
+include_once WW_PLUGIN_DIR.'/post_type.widget.inc';
 
 // include WP standard widgets for sidebars
-include WW_PLUGIN_DIR.'/widget.sidebar.inc';
+include_once WW_PLUGIN_DIR.'/widget.sidebar.inc';
 
-register_activation_hook(WW_PLUGIN_DIR.'/includes/install.inc', 'ww_activation');
-    
+// include install inc
+include_once WW_PLUGIN_DIR.'/includes/install.inc';
+
+// activation hooks
+register_activation_hook(__FILE__, 'ww_post_widgets_table');
+register_activation_hook(__FILE__, 'ww_widget_data_table');
+register_activation_hook(__FILE__, 'ww_widget_spaces_table');
+register_activation_hook(__FILE__, 'ww_widget_space_term_relationships_table');
+register_activation_hook(__FILE__, 'ww_default_spaces');
+/*
+ * Admin initialize 
+ */
+function ww_admin_init()
+{
+  // include admin panel and helper functions such as sortable widgets
+  include_once WW_PLUGIN_DIR.'/includes/admin-panel.inc';
+  
+  // determine whether to display the admin panel
+  // handles adding some css and the js
+  ww_display_admin_panel();
+
+  // add admin css  
+  add_action( 'admin_head', 'ww_admin_css');
+
+}
+add_action( 'admin_init', 'ww_admin_init' );
+
 /*
  * All my hook_menu implementations
  */
 function ww_menu()
 {
-  $spaces   = add_submenu_page( 'edit.php?post_type=widget', 'Widget Spaces', 'Widget Spaces',     'manage_options', 'ww-spaces', 'ww_spaces_page_handler');
   $clone    = add_submenu_page( 'edit.php?post_type=widget', 'Clone WP Widget', 'Clone WP Widget',  'manage_options', 'ww-clone',    'ww_clone_page_handler');
+  $spaces   = add_submenu_page( 'edit.php?post_type=widget', 'Widget Spaces', 'Widget Spaces',     'manage_options', 'ww-spaces', 'ww_spaces_page_handler');
   $sidebars = add_submenu_page( 'edit.php?post_type=widget', 'Widget Sidebars', 'Sidebars',         'manage_options', 'ww-sidebars', 'ww_sidebars_page_handler');
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',        'Settings',         'manage_options', 'ww-settings', 'ww_settings_page_handler');
   //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets', 'Debug', 'manage_options', 'ww-debug', 'ww_debug_page');
@@ -53,7 +76,7 @@ function ww_menu()
 add_action( 'admin_menu', 'ww_menu');
 
 
-/* * * * * * * *
+/************************************************************
  * Page handling
  */
 /*
@@ -61,7 +84,7 @@ add_action( 'admin_menu', 'ww_menu');
  */
 function ww_spaces_page_handler()
 {
-  include WW_PLUGIN_DIR.'/includes/spaces.inc';
+  include_once WW_PLUGIN_DIR.'/includes/spaces.inc';
   if($_GET['action']) {
     switch ($_GET['action'])
     {
@@ -89,22 +112,11 @@ function ww_spaces_page_handler()
     // send to the new space
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-spaces&space_id='.$space_id);
     
-  } else {
-    ww_spaces_edit_page();
   }
-}
-/*
- * for whatever.
- */
-function ww_debug_page(){
-  /*/global $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_widget_updates, $_wp_deprecated_widgets_callbacks;
-  //global $wp_widget_factory,$wp_registered_widgets, $wpdb;
-  global $wp_filter;
-  //print_r($wp_filter);
-  foreach($wp_filter as $k => $v){
-    print $k."<br>";
+  else {
+    // spaces edit form
+    include_once WW_PLUGIN_DIR.'/forms/spaces.inc';
   }
-  // */
 }
 /*
  * Sidebar page handler
@@ -112,7 +124,7 @@ function ww_debug_page(){
 function ww_sidebars_page_handler()
 {
   // include the sidebars form
-  include WW_PLUGIN_DIR.'/includes/sidebars.inc';
+  include_once WW_PLUGIN_DIR.'/includes/sidebars.inc';
   
   if($_GET['ww-sidebar-action']){
     switch($_GET['ww-sidebar-action']){
@@ -132,15 +144,14 @@ function ww_sidebars_page_handler()
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-sidebars');
   }
   // show sidebars page
-  $sidebars = unserialize(get_option('ww_sidebars'));
-  include WW_PLUGIN_DIR.'/forms/sidebars.inc';
+  include_once WW_PLUGIN_DIR.'/forms/sidebars.inc';
 }
 /*
  * Handles creation of new cloned widgets, and displays clone new widget page
  */
 function ww_clone_page_handler()
 {
-  include WW_PLUGIN_DIR.'/includes/clone.inc';
+  include_once WW_PLUGIN_DIR.'/includes/clone.inc';
   
   if($_GET['ww-clone-action']){
     switch($_GET['ww-clone-action']){
@@ -154,7 +165,7 @@ function ww_clone_page_handler()
   }
   else{
     // show clone page
-    include WW_PLUGIN_DIR.'/forms/clone.inc';
+    include_once WW_PLUGIN_DIR.'/forms/clone.inc';
   }
 }
 /*
@@ -163,7 +174,7 @@ function ww_clone_page_handler()
 function ww_settings_page_handler()
 {
   // settings functions
-  include WW_PLUGIN_DIR.'/includes/settings.inc';
+  include_once WW_PLUGIN_DIR.'/includes/settings.inc';
   
   if ($_GET['ww-settings-action']){
     switch($_GET['ww-settings-action']){
@@ -177,12 +188,24 @@ function ww_settings_page_handler()
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-settings');  
   }
   else{
-    $settings = ww_get_settings();
     // settings form
-    include WW_PLUGIN_DIR.'/forms/settings.inc';
+    include_once WW_PLUGIN_DIR.'/forms/settings.inc';
   }
 }
-/* end page handling */
+/*
+ * for whatever.
+ */
+function ww_debug_page(){
+  /*/global $wp_registered_widgets, $wp_registered_widget_controls, $wp_registered_widget_updates, $_wp_deprecated_widgets_callbacks;
+  //global $wp_widget_factory,$wp_registered_widgets, $wpdb;
+  global $wp_filter;
+  //print_r($wp_filter);
+  foreach($wp_filter as $k => $v){
+    print $k."<br>";
+  }
+  // */
+}
+/*********************************************** end page handling */
 
 /*
  * Shortcode support for all widgets
@@ -193,49 +216,7 @@ function ww_single_widget_shortcode($atts) {
   return ww_theme_single_widget(ww_get_single_widget($id));
 }
 add_shortcode('ww_widget','ww_single_widget_shortcode');
-/*
- * Javascript drag and drop for sorting
- */ 
-function ww_admin_js(){
-  wp_enqueue_script('ww-admin-js',
-                  plugins_url('/js/ww-admin.js', __FILE__ ),
-                  array('jquery-ui-core', 'jquery-ui-sortable'),
-                  false,
-                  true);
-}
-/*
- * Javascript for drag and drop sidebar sorting
- */
-function ww_sidebar_js(){
-  wp_enqueue_script('ww-sidebar-js',
-                    plugins_url('/js/ww-sidebars.js', __FILE__ ),
-                    array('jquery-ui-core', 'jquery-ui-sortable'),
-                    false,
-                    true);
-}
-/*
- * Handle CSS necessary for Admin Menu on left
- */
-function ww_adjust_css(){
-  print "<style type='text/css'>
-         li#menu-posts-widget a.wp-has-submenu {
-          letter-spacing: -1px;
-         }";
-  if ($_GET['post_type'] == 'widget')
-  {
-    print "#wpbody-content #icon-edit {
-             background: transparent url('".WW_PLUGIN_URL."/images/wrangler_post_icon.png') no-repeat top left; 
-           }";
-  }
-  print  "</style>";
-}
-/*
- * Add css to admin interface
- */
-function ww_admin_css(){
-	print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/widget-wrangler.css" />';
-}
-add_action( 'admin_head', 'ww_admin_css');
+
 /*
  * Make sure to show our plugin on the admin screen
  */

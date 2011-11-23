@@ -1,5 +1,41 @@
 <?php
-
+// http://codex.wordpress.org/Conditional_Tags
+function ww_get_page_op()
+{
+  $op = '';
+  if (is_category()){
+    $op = 'category';
+  }
+  else if (is_tag()){
+    $op = 'tag';
+  }
+  else if (is_home()){
+    $op = 'home';
+  }
+  else if (is_single()){
+    // single is not pages
+    $op = 'single';
+  }
+  else if (is_page()){
+    $op = 'page';
+  }
+  else if (is_author()){
+    $op = 'author';
+  }
+  else if (is_search()){
+    $op = 'search';
+  }
+  else if (is_404()){
+    $op = '404';
+  }
+  else if (is_paged()){
+    $op = 'paged';
+  }
+  else {
+    $op = 'default';
+  }
+  return $op;
+}
 /*
  * Serialize widgets from a saved form
  */
@@ -159,113 +195,7 @@ function ww_get_single_widget($post_id){
   return $widget;
 }
 
-/*
- * Apply templating and parsing to a single widget
- * 
- * @return themed widget for output or templating
- */
-function ww_theme_single_widget($widget)
-{
-  // widget type determines templating
-  switch($widget->widget_type)
-  { 
-    case 'clone':
-      $widget->widget_data['clone-instance']['ID'] = $widget->ID;
-      $widget->widget_data['clone-instance']['post_name'] = $widget->post_name;
-      $widget->widget_data['clone-instance']['post_title'] = $widget->post_title;
 
-      $themed = ww_the_widget($widget->widget_data);
-      break;
-    
-    case 'standard':
-    default:
-      // maybe they don't want auto p ?
-      if ($widget->widget_data['wpautop'] == "on"){
-        $widget->post_content = wpautop($widget->post_content);
-      }
-      
-      // apply shortcode
-      $widget->post_content = do_shortcode($widget->post_content);  
-      
-      // see if this should use advanced parsing
-      if($widget->widget_data['rewrite-output']){
-        $themed = ww_rewrite_output_widget($widget);
-      }
-      else{
-        $themed = ww_template_widget($widget);
-      }
-      break;
-  }
-  return $themed;
-}
-/*
- * Look for possible custom templates, then default to widget-template.php
- * 
- * @param object $widget Widget as object from db
- * @return templated widget
- */ 
-function ww_template_widget($widget)
-{
-  ob_start();
-  
-  // look for template in theme folder w/ widget ID first
-  if (file_exists(TEMPLATEPATH . "/widget-".$widget->ID.".php")){
-    include TEMPLATEPATH . "/widget-".$widget->ID.".php";
-  }
-  // fallback to standard widget template in theme
-  else if (file_exists(TEMPLATEPATH . "/widget.php")){
-    include TEMPLATEPATH . "/widget.php";
-  }
-  // fallback on default template
-  else{
-    include WW_PLUGIN_DIR. '/templates/widget.php';
-  }
-  $templated = ob_get_clean();
-  
-  return $templated;
-}
-/*
- * Handle the advanced parsing for a widget
- * 
- * @return advanced parsed widget
- */
-function ww_rewrite_output_widget($widget)
-{
-  // make $post and $page available
-  global $post;
-  $page = $post;
-  
-  // handle advanced templating
-  if($widget->widget_data['adv-template'])
-  {  
-    $returned_array = eval('?>'.$widget->widget_data['custom-output']);
-    if (is_array($returned_array)){
-      $widget->post_title = $returned_array['title'];
-      $widget->post_content = $returned_array['content'];
-      $output = ww_template_widget($widget);
-    }
-    else {
-      $output = "<!-- Error:  This widget did not return an array. -->";
-    }
-  }
-  else
-  {
-    $pattern = array('/{{title}}/','/{{content}}/');
-    $replace = array($widget->post_title, $widget->post_content);
-    
-    // find and replace title and content tokens
-    $parsed = preg_replace($pattern,$replace,$widget->widget_data['custom-output']);
-    
-    // execute adv parsing area
-    ob_start();
-      eval('?>'.$parsed);
-      $output = ob_get_clean();
-      // fix for recent post widget not resetting the query
-      $post = $page;
-  }
-  
-  return $output;
-}
 /*
  * Retrieve list of sidebars
  * 

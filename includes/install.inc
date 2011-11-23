@@ -1,11 +1,52 @@
 <?php
-function ww_activation()
-{
-  // table updates
-  ww_post_widgets_table();
-  ww_widget_data_table();
-  ww_widget_spaces_table();
-  ww_widget_space_term_relationships_table();
+/*
+ * Look for an insert default spaces
+ */
+function ww_default_spaces(){
+  global $wpdb;
+  $table = $wpdb->prefix."ww_widget_spaces";
+  $data = array(
+    'id' => 0,
+    'type' => 'default',
+    'data' => '',
+    'widgets' => serialize(array()),
+  );
+  
+  // defaults
+  $sql_select = "SELECT id FROM ".$table." WHERE id = 1";
+  $row = $wpdb->get_row($sql_select);
+  if(!$row){
+    $data['id'] = 1;
+    $data['data'] = serialize(array('name' => 'Defaults'));
+    $wpdb->insert($table, $data);
+  }
+  
+  // posts page
+  $sql_select = "SELECT id FROM ".$table." WHERE id = 2";
+  $row = $wpdb->get_row($sql_select);
+  if(!$row){
+    $data['id'] = 2;
+    $data['data'] = serialize(array('name' => 'Posts Page'));
+    $wpdb->insert($table, $data);
+  }
+  
+  // search page
+  $sql_select = "SELECT id FROM ".$table." WHERE id = 3";
+  $row = $wpdb->get_row($sql_select);
+  if(!$row){
+    $data['id'] = 3;
+    $data['data'] = serialize(array('name' => 'Search Page'));
+    $wpdb->insert($table, $data);
+  }
+
+  // 404 page
+  $sql_select = "SELECT id FROM ".$table." WHERE id = 4";
+  $row = $wpdb->get_row($sql_select);
+  if(!$row){
+    $data['id'] = 4;
+    $data['data'] = serialize(array('name' => '404 Page'));
+    $wpdb->insert($table, $data);
+  }
 }
 
 /*

@@ -210,17 +210,66 @@ li.ww-sidebar-sort-item {
 #spaces-sidebar {
   width: 140px;
   float: left;
+  border: 1px solid #888;
+  margin-right: 12px;
 }
 #spaces-list {}
-#spaces-add-new {}
-
+#spaces-list h4 {
+  padding: 3px 5px;
+  margin: 0px;
+  border-bottom: 1px solid #888;
+}
+.space-list-item a {
+  display: block;
+  background: #eee;
+  padding: 3px 5px;
+  border-bottom: 1px solid #bbb;
+}
+#spaces-list .active a {
+  background: #fff;
+}
+#spaces-add-new {
+  padding: 12px 3px 6px;
+  background : #eee;
+  border-top: 1px solid #888;
+}
+#space-data {
+  padding: 6px 6px 12px;
+  border-bottom: 1px solid #888;
+  background: #fff;
+}
+#space-action {
+  float: right;
+}
+#space-terms {
+  padding: 6px 12px;
+  border-bottom: 1px solid #888;
+}
+#space-terms .description {
+  color: red;
+}
+#space-name {
+  font-weight: bold;
+}
+#space-name .detail{
+  padding: 3px;
+}
+#space-name label {
+  display: block;
+  float: left;
+  width: 52px;
+}
 #space-details {
   width: 600px;
   float: left;
   margin: 0px;
+  border: 1px solid #888;
+  background: #eee;
 }
-#space-data {}
-#space-widgets {}
+#space-widgets {
+  padding: 6px;
+  background: #fff;
+}
 
 label.ww-space-checkbox {
   display: block;
@@ -230,7 +279,7 @@ label.ww-space-checkbox {
 label.ww-space-checkbox input {
   margin-right: 6px;
 }
-.spaces-checkboxes {
+.space-checkboxes {
   border: 1px solid #bbb;
   background: #fff;
   margin: 4px;

@@ -6,25 +6,28 @@
  * TODO:
  *   Access Control
  */
-  // handle checkboxes
-  if($settings['capabilities'] == 'simple') { $simple_checked =  "checked"; }
-  if($settings['capabilities'] == 'advanced') { $adv_checked = "checked"; } 
-  
-  /*
-  global $wp_roles;
-  if($settings['capabilities'] == 'roles') {
-    $role_checked =  "checked";
-    foreach($settings['roles'] as $role => $value)
+
+$settings = ww_get_settings();
+
+// handle checkboxes
+if($settings['capabilities'] == 'simple') { $simple_checked =  "checked"; }
+if($settings['capabilities'] == 'advanced') { $adv_checked = "checked"; } 
+
+/*  Access control TODO
+global $wp_roles;
+if($settings['capabilities'] == 'roles') {
+  $role_checked =  "checked";
+  foreach($settings['roles'] as $role => $value)
+  {
+    if ($value == "on")
     {
-      if ($value == "on")
-      {
-        // make a variable as the role name and st it to a value
-        $var = $role."_checked";
-        $$var = "checked";
-      }
+      // make a variable as the role name and st it to a value
+      $var = $role."_checked";
+      $$var = "checked";
     }
   }
-  */
+}
+*/
   ?>
     <div class='wrap'>
       <h2>Widget Wrangler Settings</h2>
