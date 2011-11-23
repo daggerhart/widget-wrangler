@@ -21,6 +21,7 @@ class Widget_Wrangler {
    */
   function Widget_Wrangler()
   {
+    // Editing specific widget
     $this->post_id = ($_GET['post']) ? $_GET['post'] : $_POST['post_ID'];
     if($this->post_id){
       $widget = ww_get_widget_data($this->post_id);
@@ -42,6 +43,7 @@ class Widget_Wrangler {
         /*,'custom-fields'*/
       );
     }
+    
     // get ww settings
     $settings = ww_get_settings();
     // allow for custom capability type
@@ -95,9 +97,9 @@ class Widget_Wrangler {
     $columns = array(
       "cb" => "<input type=\"checkbox\" />",
       "title" => "Widget Title",
-      "ww_description" => "Description",
       "ww_type" => "Type",
-      "ww_adv_enabled" => "Adv Parse",
+      "ww_description" => "Description",
+      "ww_rewrite_output" => "Rewrite Output",
     );
    
     return $columns;
@@ -107,16 +109,20 @@ class Widget_Wrangler {
    */
   function custom_columns($column)
   {
+    global $post;
+    $widget = ww_get_widget_data($post->ID);
+    $data = unserialize($widget->data);
+    
     switch ($column)
     {
       case "ww_type":
-        echo $this->type;
+        print $widget->type;
         break;
       case "ww_description":
         the_excerpt();
         break;
-      case "ww_adv_enabled":
-        //echo $custom["ww-adv-enabled"][0];
+      case "ww_rewrite_output":
+        print $data['rewrite-output'];
         break;
     }
   }

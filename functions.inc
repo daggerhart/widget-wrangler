@@ -58,7 +58,8 @@ function ww_serialize_widgets($posted)
       $weight = $i;
     }
     // add widgets to save array
-    if ($sidebar && $name)
+    if (($sidebar && $name) &&
+        ($sidebar != 'disabled'))
     {
       $active_widgets[$sidebar][] = array(
             'id' => $widget->ID,

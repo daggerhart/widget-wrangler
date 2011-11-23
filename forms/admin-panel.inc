@@ -18,12 +18,15 @@
     {
       $active_array = unserialize($active);
       $default_message = "Defaults are Disabled. This page is wrangling widgets on its own.";
-    }  
-    elseif($default_widgets = get_option('ww_default_widgets'))
+    }
+    // pull default widgets 
+    else
     {
-      // pull default widgets 
-      $active_array = unserialize($default_widgets);
-      $default_message = "This page is using the <a href='/edit.php?post_type=widget&page=ww-defaults'>Defaults Widgets</a>.";
+      // include spaces functions
+      include_once WW_PLUGIN_DIR.'/includes/spaces.inc';
+      $default_space = ww_get_space(1);
+      $active_array = unserialize($default_space->widgets);
+      $default_message = "This page is using the <a href='edit.php?post_type=widget&page=ww-spaces&space_id=1'>Defaults Widgets</a>.";
     }
     
     $output['open'] = "
@@ -37,7 +40,7 @@
   
     $output['close'] = " <!-- .inner -->
                     <hr />
-                    <label><input type='checkbox' name='ww-reset-widgets-to-default' value='on' /> Reset this page to the default widgets.</label>
+                    <label><input type='checkbox' name='ww-reset-widgets-to-default' /> Reset this page to the default widgets.</label>
                  </div><!-- .outer -->
                </div>";
                

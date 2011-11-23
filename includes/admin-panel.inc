@@ -207,9 +207,10 @@ function ww_save_post($id)
 {
   // verify this came from the our screen and with proper authorization,
   // because save_post can be triggered at other times
-  if ( !wp_verify_nonce( $_POST['ww_noncename'], plugin_basename(__FILE__) )) {
+  if ( !wp_verify_nonce( $_POST['ww_noncename'], plugin_basename(WW_PLUGIN_DIR.'/forms/admin-panel.inc') )) {
     return $id;
   }
+  
   // verify if this is an auto save routine. If it is our form has not been submitted, so we dont want
   // to do anything
   if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
@@ -223,40 +224,9 @@ function ww_save_post($id)
   }
   
   // OK, we're authenticated: we need to find and save the data
-  $all_widgets = ww_get_all_widgets();
-  
-  $i = 1;
-  // loop through all widgets looking for those submitted
-  foreach($all_widgets as $key => $widget)
-  {
-    $name = $_POST["ww-".$widget->post_name];
-    $weight = $_POST["ww-".$widget->post_name."-weight"];
-    $sidebar = $_POST["ww-".$widget->post_name."-sidebar"];
-    
-    // if something was submitted without a weight, make it neutral
-    if ($weight < 1){
-      $weight = $i;
-    }
-    // add it to the active widgets list
-    if (($sidebar && $name) &&
-        ($sidebar != 'disabled'))
-    {
-      $active_widgets[$sidebar][] = array(
-            'id' => $widget->ID,
-            'name' => $widget->post_title,
-            'weight' => $weight,
-            );
-    }
-    $i++;
-  }
-  
-  // if none are defined, save an empty array 
-  if(count($active_widgets) == 0){
-    $active_widgets = array();    
-  }
-  
+  $this_post_widgets = ww_serialize_widgets($_POST);
+
   //save what we have
-  $this_post_widgets = serialize($active_widgets);
   ww_update_post_widgets( $id, $this_post_widgets);
   
   // get defaults without- disabled for comparison
@@ -271,4 +241,3 @@ function ww_save_post($id)
     ww_delete_post_widgets( $id); 
   }
 }
-add_action( 'save_post', 'ww_save_post' );

@@ -60,6 +60,7 @@ function ww_admin_init()
 
 }
 add_action( 'admin_init', 'ww_admin_init' );
+add_action( 'save_post', 'ww_save_post' );
 
 /*
  * All my hook_menu implementations
