@@ -1,4 +1,43 @@
 <?php
+
+/*
+ * Serialize widgets from a saved form
+ */
+function ww_serialize_widgets($posted)
+{
+  $active_widgets = array();
+  $all_widgets = ww_get_all_widgets();
+  
+  // loop through post data and build widgets array for saving
+  $i = 1;
+  foreach($all_widgets as $key => $widget)
+  {
+    $name = $posted['ww-widgets'][$widget->post_name]['name'];
+    $weight = $posted['ww-widgets'][$widget->post_name]['weight'];
+    $sidebar = $posted['ww-widgets'][$widget->post_name]['sidebar'];
+    
+    // if something was submitted without a weight, make it neutral
+    if ($weight < 1)
+    {
+      $weight = $i;
+    }
+    // add widgets to save array
+    if ($sidebar && $name)
+    {
+      $active_widgets[$sidebar][] = array(
+            'id' => $widget->ID,
+            'name' => $widget->post_title,
+            'weight' => $weight,
+            );
+    }
+    $i++;
+  }
+  // serialize the results
+  return serialize($active_widgets);
+}
+/*
+ * Save a post's widgets
+ */
 function ww_update_post_widgets($post_id, $post_widgets = ''){
   global $wpdb;
   $table = $wpdb->prefix."ww_post_widgets";
@@ -19,19 +58,27 @@ function ww_update_post_widgets($post_id, $post_widgets = ''){
     $wpdb->insert($table, $set);
   }
 }
+/*
+ * Delete a post's widgets
+ */
 function ww_delete_post_widgets($post_id){
   if(is_numeric($post_id))
   {
     global $wpdb;
-    $table_name = $wpdb->prefix."ww_post_widgets";
+    $table = $wpdb->prefix."ww_post_widgets";
     
-    $sql = "DELETE FROM ".$table_name." WHERE post_id = ".$post_id;
+    $sql = "DELETE FROM ".$table." WHERE post_id = ".$post_id;
     $wpdb->query($sql);
   }
 }
+/*
+ * Get a post's widgets
+ */
 function ww_get_post_widgets($post_id){
   global $wpdb;
-  $sql = "SELECT widgets FROM ".$wpdb->prefix."ww_post_widgets WHERE post_id = ".$post_id;
+  $table = $wpdb->prefix."ww_post_widgets";
+  
+  $sql = "SELECT widgets FROM ".$table." WHERE post_id = ".$post_id;
   if($results = $wpdb->get_row($sql)){
     //print_r($results);
     return $results->widgets;
@@ -39,6 +86,9 @@ function ww_get_post_widgets($post_id){
     return false;
   }
 }
+/*
+ * Get data for a single widget
+ */
 function ww_get_widget_data($post_id){
   global $wpdb;
   $sql = "SELECT type,data FROM ".$wpdb->prefix."ww_widget_data WHERE post_id = ".$post_id;
@@ -83,6 +133,7 @@ function ww_get_all_widgets()
 }
 /*
  * Retrieve and return a single widget by its ID
+ * 
  * @return widget object
  */
 function ww_get_single_widget($post_id){
@@ -110,11 +161,12 @@ function ww_get_single_widget($post_id){
 
 /*
  * Apply templating and parsing to a single widget
+ * 
  * @return themed widget for output or templating
  */
 function ww_theme_single_widget($widget)
 {
-  // widget type determins templating
+  // widget type determines templating
   switch($widget->widget_type)
   { 
     case 'clone':
@@ -174,6 +226,7 @@ function ww_template_widget($widget)
 }
 /*
  * Handle the advanced parsing for a widget
+ * 
  * @return advanced parsed widget
  */
 function ww_rewrite_output_widget($widget)
@@ -215,6 +268,7 @@ function ww_rewrite_output_widget($widget)
 }
 /*
  * Retrieve list of sidebars
+ * 
  * @return array of sidebars
  */
 function ww_get_all_sidebars()
@@ -227,53 +281,7 @@ function ww_get_all_sidebars()
   }
   return $sidebars_array;
 }
-/*
- * Output a sidebar
- */
-function ww_dynamic_sidebar($sidebar_slug = 'default')
-{
-  // get the post and sidebars
-  global $post;
-  $sidebars = ww_get_all_sidebars();
-  $output = '';
-  
-  // see if this is the Posts (blog) page
-  if(is_home() && (get_option('show_on_front') == 'posts') && $postspage_string = get_option('ww_postspage_widgets')){
-    $widgets_array = unserialize($postspage_string);
-  }
-  // look for post meta data
-  else if ($widgets_string = ww_get_post_widgets($post->ID)){
-    $widgets_array = unserialize($widgets_string);
-    //print_r($widgets_array);
-  }
-  // try defaults instead
-  else if ($defaults_string = get_option('ww_default_widgets')){
-    $widgets_array = unserialize($defaults_string);
-  }
-  // no widgets in post and no defaults
-  else{
-    return;
-  }
-  if (is_array($widgets_array[$sidebar_slug]))
-  {
-    $i = 0;
-    $total = count($widgets_array[$sidebar_slug]);
-    
-    // custom sorting with callback
-    usort($widgets_array[$sidebar_slug],'ww_cmp');
-    $sorted_widgets = array_reverse($widgets_array[$sidebar_slug]);
-    //print_r($sorted_widgets);
-    while($i < $total)
-    {
-      if($widget = ww_get_single_widget($widgets_array[$sidebar_slug][$i]['id'])){
-        $output.= ww_theme_single_widget($widget);
-      }
-      $i++;
-    }
-  }
-  
-  print $output;
-}
+
 /*
  * Get the Widget Wrangler Settings
  * @return settings array
@@ -305,55 +313,6 @@ function ww_settings_set_default()
   $settings["post_types"][] = "page";
   $settings["post_types"][] = "post";
   update_option("ww_settings", serialize($settings));
-}
-
-/**
- * Taken from wp-includes/widgets.php, adjusted for my needs
- * 
- * @param array $widget data including the widget's PHP class name (see default-widgets.php)
- * 
- * @return void
- **/
-function ww_the_widget($widget_data, $echo = false)
-{
-  $instance = $widget->widget_data['clone-instance'];
-  // load widget from widget factory ?
-  global $wp_widget_factory;
-  $widget_obj = $wp_widget_factory->widgets[$widget_data['clone-class']];
- 
-  if ( !is_a($widget_obj, 'WP_Widget') )
-   return;
- 
-  // args for spliting title from content
-  $args = array('before_widget'=>'','after_widget'=>'','before_title'=>'','after_title'=>'[explode]');
- 
-  // output to variable for replacements
-  ob_start();
-     $widget_obj->widget($args, $instance);
-  $temp = ob_get_clean();
-  
-  // get title and content separate
-  $array = explode("[explode]", $temp);
-  
-  // prep object for template
-  $obj                = new stdClass();
-  $obj->ID            = $instance['ID'];
-  $obj->post_name     = $instance['post_name'];
-  $obj->post_title    = ($array[0]) ? $array[0]: $instance['title'];
-  $obj->post_content  = $array[1];
-  
-  // hide title if desired
-  if($widget_data['hide_title']){
-    unset($obj->post_title);
-  }
-  
-  // template with WW template
-  if ($echo){
-    print ww_template_widget($obj);
-  }
-  else {
-    return ww_template_widget($obj);
-  }
 }
 
 /* ==================================== HELPER FUNCTIONS ===== */

@@ -28,6 +28,7 @@ function ww_admin_init()
             $_GET['page'] == 'ww-new'      ||
             $_GET['page'] == 'ww-clone'    ||
             $_GET['page'] == 'ww-sidebars' ||
+            $_GET['page'] == 'ww-spaces'   ||
             $_GET['page'] == 'ww-postspage'
           )
         )
@@ -104,122 +105,13 @@ function ww_admin_sidebar_panel($pid)
     }
     
     // theme it out
-    ww_theme_admin_panel($output);
+    ww_theme_sortable_widgets($output);
   }
   else{
     print "You must save this page before adjusting widgets.";
   }
 }
-/*
- * Put all widgets into a list for output
- */
-function ww_create_widget_list($widgets, $ref_array, $sidebars)
-{
-  $i = 0;
-  foreach($widgets as $widget)
-  {
-    $temp = array();
-    $keys = ww_array_searchRecursive($widget->ID, $ref_array);
-    // fix widgets with no title
-    if ($widget->post_title == ""){
-      $widget->post_title = "(no title) - Widget ID: ".$widget->ID;
-    }
-    
-    // look for appropriate sidebar, default to disabled
-    if ($keys[0] == '' || (!array_key_exists($keys[0], $sidebars))){
-      $keys[0] = "disabled";
-    }
-    
-    // setup initial info
-    $sidebar_slug = $keys[0];
-   
-    // get weight
-    $weight = $ref_array[$sidebar_slug][$keys[1]]['weight'];
-    
-    // build select box
-    $sidebars_options = "<option value='disabled'>Disabled</option>";
-    foreach($sidebars as $slug => $sidebar){
-      ($slug == $sidebar_slug) ? $selected = "selected='selected'" : $selected = '';
-      $sidebars_options.= "<option name='".$slug."' value='".$slug."' ".$selected.">".$sidebar."</option>";   
-    }
-    
-    // add item to our temp array
-    $temp[$weight] = "<li class='ww-item ".$sidebar_slug." nojs' width='100%'>
-                        <input class='ww-widget-weight' name='ww-".$widget->post_name."-weight' type='text' size='2' value='$weight' />
-                        <select name='ww-".$widget->post_name."-sidebar'>
-                        ".$sidebars_options."
-                        </select>
-                        <input class='ww-widget-name' name='ww-".$widget->post_name."' type='hidden' value='".$widget->post_name."' />
-                        <input class='ww-widget-id' name='ww-id-".$widget->ID."' type='hidden' value='".$widget->ID."' />
-                        ".$widget->post_title."
-                      </li>";
-                      
-    // place into output array
-    if ($sidebar_slug == 'disabled'){
-      $output['disabled'][] = $temp[$weight];
-    }
-    else{
-      $output['active'][$sidebar_slug][$weight] = $temp[$weight];
-    }
-    
-    $i++;
-  }
-  return $output;
-}
-/*
- * Theme the output for editing widgets on a page
- */
-function ww_theme_admin_panel($panel_array)
-{
-  $sidebars = ww_get_all_sidebars();
-  $output = $panel_array['open'];
-  
-  // loop through sidebars and add active widgets to list
-  if (is_array($sidebars))
-  {
-    foreach($sidebars as $slug => $sidebar)
-    {
-      // open the list
-      $output.= "<h4>".$sidebar."</h4>";
-      $output.= "<ul name='".$slug."' id='ww-sidebar-".$slug."-items' class='inner ww-sortable' width='100%'>";
-      
-      if (is_array($panel_array['active'][$slug])) {
-        // loop through sidebar array and add items to list
-        foreach($panel_array['active'][$slug] as $item){
-          $output.= $item;
-        }
-        $style = "style='display: none;'";
-      }
-      else {
-        $style = '';
-      }
-      // close the list
-      $output.= "<li class='ww-no-widgets' ".$style.">No Widgets in this sidebar.</li>";
-      $output.= "</ul>";
-    }
-  }
-  
-  // disabled list
-  $output.= "<h4>Disabled</h4><ul name='disabled' id='ww-disabled-items' class='inner ww-sortable' width='100%'>";
-  
-  // loop through and add disabled widgets to list
-  if (is_array($panel_array['disabled'])){
-    foreach ($panel_array['disabled'] as $disabled){
-      $output.= $disabled;
-    }
-    $style = "style='display: none;'";
-  }
-  else{
-    $style = '';
-  }
-  // close disabled list
-  $output.= "<li class='ww-no-widgets' ".$style.">No disabled Widgets</li>";
-  $output.= "</ul>";
-  
-  $output.= $panel_array['close'];
-  
-  print $output;
-}
+
 /*
  * Hook into saving a page
  * Save the post meta for this post

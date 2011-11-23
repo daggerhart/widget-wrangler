@@ -25,6 +25,7 @@ define('WW_PLUGIN_URL', get_bloginfo('wpurl')."/wp-content/plugins/widget-wrangl
 
 // functions
 include WW_PLUGIN_DIR.'/functions.inc';
+include WW_PLUGIN_DIR.'/theme.inc';
 
 // add the widget post type class
 include WW_PLUGIN_DIR.'/post_type.widget.inc';
@@ -35,54 +36,15 @@ include WW_PLUGIN_DIR.'/form-admin.inc';
 // include WP standard widgets for sidebars
 include WW_PLUGIN_DIR.'/widget.sidebar.inc';
 
-/*
- * Create post - widgets table
- */
-function ww_post_widgets_table(){
-  global $wpdb;
-  $table = $wpdb->prefix."ww_post_widgets";
-  
-  $sql = "CREATE TABLE " . $table . " (
-	  post_id mediumint(11) NOT NULL,
-	  widgets text NOT NULL,
-	  UNIQUE KEY id (post_id)
-  );";
-
-  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-  dbDelta($sql);
-}
-register_activation_hook(__FILE__,'ww_post_widgets_table');
-/*
- * Create widget data table
- */
-function ww_widget_data_table(){
-  global $wpdb;
-  $table = $wpdb->prefix."ww_widget_data";
-  
-  $sql = "CREATE TABLE " . $table . " (
-	  post_id mediumint(11) NOT NULL,
-	  type varchar(32) NOT NULL,
-   data text NOT NULL,
-   UNIQUE KEY id (post_id)
-  );";
-  
-  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');  
-  dbDelta($sql);
-}
-register_activation_hook(__FILE__,'ww_widget_data_table');
-
-
+register_activation_hook(WW_PLUGIN_DIR.'/includes/install.inc', 'ww_activation');
+    
 /*
  * All my hook_menu implementations
  */
 function ww_menu()
 {
+  $spaces   = add_submenu_page( 'edit.php?post_type=widget', 'Widget Spaces', 'Widget Spaces',     'manage_options', 'ww-spaces', 'ww_spaces_page_handler');
   $clone    = add_submenu_page( 'edit.php?post_type=widget', 'Clone WP Widget', 'Clone WP Widget',  'manage_options', 'ww-clone',    'ww_clone_page_handler');
-  $defaults = add_submenu_page( 'edit.php?post_type=widget', 'Default Widgets', 'Default WIdgets',     'manage_options', 'ww-defaults', 'ww_defaults_page_handler');
-  // only show postspage widget setting if post page is the front page
-  if(get_option('show_on_front') == 'posts'){
-    $postspage= add_submenu_page( 'edit.php?post_type=widget', 'Posts Page',      'Posts Page Widgets',       'manage_options', 'ww-postspage','ww_postspage_page_handler');
-  }
   $sidebars = add_submenu_page( 'edit.php?post_type=widget', 'Widget Sidebars', 'Sidebars',         'manage_options', 'ww-sidebars', 'ww_sidebars_page_handler');
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',        'Settings',         'manage_options', 'ww-settings', 'ww_settings_page_handler');
   //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets', 'Debug', 'manage_options', 'ww-debug', 'ww_debug_page');
@@ -90,6 +52,47 @@ function ww_menu()
 }
 add_action( 'admin_menu', 'ww_menu');
 
+
+/* * * * * * * *
+ * Page handling
+ */
+/*
+ * Produce the Widget Spaces
+ */
+function ww_spaces_page_handler()
+{
+  include WW_PLUGIN_DIR.'/includes/spaces.inc';
+  if($_GET['action']) {
+    switch ($_GET['action'])
+    {
+      // create new widget space
+      case 'create':
+        $space_id = ww_create_space();
+        break;
+      
+      // update an existing widget space
+      case 'update':
+        
+        // switch Save & Delete buttons
+        // do not let them delete defaults or post pages
+        if(isset($_POST['action-delete']) &&
+           $_POST['space-type'] != 'default')
+        {
+          ww_delete_space();
+          $space_id = 0;
+        }
+        else if (isset($_POST['action-save'])){
+          $space_id = ww_update_space();
+        }
+        break;
+    }
+    // send to the new space
+    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-spaces&space_id='.$space_id);
+    
+  } else {
+    ww_spaces_edit_page();
+  }
+}
 /*
  * for whatever.
  */
@@ -103,32 +106,14 @@ function ww_debug_page(){
   }
   // */
 }
-/* * * * * * * *
- * Page handling
- */
-function ww_postspage_page_handler()
-{
-  include WW_PLUGIN_DIR.'/form-postspage.inc';
-  // save Posts page widgets if posted
-  if ($_GET['ww-postspage-action']){
-    switch($_GET['ww-postspage-action']){
-      case 'update':
-        $defaults_array = ww_postspage_save_widgets($_POST);
-        break;
-    }
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-postspage');
-  }
-  else{
-    ww_postspage_form();
-  }
-}
 /*
  * Sidebar page handler
  */
 function ww_sidebars_page_handler()
 {
   // include the sidebars form
-  include WW_PLUGIN_DIR.'/form-sidebars.inc';
+  include WW_PLUGIN_DIR.'/includes/sidebars.inc';
+  
   if($_GET['ww-sidebar-action']){
     switch($_GET['ww-sidebar-action']){
       case 'insert':
@@ -147,14 +132,16 @@ function ww_sidebars_page_handler()
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-sidebars');
   }
   // show sidebars page
-  ww_sidebars_form();
+  $sidebars = unserialize(get_option('ww_sidebars'));
+  include WW_PLUGIN_DIR.'/forms/sidebars.inc';
 }
 /*
  * Handles creation of new cloned widgets, and displays clone new widget page
  */
 function ww_clone_page_handler()
 {
-  include WW_PLUGIN_DIR.'/form-clone.inc';
+  include WW_PLUGIN_DIR.'/includes/clone.inc';
+  
   if($_GET['ww-clone-action']){
     switch($_GET['ww-clone-action']){
       case 'insert':
@@ -167,7 +154,7 @@ function ww_clone_page_handler()
   }
   else{
     // show clone page
-    ww_clone_form();
+    include WW_PLUGIN_DIR.'/forms/clone.inc';
   }
 }
 /*
@@ -175,7 +162,9 @@ function ww_clone_page_handler()
  */
 function ww_settings_page_handler()
 {
-  include WW_PLUGIN_DIR.'/form-settings.inc';
+  // settings functions
+  include WW_PLUGIN_DIR.'/includes/settings.inc';
+  
   if ($_GET['ww-settings-action']){
     switch($_GET['ww-settings-action']){
       case "save":
@@ -188,27 +177,9 @@ function ww_settings_page_handler()
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-settings');  
   }
   else{
-    ww_settings_form();    
-  }
-}
-/*
- * Produce the Default Widgets Page
- */
-function ww_defaults_page_handler()
-{
-  include WW_PLUGIN_DIR."/form-defaults.inc";
-  // save defaults if posted
-  if ($_GET['ww-defaults-action']){
-    switch($_GET['ww-defaults-action']){
-      case 'update':
-        $defaults_array = ww_save_default_widgets($_POST);
-        break;
-    }
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-defaults');
-  }
-  else{
-    include WW_PLUGIN_DIR."/form-sidebars.inc";
-    ww_theme_defaults_page();
+    $settings = ww_get_settings();
+    // settings form
+    include WW_PLUGIN_DIR.'/forms/settings.inc';
   }
 }
 /* end page handling */
@@ -262,7 +233,7 @@ function ww_adjust_css(){
  * Add css to admin interface
  */
 function ww_admin_css(){
-	print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/css/widget-wrangler.css" />';
+	print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/widget-wrangler.css" />';
 }
 add_action( 'admin_head', 'ww_admin_css');
 /*
