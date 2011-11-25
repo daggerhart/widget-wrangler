@@ -27,6 +27,8 @@ define('WW_PLUGIN_URL', get_bloginfo('wpurl')."/wp-content/plugins/widget-wrangl
 include_once WW_PLUGIN_DIR.'/functions.inc';
 // theme functions
 include_once WW_PLUGIN_DIR.'/theme.inc';
+// settings functions
+include_once WW_PLUGIN_DIR.'/includes/settings.inc';
 
 // add the widget post type class
 include_once WW_PLUGIN_DIR.'/post_type.widget.inc';
@@ -173,10 +175,7 @@ function ww_clone_page_handler()
  * Handles settings page
  */
 function ww_settings_page_handler()
-{
-  // settings functions
-  include_once WW_PLUGIN_DIR.'/includes/settings.inc';
-  
+{ 
   if ($_GET['ww-settings-action']){
     switch($_GET['ww-settings-action']){
       case "save":
@@ -210,6 +209,9 @@ function ww_debug_page(){
 
 /*
  * Shortcode support for all widgets
+ *
+ * @param array $atts Attributes within the executed shortcode.  'id' => widget->ID
+ * @return string HTML for a single themed widget
  */
 function ww_single_widget_shortcode($atts) {
   $short_array = shortcode_atts(array('id' => ''), $atts);

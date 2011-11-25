@@ -206,6 +206,14 @@ li.ww-sidebar-sort-item {
 .ww-options-hidden {
   display: none;
 }
+.ww-clear-gone {
+  display: block;
+  float: none;
+  clear: both;
+  height: 0px;
+  line-height: 0px;
+  font-size: 0px;
+}
 
 /*
  * Spaces

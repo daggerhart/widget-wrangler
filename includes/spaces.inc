@@ -1,6 +1,8 @@
 <?php
 /*
  * Get all Widget Spaces
+ *
+ * @return array All widget spaces found in the DB
  */
 function ww_get_all_spaces(){
   global $wpdb;
@@ -9,12 +11,15 @@ function ww_get_all_spaces(){
   $sql = "SELECT id,type,data,widgets FROM ".$table." ORDER BY id ASC";
   $results = $wpdb->get_results($sql);
   
-  $spaces = array();
+  //$spaces = array();
   
   return $results;
 }
 /*
  * Get a single Widget Space
+ *
+ * @param int $space_id The id for the Widget Space
+ * @return array The Widget Space details
  */
 function ww_get_space($space_id){
   global $wpdb;
@@ -26,6 +31,8 @@ function ww_get_space($space_id){
 }
 /*
  * All Widget Space types
+ *
+ * @return array All widget space types
  */
 function ww_space_types(){
   return array(
@@ -47,6 +54,8 @@ function ww_delete_space(){
 }
 /*
  * Update a Widget Space
+ *
+ * @return int Widget Space id
  */
 function ww_update_space(){
   global $wpdb;
@@ -98,6 +107,8 @@ function ww_update_space(){
 }
 /*
  * Create a new Widget Space
+ *
+ * @return int New Widget Space id
  */
 function ww_create_space()
 {

@@ -1,11 +1,28 @@
-<?php 
+<?php
+/*
+ * Get the Widget Wrangler Settings
+ * 
+ * @return settings array
+ */
+function ww_get_settings()
+{
+  if ($settings = get_option("ww_settings")){
+    $settings = unserialize($settings);
+  }
+  else{
+    ww_settings_set_default();
+    $settings = ww_get_settings();
+  }
+  
+  return $settings;
+}
 /*
  * Reset all pages to use the default widget settings
  */
 function ww_settings_reset_widgets()
 {
   global $wpdb;
-  $query = "DELETE FROM `".$wpdb->prefix."postmeta` WHERE `meta_key` = 'ww_post_widgets'";
+  $query = "TRUNCATE TABLE `".$wpdb->prefix."ww_post_widgets`";
   $wpdb->query($query);
 }
 /*
@@ -13,19 +30,18 @@ function ww_settings_reset_widgets()
  */
 function ww_settings_save($post)
 {
-  // make into array
-  $post_types = explode(",", $post['settings']['post_types']);
-  // remove white space
-  for($i=0;$i<count($post_types);$i++){
-    $post_types[$i] = trim($post_types[$i]);
-    // don't allow widgets on widget pages
-    if($post_types[$i] == "widget"){
-      unset($post_types[$i]);
-    }
-  }
-  $post['settings']['post_types'] = $post_types;
   $settings = serialize($post['settings']);
   
   // save to wordpress options
   update_option("ww_settings", $settings);
+}
+/*
+ * Default settings
+ */
+function ww_settings_set_default()
+{
+  $settings["capabilities"] = "simple";
+  $settings["post_types"]['page'] = "page";
+  $settings["post_types"]['post'] = "post";
+  update_option("ww_settings", serialize($settings));
 }

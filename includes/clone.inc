@@ -17,7 +17,7 @@ function ww_clone_insert($posted)
   $new_widget['post_category'] = array(0);
   $new_widget['comment_status'] = 'closed';
   $new_widget['ping_status'] = 'closed';
-  $new_widget['post_status'] = 'draft';
+  $new_widget['post_status'] = 'publish';
   $new_widget['post_type'] = 'widget';
   // Herb contributed fix for problem cloning
   $new_widget['post_content'] = '';

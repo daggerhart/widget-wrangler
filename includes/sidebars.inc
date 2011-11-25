@@ -1,6 +1,8 @@
 <?php
 /*
  * Handle sorting of sidebars
+ *
+ * @param array $posted $_POST data from submission
  */
 function ww_sidebar_sort($posted = array())
 {
@@ -24,6 +26,8 @@ function ww_sidebar_sort($posted = array())
 }
 /*
  * Add a new sidebar
+ * 
+ * @param array $posted $_POST data from submission
  */
 function ww_sidebar_insert($posted = array())
 {
@@ -45,6 +49,8 @@ function ww_sidebar_insert($posted = array())
 }
 /*
  * Delete a sidebar
+ * 
+ * @param array $posted $_POST data from submission
  */
 function ww_sidebar_delete($posted = array())
 {
@@ -64,6 +70,8 @@ function ww_sidebar_delete($posted = array())
 }
 /*
  * Update/Edit a sidebar
+ * 
+ * @param array $posted $_POST data from submission
  */
 function ww_sidebar_update($posted = array())
 {

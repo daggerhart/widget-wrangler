@@ -1,5 +1,10 @@
 <?php
 // http://codex.wordpress.org/Conditional_Tags
+/*
+ * Determine what type of age we're on using WP conditional tags
+ *
+ * @return string Based on conditional tags
+ */
 function ww_get_page_op()
 {
   $op = '';
@@ -38,6 +43,9 @@ function ww_get_page_op()
 }
 /*
  * Serialize widgets from a saved form
+ *
+ * @param array $posted $_POST array for a saved widget
+ * @return string serialized array of the widgets within the $_POST array
  */
 function ww_serialize_widgets($posted)
 {
@@ -74,6 +82,9 @@ function ww_serialize_widgets($posted)
 }
 /*
  * Save a post's widgets
+ *
+ * @param int $post_id The WP post ID for the page or post to assign widgets
+ * @param string $widgets Serialized array of widgets on this post
  */
 function ww_update_post_widgets($post_id, $post_widgets = ''){
   global $wpdb;
@@ -97,6 +108,8 @@ function ww_update_post_widgets($post_id, $post_widgets = ''){
 }
 /*
  * Delete a post's widgets
+ *
+ * @param int $post_id The WP post ID for the page or post to delete widgets from
  */
 function ww_delete_post_widgets($post_id){
   if(is_numeric($post_id))
@@ -110,6 +123,8 @@ function ww_delete_post_widgets($post_id){
 }
 /*
  * Get a post's widgets
+ *
+ * @param int $post_id The WP post ID for the page or post to get
  */
 function ww_get_post_widgets($post_id){
   global $wpdb;
@@ -125,6 +140,8 @@ function ww_get_post_widgets($post_id){
 }
 /*
  * Get data for a single widget
+ *
+ * @param int $post_id The WP post ID for the WW widget
  */
 function ww_get_widget_data($post_id){
   global $wpdb;
@@ -133,16 +150,18 @@ function ww_get_widget_data($post_id){
 }
 /*
  * Widget types
+ *
+ * @return array All widget types
  */
 function ww_all_widget_types(){
   return array(
     'standard' => 'Standard',
     'clone' => 'Clone',
-    'query' => 'Query',
   );
 }
 /*
  * Returns all published widgets
+ * 
  * @return array of all widget objects
  */
 function ww_get_all_widgets()
@@ -170,7 +189,8 @@ function ww_get_all_widgets()
 }
 /*
  * Retrieve and return a single widget by its ID
- * 
+ *
+ * @param int $post_id The WP post ID for the WW widget
  * @return widget object
  */
 function ww_get_single_widget($post_id){
@@ -211,39 +231,6 @@ function ww_get_all_sidebars()
     $sidebars_array = array('No Sidebars Defined');
   }
   return $sidebars_array;
-}
-
-/*
- * Get the Widget Wrangler Settings
- * @return settings array
- */
-function ww_get_settings()
-{
-  if ($settings = get_option("ww_settings")){
-    $settings = unserialize($settings);
-  }
-  else{
-    ww_settings_set_default();
-    $settings = ww_get_settings();
-  }
-  
-  // update 1.3 & 1.3.1 fix force a post_types setting
-  if($settings['post_types'][0] == "" || empty($settings['post_types'])){
-    $settings['post_types'] = array('page');
-    update_option("ww_settings", serialize($settings));
-  }
-  
-  return $settings;
-}
-/*
- * Default settings
- */
-function ww_settings_set_default()
-{
-  $settings["capabilities"] = "simple";
-  $settings["post_types"][] = "page";
-  $settings["post_types"][] = "post";
-  update_option("ww_settings", serialize($settings));
 }
 
 /* ==================================== HELPER FUNCTIONS ===== */

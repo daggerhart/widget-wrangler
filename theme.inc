@@ -1,7 +1,8 @@
 <?php
-
 /*
  * Output a sidebar
+ *
+ * @param string $sidebar_slug The slug for the sidebar to be displayed
  */
 function ww_dynamic_sidebar($sidebar_slug = 'default')
 {
@@ -111,58 +112,10 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
   }
 }
 
-/**
- * Taken from wp-includes/widgets.php, adjusted for my needs
- * 
- * @param array $widget data including the widget's PHP class name (see default-widgets.php)
- * 
- * @return void
- **/
-function ww_the_widget($widget_data, $echo = false)
-{
-  $instance = $widget->widget_data['clone-instance'];
-  // load widget from widget factory ?
-  global $wp_widget_factory;
-  $widget_obj = $wp_widget_factory->widgets[$widget_data['clone-class']];
- 
-  if ( !is_a($widget_obj, 'WP_Widget') )
-   return;
- 
-  // args for spliting title from content
-  $args = array('before_widget'=>'','after_widget'=>'','before_title'=>'','after_title'=>'[explode]');
- 
-  // output to variable for replacements
-  ob_start();
-     $widget_obj->widget($args, $instance);
-  $temp = ob_get_clean();
-  
-  // get title and content separate
-  $array = explode("[explode]", $temp);
-  
-  // prep object for template
-  $obj                = new stdClass();
-  $obj->ID            = $instance['ID'];
-  $obj->post_name     = $instance['post_name'];
-  $obj->post_title    = ($array[0]) ? $array[0]: $instance['title'];
-  $obj->post_content  = $array[1];
-  
-  // hide title if desired
-  if($widget_data['hide_title']){
-    unset($obj->post_title);
-  }
-  
-  // template with WW template
-  if ($echo){
-    print ww_template_widget($obj);
-  }
-  else {
-    return ww_template_widget($obj);
-  }
-}
-
 /*
  * Apply templating and parsing to a single widget
- * 
+ *
+ * @param object $widget The widget to be themed
  * @return themed widget for output or templating
  */
 function ww_theme_single_widget($widget)
@@ -181,12 +134,12 @@ function ww_theme_single_widget($widget)
     case 'standard':
     default:
       // maybe they don't want auto p ?
-      if ($widget->widget_data['wpautop'] == "on"){
-        $widget->post_content = wpautop($widget->post_content);
+      if ($widget->widget_data['filter-content'] == "on"){
+        $widget->post_content = apply_filters('the_content', $widget->post_content);
       }
       
       // apply shortcode
-      $widget->post_content = do_shortcode($widget->post_content);  
+      // $widget->post_content = do_shortcode($widget->post_content);  
       
       // see if this should use advanced parsing
       if($widget->widget_data['rewrite-output']){
@@ -227,7 +180,8 @@ function ww_template_widget($widget)
 }
 /*
  * Handle the advanced parsing for a widget
- * 
+ *
+ * @param object $widget The widget to be rewritten
  * @return advanced parsed widget
  */
 function ww_rewrite_output_widget($widget)
@@ -235,7 +189,12 @@ function ww_rewrite_output_widget($widget)
   // make $post and $page available
   global $post;
   $page = $post;
-  
+
+  // find and replace title and content tokens
+  $pattern = array('/{{title}}/','/{{content}}/');
+  $replace = array($widget->post_title, $widget->post_content);  
+  $widget->widget_data['custom-output'] = preg_replace($pattern,$replace,$widget->widget_data['custom-output']);
+   
   // handle advanced templating
   if($widget->widget_data['adv-template'])
   {  
@@ -246,24 +205,63 @@ function ww_rewrite_output_widget($widget)
       $output = ww_template_widget($widget);
     }
     else {
-      $output = "<!-- Error:  This widget did not return an array. -->";
+      $output = "<!-- Error:  This widget's rewrite-output did not return an array. -->";
     }
   }
+  // execute adv parsing area
   else
-  {
-    $pattern = array('/{{title}}/','/{{content}}/');
-    $replace = array($widget->post_title, $widget->post_content);
-    
-    // find and replace title and content tokens
-    $parsed = preg_replace($pattern,$replace,$widget->widget_data['custom-output']);
-    
-    // execute adv parsing area
+  {  
     ob_start();
-      eval('?>'.$parsed);
+      eval('?>'.$widget->widget_data['custom-output']);
       $output = ob_get_clean();
       // fix for recent post widget not resetting the query
       $post = $page;
   }
   
   return $output;
+}
+/**
+ * Taken from wp-includes/widgets.php, adjusted for my needs
+ * 
+ * @param array $widget data including the widget's PHP class name (see default-widgets.php)
+ * @return void
+ **/
+function ww_the_widget($widget_data)
+{
+  // defined instance in widget
+  $instance = $widget_data['clone-instance'];
+  
+  // load widget from widget factory 
+  global $wp_widget_factory;
+  $widget_obj = $wp_widget_factory->widgets[$widget_data['clone-class']];
+ 
+  if ( !is_a($widget_obj, 'WP_Widget') ){
+   return;
+  }
+ 
+  // args for spliting title from content
+  $args = array('before_widget'=>'','after_widget'=>'','before_title'=>'','after_title'=>'[explode]');
+ 
+  // output to variable for replacements
+  ob_start();
+     $widget_obj->widget($args, $instance);
+  $temp = ob_get_clean();
+  
+  // get title and content separate
+  $array = explode("[explode]", $temp);
+  
+  // prep object for template
+  $obj                = new stdClass();
+  $obj->ID            = $instance['ID'];
+  $obj->post_name     = $instance['post_name'];
+  $obj->post_title    = ($array[0]) ? $array[0]: $instance['title'];
+  $obj->post_content  = $array[1];
+  
+  // hide title if desired
+  if($widget_data['hide_title']){
+    unset($obj->post_title);
+  }
+  
+  // template with WW template
+  return ww_template_widget($obj);  
 }

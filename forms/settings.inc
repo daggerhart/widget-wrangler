@@ -13,6 +13,17 @@ $settings = ww_get_settings();
 if($settings['capabilities'] == 'simple') { $simple_checked =  "checked"; }
 if($settings['capabilities'] == 'advanced') { $adv_checked = "checked"; } 
 
+// Get all extra post types
+$args = array('public'   => true, '_builtin' => false); 
+$output = 'names'; // names or objects, note names is the default
+$operator = 'and'; // 'and' or 'or'
+$post_types = get_post_types($args,$output,$operator);
+// Add standard types
+$post_types['post'] = 'post';
+$post_types['page'] = 'page';
+unset($post_types['widget']);
+ksort($post_types);
+
 /*  Access control TODO
 global $wp_roles;
 if($settings['capabilities'] == 'roles') {
@@ -56,10 +67,20 @@ if($settings['capabilities'] == 'roles') {
         <h3 class="ww-settings-title">Post Types</h3>
         <div class="ww-settings-field">
           <p>
-            Type the names of all post types you would like to enable Widget Wrangler on.  Separate each post type with a comma. By default Widget Wrangler is enabled for Pages and Posts (eg. page,post).<br />
-            You may not allow Widget Wrangler on widget posts.<br/>
-            <textarea name="settings[post_types]" cols="60" rows="3"><?php if($settings['post_types']) { print implode(',', $settings['post_types']); } ?></textarea>
+            Select each post type you would like to use Widget Wrangler on.
           </p>
+            <div class="space-checkboxes">
+              <?php
+                // loop through post types
+                foreach ($post_types as $post_type )
+                {
+                  $post_type_checked = (isset($settings['post_types'][$post_type])) ? 'checked="checked"' : '';
+                  ?>
+                  <label class="ww-space-checkbox"><input type="checkbox" name="settings[post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /><?php print ucfirst($post_type); ?> </label>
+                  <?php
+                }
+              ?>
+            </div>
         </div>
         <input class="button" type="submit" value="Save Settings" />
       </form>

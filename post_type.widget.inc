@@ -23,6 +23,7 @@ class Widget_Wrangler {
   {
     // Editing specific widget
     $this->post_id = ($_GET['post']) ? $_GET['post'] : $_POST['post_ID'];
+    // this widget has been saved before
     if($this->post_id){
       $widget = ww_get_widget_data($this->post_id);
       $this->type = $widget->type;
@@ -35,7 +36,9 @@ class Widget_Wrangler {
         $supports[] = 'editor';
       }
     }
-    else {
+    // this is a new widget
+    else
+    {
       $supports = array(
         'title',
         'excerpt',
@@ -136,7 +139,12 @@ class Widget_Wrangler {
     {
       global $wpdb;
       $type = $_POST['ww-type'];
-
+      
+      // problems with php and html adding slashes
+      if(isset($_POST['ww-data']['standard']['custom-output'])){
+        $_POST['ww-data']['standard']['custom-output'] = trim(stripcslashes($_POST['ww-data']['standard']['custom-output']));
+      }
+      
       // clones
       if($type == 'clone' && $_POST['ww-data']['clone']['clone-class']){
         global $wp_widget_factory;
@@ -155,8 +163,7 @@ class Widget_Wrangler {
         
         $_POST['ww-data']['clone']['clone-instance'] = serialize($instance);
       }
-      //print_r($_POST);
-      //exit();
+      
       $data = serialize($_POST['ww-data'][$type]);
 
       // see if this post has data
@@ -179,7 +186,7 @@ class Widget_Wrangler {
   function admin_init() 
   {
     // add js
-    wp_enqueue_script('ww-admin-js',
+    wp_enqueue_script('ww-widget-js',
                     plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
                     array(),
                     false,
@@ -189,59 +196,67 @@ class Widget_Wrangler {
     $post_id = ($_GET['post']) ? $_GET['post'] : $_POST['post_ID'];
     $widget = ww_get_widget_data($post_id);
     
-    switch($widget->type)
+    if(isset($widget->type) && $widget->type == "clone")
     {
-      case 'standard':
-        // Adv Parse
-        add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
-        break;
-      
-      case 'clone':
-        // Clone Class
-        add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
-        // Clone Instance
-        add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
-        break;
-      
+      // Clone Class
+      add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
+      // Clone Instance
+      add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
     }
+    else if (!isset($widget->type) || $widget->type == 'standard')
+    {
+      // Rewrite output box
+      add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
+    }
+
     // Widget type not selected
-    add_meta_box("ww-type", "Widget Type", array(&$this, "meta_widget_type"), "widget", "side", "high");
+    add_meta_box("ww-type", "Widget Details", array(&$this, "meta_widget_details"), "widget", "side", "high");
 
     // Widget Preview
     add_meta_box("ww-widget-preview", "Widget Preview", array(&$this, "meta_widget_preview"), "widget", "side", "default");
   }
   // Widget Type
-  function meta_widget_type()
+  function meta_widget_details()
   {
     $widget_types = ww_all_widget_types();
-    if($this->post_id)
-    {
-      // hidden value if set
-      if($this->type){
-       
-        ?>
-          <h4><?php print $widget_types[$this->type]; ?></h4>
-          <input type="hidden" name="ww-type" value="<?php print $this->type; ?>" />
-        <?php
-      }
-      // select box if not set
-      else {
-        $this->type = 'standard';
-        ?>
-          <select name="ww-type">
-            <?php
-              foreach($widget_types as $type => $name)
-              {
-                $type_selected = ($type == $this->type) ? 'selected="selected"':'';
-                ?>
-                <option value="<?php print $type; ?>" <?php print $type_selected; ?>><?php print $name; ?></option>
-                <?php
-              }
-            ?>
-          </select>
-        <?php
-      }
-    }
+    
+    // use standard as a sdefault for new widgets
+    if(!isset($this->type)){
+      $this->type = 'standard';
+    } 
+    // output field
+    ?>
+    <div>
+      <?php
+        if($this->post_id)
+        { ?>
+          <div class="ww-widget-postid">
+            Post ID<br/>
+            <span><?php print $this->post_id;?></span>
+          </div>
+          <?php
+        }
+      ?>
+      <div>
+        <h4>Widget Type:</h4>
+        <?php print $widget_types[$this->type]; ?>
+      </div>
+      <?php
+        // widget shortcode
+        if($this->post_id)
+        { ?>
+          <div>
+            <h4>Widget Shortcode:</h4>
+            [ww_widget  id=<?php print $this->post_id; ?>]
+          </div>
+          <?php
+        }
+      ?>
+      <input type="hidden" name="ww-type" value="<?php print $this->type; ?>" />
+      
+      <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
+    </div>
+    <?php
   }
   
   // Clone Widget
@@ -317,10 +332,7 @@ class Widget_Wrangler {
         print "Query Widgets cannot be previewed";
       }
       else {
-        //print '<pre>';
-        //print_r($this);
         $widget = ww_get_single_widget($this->post_id);
-        //print '</pre>';
         ?>
           <div id="ww-preview">
             <p><em>This preview does not include your theme's CSS stylesheet.</em></p>
@@ -339,16 +351,14 @@ class Widget_Wrangler {
     // default to checked upon creation
     $rewrite_output_checked = (isset($data['rewrite-output'])) ? 'checked="checked"' : '';
     $adv_template_checked = (isset($data['adv-template'])) ? 'checked="checked"' : '';
-    $wpautop_checked = (isset($data['wpautop']) || (($_GET['action'] == null) && ($_GET['post_type'] == 'widget'))) ? 'checked="checked"' : '';
-    
-    ?><div id="ww-template">
-        <div class="ww-widget-postid">Post ID<br/><span><?php print $this->post_id;?></span></div>
+    $filter_content_checked = (isset($data['filter-content']) || (($_GET['action'] == null) && ($_GET['post_type'] == 'widget'))) ? 'checked="checked"' : '';
+    ?>
+      <div id="ww-template">
         <div>
-          <label><input type="checkbox" name="ww-data[standard][wpautop]" <?php print $wpautop_checked; ?> /> Automatically add Paragraphs to this Widget's Content</label>
+          <label><input type="checkbox" name="ww-data[standard][filter-content]" <?php print $filter_content_checked; ?> /> Apply Content filters to this Widget's Content.</label>
         </div>
         <div>
-          <h4>Rewrite output</h4>
-          
+          <h4>Rewrite Output</h4>
           <div class="ww-options-group">
             <div class="ww-options-group-title">
               <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> Rewrite the output of this widget</label>
@@ -374,8 +384,7 @@ class Widget_Wrangler {
                 </ul>
               </div>
             </div>
-          </div>
-          
+          </div> <!-- ww-options-group -->
         </div>
       </div>
     <?php
