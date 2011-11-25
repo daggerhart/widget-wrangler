@@ -203,6 +203,9 @@ li.ww-sidebar-sort-item {
 .ww-clone-form {
   margin-top: 32px;
 }
+.ww-options-hidden {
+  display: none;
+}
 
 /*
  * Spaces

@@ -178,6 +178,14 @@ class Widget_Wrangler {
   // Custom meta boxes for the edit widget screen
   function admin_init() 
   {
+    // add js
+    wp_enqueue_script('ww-admin-js',
+                    plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
+                    array(),
+                    false,
+                    true);
+
+    // add meta boxes
     $post_id = ($_GET['post']) ? $_GET['post'] : $_POST['post_ID'];
     $widget = ww_get_widget_data($post_id);
     
@@ -340,28 +348,34 @@ class Widget_Wrangler {
         </div>
         <div>
           <h4>Rewrite output</h4>
-          <div id="ww-advanced-field">
-            <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> Rewrite the output of this widget</label>
-            <div id="ww-advanced-template">
-              <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> Template the Advanced Parsing Area</label> <em>(Do not use with Cloned Widgets.  Details below)</em>
+          
+          <div class="ww-options-group">
+            <div class="ww-options-group-title">
+              <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> Rewrite the output of this widget</label>
+            </div>
+            <div class="ww-options-group-content ww-options-hidden">
+              <div id="ww-advanced-template">
+                <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> Template the Advanced Parsing Area</label>
+              </div>
+              <textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print htmlentities($data['custom-output']); ?></textarea>
+              <div class="adv-parse-description">
+                <h5>In the Advanced Parsing area you can:</h5>
+                <ul>
+                  <li>Use PHP ( &lt;?php and ?&gt; are required )</li>
+                  <li>Use {{title}} or $widget->post_title to insert the widget's title</li>
+                  <li>Use {{content}} or $widget->post_content to insert the widget's content</li>
+                  <li>Access the $widget object for more widget data (see provided template for examples)</li>
+                  <li>Access the $post object for data concerning the page being displayed (see provided template for examples)</li>
+                </ul>
+                <h5>Templating Advanced Parsed Widgets</h5>
+                <ul>
+                  <li>To template an advanced parsed widget you must return an associative array with a title and content string.</li>
+                  <li>Example: &lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</li>
+                </ul>
+              </div>
             </div>
           </div>
-          <textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print htmlentities($data['custom-output']); ?></textarea>
-          <div class="adv-parse-description">
-            <h5>In the Advanced Parsing area you can:</h5>
-            <ul>
-              <li>Use PHP ( &lt;?php and ?&gt; are required )</li>
-              <li>Use {{title}} or $widget->post_title to insert the widget's title</li>
-              <li>Use {{content}} or $widget->post_content to insert the widget's content</li>
-              <li>Access the $widget object for more widget data (see provided template for examples)</li>
-              <li>Access the $post object for data concerning the page being displayed (see provided template for examples)</li>
-            </ul>
-            <h5>Templating Advanced Parsed Widgets</h5>
-            <ul>
-              <li>To template an advanced parsed widget you must return an associative array with a title and content string.</li>
-              <li>Example: &lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</li>
-            </ul>
-         </div>
+          
         </div>
       </div>
     <?php
