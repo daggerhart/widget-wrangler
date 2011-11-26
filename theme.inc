@@ -102,8 +102,15 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
     
     while($i < $total)
     {
-      if($widget = ww_get_single_widget($widgets_array[$sidebar_slug][$i]['id'])){
-        $output.= ww_theme_single_widget($widget);
+      // make sure we have a widget
+      if($widget = ww_get_single_widget($widgets_array[$sidebar_slug][$i]['id']))
+      {
+        // check the widget's display logic
+        if(ww_widget_display_logic($widget))
+        {
+          // output the widget
+          $output.= ww_theme_single_widget($widget);  
+        }
       }
       $i++;
     }
@@ -111,7 +118,81 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
     print $output;
   }
 }
+/*
+ * Complex boolean function to determine if the widget should be displayed
+ */
+function ww_widget_display_logic($widget)
+{
+  // default to false
+  $final_show = false;
+  
+  // logic array
+  $logic = $widget->widget_data['logic'];
+  //print '<pre>'.print_r($logic,1).'</pre>';
+  
+  // see if any display logic is set
+  if(isset($logic))
+  {
+    // check conditionals
+    /* feature on hold for reconsideration
+    if(is_array($logic['conditionals']))
+    {
+      $conditional_show = false;
 
+      foreach($logic['conditionals'] as $conditional){
+        $function = 'is_'.$conditional;
+        // check WP conditional tag
+        if($function()){
+          $conditional_show = true;
+        }
+      }
+    }
+    // */
+    
+    // check post_types
+    if(is_array($logic['post_types']))
+    {
+      global $post;
+      $post_type_show = false;
+
+      // check current post_type
+      if(in_array($post->post_type, $logic['post_types'])){
+        $post_type_show = true;
+      }
+    }
+    
+    // check php
+    if(isset($logic['php']))
+    {      
+      // execute the php and get returned value
+      $returned_value = eval($logic['php']);
+      if(is_bool($returned_value)){
+        $php_show = $returned_value;
+      }
+    }
+    
+    // if any are true, show the widget
+    //if($conditional_show || $post_type_show || $php_show)
+    if($post_type_show || $php_show)
+    {
+      $final_show = true;
+    }
+
+    // if all are empty, show the widget
+    //if(!is_array($logic['conditionals']) && !is_array($logic['post_types']) && !isset($logic['php']))
+    if(!is_array($logic['post_types']) && !isset($logic['php']))
+    {
+      $final_show = true;
+    }
+    
+  }
+  // no logic? default to showing the widget
+  else
+  {
+    $final_show = true;    
+  }
+  return $final_show;
+}
 /*
  * Apply templating and parsing to a single widget
  *

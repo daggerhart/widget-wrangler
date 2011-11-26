@@ -59,21 +59,22 @@ jQuery(function(){
         {
           //console.log(jQuery(this).val());
           //console.log(jQuery(this));
-          jQuery(this).parent('.ww-item').clone().addClass('nojs').prependTo("#ww-sidebar-"+select_val+"-items").removeClass("disabled");
+          jQuery(this).parent('.ww-item').clone()
+            .addClass('nojs').prependTo("#ww-sidebar-"+select_val+"-items").removeClass("disabled");
           jQuery(this).parent('.ww-item').remove();
-          jQuery("#ww-sidebar-"+select_val+"-items select[name="+select_name+"]").val(select_val);
-        
+          jQuery("#ww-sidebar-"+select_val+"-items select[name='"+select_name+"']").val(select_val);
+          
           var this_list = jQuery("#ww-sidebar-"+select_val+"-items").children(".ww-item");
           //console.log(this_list);
-          update_widget_weights();
-          toggle_no_widgets();
         }
         else
         {
           jQuery(this).siblings('.ww-widget-weight').val('').parent('.ww-item').clone().addClass('nojs disabled').appendTo("#ww-disabled-items").children(".ww-widget-weight").attr("disabled","disabled");
           jQuery(this).parent('.ww-item').remove();
-          jQuery("#ww-disabled-items select[name="+select_name+"]").val(select_val);
+          jQuery("#ww-disabled-items select[name='"+select_name+"']").val(select_val);
         }
+        update_widget_weights();
+        toggle_no_widgets();
         refresh_all();
       });
     });

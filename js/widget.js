@@ -21,5 +21,8 @@ jQuery(document).ready(function(){
     if(jQuery(element).parent().find('.ww-options-group-title input[type=checkbox]').is(':checked')){
       jQuery(element).removeClass('ww-options-hidden');
     }
-  });  
+  });
+  
+  // ui tabs for display logic
+  jQuery('#logic-tabs').tabs();
 });

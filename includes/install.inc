@@ -8,7 +8,7 @@ function ww_check_version(){
   // if no last version found
   if(!$last_version)
   {
-    set_option('ww_version', WW_VERSION);
+    //set_option('ww_version', WW_VERSION);
   }
   // if last version is lower than current version
   else if($last_version < WW_VERISON)

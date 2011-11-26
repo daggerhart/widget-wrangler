@@ -144,6 +144,9 @@ class Widget_Wrangler {
       if(isset($_POST['ww-data']['standard']['custom-output'])){
         $_POST['ww-data']['standard']['custom-output'] = trim(stripcslashes($_POST['ww-data']['standard']['custom-output']));
       }
+      if(isset($_POST['ww-data']['logic']['php'])){
+        $_POST['ww-data']['logic']['php'] = trim(stripcslashes($_POST['ww-data']['logic']['php']));
+      }
       
       // clones
       if($type == 'clone' && $_POST['ww-data']['clone']['clone-class']){
@@ -164,7 +167,15 @@ class Widget_Wrangler {
         $_POST['ww-data']['clone']['clone-instance'] = serialize($instance);
       }
       
-      $data = serialize($_POST['ww-data'][$type]);
+      // prep the data and logic for save
+      $widget_data = $_POST['ww-data'][$type];
+      $widget_data['logic'] = $_POST['ww-data']['logic'];
+      
+      // unset the php value if empty
+      if($widget_data['logic']['php'] == ''){
+        unset($widget_data['logic']['php']);
+      }
+      $data = serialize($widget_data);
 
       // see if this post has data
       $exists = $wpdb->get_results("SELECT type FROM ".$wpdb->prefix."ww_widget_data WHERE post_id = ".$post_id);
@@ -188,7 +199,7 @@ class Widget_Wrangler {
     // add js
     wp_enqueue_script('ww-widget-js',
                     plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
-                    array(),
+                    array('jquery-ui-core', 'jquery-ui-tabs'),
                     false,
                     true);
 
@@ -209,11 +220,14 @@ class Widget_Wrangler {
       add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
     }
 
-    // Widget type not selected
+    // Widget type
     add_meta_box("ww-type", "Widget Details", array(&$this, "meta_widget_details"), "widget", "side", "high");
 
     // Widget Preview
     add_meta_box("ww-widget-preview", "Widget Preview", array(&$this, "meta_widget_preview"), "widget", "side", "default");
+    
+    // Widget Display Logic
+    add_meta_box("ww-display-logic", "Display Logic", array(&$this, "meta_display_logic"), "widget", "normal", "default");
   }
   // Widget Type
   function meta_widget_details()
@@ -226,35 +240,131 @@ class Widget_Wrangler {
     } 
     // output field
     ?>
-    <div>
-      <?php
-        if($this->post_id)
-        { ?>
-          <div class="ww-widget-postid">
-            Post ID<br/>
-            <span><?php print $this->post_id;?></span>
-          </div>
-          <?php
-        }
-      ?>
       <div>
-        <h4>Widget Type:</h4>
-        <?php print $widget_types[$this->type]; ?>
+        <?php
+          if($this->post_id)
+          { ?>
+            <div class="ww-widget-postid">
+              Post ID<br/>
+              <span><?php print $this->post_id;?></span>
+            </div>
+            <?php
+          }
+        ?>
+        <div>
+          <h4>Widget Type:</h4>
+          <?php print $widget_types[$this->type]; ?>
+        </div>
+        <?php
+          // widget shortcode
+          if($this->post_id)
+          { ?>
+            <div>
+              <h4>Widget Shortcode:</h4>
+              [ww_widget  id=<?php print $this->post_id; ?>]
+            </div>
+            <?php
+          }
+        ?>
+        <input type="hidden" name="ww-type" value="<?php print $this->type; ?>" />
+        
+        <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
       </div>
+    <?php
+  }
+  
+  // Display logic
+  function meta_display_logic()
+  {
+    $data = $this->data;
+    ?>
+    <p><em>
+      The Widget's display logic lets you choose which Wordpress pages the widget is allowed to be displayed on.
+      <br/>
+      If nothing is selected, the widget will display in all cases.
+      </em>
+    </p>
+    <div id="logic-tabs">
+      <ul id="logic-tabs-list">
+        <li><a href="#tab-post-types"><span>Post Types</span></a></li>
+        <!--<li><a href="#tab-conditional-tags"><span>Conditional Tags</span></a></li>-->
+        <li><a href="#tab-php"><span>Custom PHP</span></a></li>
+      </ul>
       <?php
-        // widget shortcode
-        if($this->post_id)
-        { ?>
-          <div>
-            <h4>Widget Shortcode:</h4>
-            [ww_widget  id=<?php print $this->post_id; ?>]
-          </div>
-          <?php
-        }
+        /*
+         * Post types
+         */ 
+        // Get all extra post types
+        $post_types = get_post_types(array('public' => true, '_builtin' => false),'names','and');
+        $post_types['post'] = 'post';
+        $post_types['page'] = 'page';
+        unset($post_types['widget']);
+        ksort($post_types);    
       ?>
-      <input type="hidden" name="ww-type" value="<?php print $this->type; ?>" />
-      
-      <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
+        <div id="tab-post-types">
+          <p>
+            <strong>Select which post types this widget should display on.</strong>
+          </p>
+          <div class="space-checkboxes">
+            <?php  
+              // loop through post types
+              foreach ($post_types as $post_type )
+              {
+                $post_type_checked = (isset($data['logic']['post_types'][$post_type])) ? 'checked="checked"' : '';
+                ?>
+                <label class="ww-space-checkbox"><input type="checkbox" name="ww-data[logic][post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /><?php print ucfirst($post_type); ?> </label>
+                <?php
+              }
+            ?>
+          </div>
+        </div>
+      <?php
+        /*
+         * Conditional tags
+         */
+        /*  Feature on hold for reconsideration
+           
+        $conditionals = array('category','tag','home','single','author','search','404');
+      ?>
+        <div id="tab-conditional-tags">
+          <p>
+            <strong>Select which conditions should make this widget display.</strong>
+          </p>
+          <div class="space-checkboxes">
+            <?php  
+              // loop through post types
+              foreach ($conditionals as $conditional )
+              {
+                $conditional_checked = (isset($data['logic']['conditionals'][$conditional])) ? 'checked="checked"' : '';
+                ?>
+                <label class="ww-space-checkbox"><input type="checkbox" name="ww-data[logic][conditionals][<?php print $conditional; ?>]" value="<?php print $conditional; ?>" <?php print $conditional_checked; ?> /><?php print ucfirst($conditional); ?> </label>
+                <?php
+              }
+            ?>
+          </div>
+        </div>
+      <?php
+        // */
+        
+        /*
+         * Custom php
+         */ 
+      ?>
+        <div id="tab-php">
+          <div class="logic-php-wrapper">
+            <p>
+              <strong>
+                Use custom php to determine if the widget should be displayed.
+                <ul>
+                  <li>Must return true to display the widget.</li>
+                  <li>Do not! use open and close php tags. (eg &lt;php , ?&gt;)</li>
+                </ul>
+              </strong>
+            </p>
+            <textarea name="ww-data[logic][php]" cols="40" rows="16" style="width: 100%;"><?php print htmlentities($data['logic']['php']); ?></textarea>
+          </div>
+        </div>
+        <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
     </div>
     <?php
   }

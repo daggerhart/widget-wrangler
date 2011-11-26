@@ -298,3 +298,38 @@ label.ww-space-checkbox input {
   height: 100px;
   overflow-y: scroll;
 }
+/*
+ * Display Logic
+ */
+#logic-tabs {
+  
+}
+#logic-tabs .ui-tabs-panel {
+  float: left;
+  width: 77%;
+}
+#logic-tabs-list {
+  float: left;
+  width: 20%;
+  margin-right: 2%;
+  border: 1px solid #888;
+}
+#logic-tabs-list li {
+  padding: 0px;
+  margin: 0px;
+}
+#logic-tabs-list li a {
+  display: block;
+  padding: 0px 6px;
+  line-height: 24px;
+  border-bottom: 1px solid #bbb;
+  background: #eee;
+}
+#logic-tabs-list li.ui-state-active a {
+  background-color: #fff;
+}
+.logic-php-wrapper ul li {
+  list-style: disc;
+  list-style-type: disc;
+  list-style-position: inside;
+}

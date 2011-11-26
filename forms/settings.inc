@@ -15,9 +15,7 @@ if($settings['capabilities'] == 'advanced') { $adv_checked = "checked"; }
 
 // Get all extra post types
 $args = array('public'   => true, '_builtin' => false); 
-$output = 'names'; // names or objects, note names is the default
-$operator = 'and'; // 'and' or 'or'
-$post_types = get_post_types($args,$output,$operator);
+$post_types = get_post_types($args,'names','and');
 // Add standard types
 $post_types['post'] = 'post';
 $post_types['page'] = 'page';
