@@ -22,6 +22,7 @@ License: GPL2
 */
 define('WW_PLUGIN_DIR', dirname(__FILE__));
 define('WW_PLUGIN_URL', get_bloginfo('wpurl')."/wp-content/plugins/widget-wrangler");
+define('WW_VERSION', 2.0);
 
 // functions
 include_once WW_PLUGIN_DIR.'/functions.inc';
@@ -40,16 +41,19 @@ include_once WW_PLUGIN_DIR.'/widget.sidebar.inc';
 include_once WW_PLUGIN_DIR.'/includes/install.inc';
 
 // activation hooks
-register_activation_hook(__FILE__, 'ww_post_widgets_table');
-register_activation_hook(__FILE__, 'ww_widget_data_table');
-register_activation_hook(__FILE__, 'ww_widget_spaces_table');
-register_activation_hook(__FILE__, 'ww_widget_space_term_relationships_table');
-register_activation_hook(__FILE__, 'ww_default_spaces');
+//register_activation_hook(__FILE__, 'ww_post_widgets_table');
+//register_activation_hook(__FILE__, 'ww_widget_data_table');
+//register_activation_hook(__FILE__, 'ww_widget_spaces_table');
+//register_activation_hook(__FILE__, 'ww_widget_space_term_relationships_table');
+//register_activation_hook(__FILE__, 'ww_default_spaces');
 /*
  * Admin initialize 
  */
 function ww_admin_init()
 {
+  // handle upgrades
+  ww_check_version();
+  
   // include admin panel and helper functions such as sortable widgets
   include_once WW_PLUGIN_DIR.'/includes/admin-panel.inc';
   

@@ -1,5 +1,23 @@
 <?php
 /*
+ *
+ */
+function ww_check_version(){
+  $last_version = get_option('ww_version');
+  
+  // if no last version found
+  if(!$last_version)
+  {
+    set_option('ww_version', WW_VERSION);
+  }
+  // if last version is lower than current version
+  else if($last_version < WW_VERISON)
+  {
+    // run version related upgrade
+    //$function = 'ww_upgrade_'
+  }
+}
+/*
  * Look for an insert default spaces
  */
 function ww_default_spaces(){
