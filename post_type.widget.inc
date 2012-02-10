@@ -320,33 +320,6 @@ class Widget_Wrangler {
         </div>
       <?php
         /*
-         * Conditional tags
-         */
-        /*  Feature on hold for reconsideration
-           
-        $conditionals = array('category','tag','home','single','author','search','404');
-      ?>
-        <div id="tab-conditional-tags">
-          <p>
-            <strong>Select which conditions should make this widget display.</strong>
-          </p>
-          <div class="space-checkboxes">
-            <?php  
-              // loop through post types
-              foreach ($conditionals as $conditional )
-              {
-                $conditional_checked = (isset($data['logic']['conditionals'][$conditional])) ? 'checked="checked"' : '';
-                ?>
-                <label class="ww-space-checkbox"><input type="checkbox" name="ww-data[logic][conditionals][<?php print $conditional; ?>]" value="<?php print $conditional; ?>" <?php print $conditional_checked; ?> /><?php print ucfirst($conditional); ?> </label>
-                <?php
-              }
-            ?>
-          </div>
-        </div>
-      <?php
-        // */
-        
-        /*
          * Custom php
          */ 
       ?>

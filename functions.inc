@@ -1,7 +1,7 @@
 <?php
 // http://codex.wordpress.org/Conditional_Tags
 /*
- * Determine what type of age we're on using WP conditional tags
+ * Determine what type of page we're on using WP conditional tags
  *
  * @return string Based on conditional tags
  */
@@ -51,7 +51,7 @@ function ww_serialize_widgets($posted)
 {
   $active_widgets = array();
   $all_widgets = ww_get_all_widgets();
-  
+
   // loop through post data and build widgets array for saving
   $i = 1;
   foreach($all_widgets as $key => $widget)
@@ -59,7 +59,7 @@ function ww_serialize_widgets($posted)
     $name = $posted['ww-widgets'][$widget->post_name]['name'];
     $weight = $posted['ww-widgets'][$widget->post_name]['weight'];
     $sidebar = $posted['ww-widgets'][$widget->post_name]['sidebar'];
-    
+
     // if something was submitted without a weight, make it neutral
     if ($weight < 1)
     {
@@ -95,14 +95,14 @@ function ww_update_post_widgets($post_id, $post_widgets = ''){
   $where = array(
     'post_id' => $post_id,
   );
-  
+
   // If can't update, insert
   // $wpdb->update responds false on errors
   if(!$wpdb->update($table, $set, $where))
   {
     // send along the post_id
     $set['post_id'] = $post_id;
-    
+
     $wpdb->insert($table, $set);
   }
 }
@@ -116,7 +116,7 @@ function ww_delete_post_widgets($post_id){
   {
     global $wpdb;
     $table = $wpdb->prefix."ww_post_widgets";
-    
+
     $sql = "DELETE FROM ".$table." WHERE post_id = ".$post_id;
     $wpdb->query($sql);
   }
@@ -129,7 +129,7 @@ function ww_delete_post_widgets($post_id){
 function ww_get_post_widgets($post_id){
   global $wpdb;
   $table = $wpdb->prefix."ww_post_widgets";
-  
+
   $sql = "SELECT widgets FROM ".$table." WHERE post_id = ".$post_id;
   if($results = $wpdb->get_row($sql)){
     //print_r($results);
@@ -161,7 +161,7 @@ function ww_all_widget_types(){
 }
 /*
  * Returns all published widgets
- * 
+ *
  * @return array of all widget objects
  */
 function ww_get_all_widgets()
@@ -175,7 +175,7 @@ function ww_get_all_widgets()
               post_type = 'widget' AND
               post_status = 'publish'";
   $widgets = $wpdb->get_results($query);
-  
+
   $i=0;
   $total = count($widgets);
   while($i < $total)
@@ -206,20 +206,20 @@ function ww_get_single_widget($post_id){
               posts.post_status = 'publish' AND
               posts.ID = ".$post_id;
   $widget = $wpdb->get_row($query);
-  
+
   // unserialize widget data and clone instance
   $widget->widget_data = unserialize($widget->widget_data);
   if($widget->widget_type == 'clone'){
     $widget->widget_data['clone-instance'] = unserialize($widget->widget_data['clone-instance']);
   }
-  
+
   return $widget;
 }
 
 
 /*
  * Retrieve list of sidebars
- * 
+ *
  * @return array of sidebars
  */
 function ww_get_all_sidebars()
@@ -238,7 +238,8 @@ function ww_get_all_sidebars()
  * Helper function for making sidebar slugs
  */
 function ww_make_slug($string){
-  return stripcslashes(preg_replace('/[\s_\'\"]/','_', strtolower(strip_tags($string))));
+  $search = array("!","@","#","$","%","^","&","*","(",")","-","+","=","{","}","[","]","\\","|",":",";","'","<",",",">",".","?","/","~","`");
+  return str_replace(" ", "_", strtolower(str_replace($search, "", strip_tags($string))));
 }
 /*
  * usort callback. I likely stole this from somewhere.. like php.net

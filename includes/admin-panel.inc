@@ -5,17 +5,19 @@
 function ww_display_admin_panel()
 {
   $settings = ww_get_settings();
-  
+
   // eventually I will handle access control this way
   $show_panel = true;
-  
+
   if ($show_panel)
   {
-    // Add panels into the editing sidebar(s)
-    foreach($settings['post_types'] as $post_type){
-      add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/images/wrangler_icon.png" />Widget Wrangler'), 'ww_admin_sidebar_panel', $post_type, 'normal', 'high');
+    if(is_array($settings['post_types'])){
+      // Add panels into the editing sidebar(s)
+      foreach($settings['post_types'] as $post_type){
+        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/images/wrangler_icon.png" />Widget Wrangler'), 'ww_admin_sidebar_panel', $post_type, 'normal', 'high');
+      }
     }
-    
+
     // Add some CSS to the admin header on the widget wrangler pages, and edit pages
     if((isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit') ||
         (isset($_GET['page']) &&
@@ -48,7 +50,7 @@ function ww_admin_sidebar_panel($pid)
 }
 /*
  * Javascript drag and drop for sorting
- */ 
+ */
 function ww_admin_js(){
   wp_enqueue_script('ww-admin-js',
                   plugins_url('/js/admin-panel.js', WW_PLUGIN_DIR.'/js' ),
@@ -77,7 +79,7 @@ function ww_adjust_css(){
   if ($_GET['post_type'] == 'widget')
   {
     print "#wpbody-content #icon-edit {
-             background: transparent url('".WW_PLUGIN_URL."/images/wrangler_post_icon.png') no-repeat top left; 
+             background: transparent url('".WW_PLUGIN_URL."/images/wrangler_post_icon.png') no-repeat top left;
            }";
   }
   print  "</style>";
@@ -102,25 +104,25 @@ function ww_create_sortable_widgets($widgets, $ref_array, $sidebars)
     if ($widget->post_title == ""){
       $widget->post_title = "(no title) - Widget ID: ".$widget->ID;
     }
-    
+
     // look for appropriate sidebar, default to disabled
     if ($keys[0] == '' || (!array_key_exists($keys[0], $sidebars))){
       $keys[0] = "disabled";
     }
-    
+
     // setup initial info
     $sidebar_slug = $keys[0];
-   
+
     // get weight
     $weight = $ref_array[$sidebar_slug][$keys[1]]['weight'];
-    
+
     // build select box
     $sidebars_options = "<option value='disabled'>Disabled</option>";
     foreach($sidebars as $slug => $sidebar){
       ($slug == $sidebar_slug) ? $selected = "selected='selected'" : $selected = '';
-      $sidebars_options.= "<option name='".$slug."' value='".$slug."' ".$selected.">".$sidebar."</option>";   
+      $sidebars_options.= "<option name='".$slug."' value='".$slug."' ".$selected.">".$sidebar."</option>";
     }
-    
+
     // add item to our temp array
     $temp[$weight] = "<li class='ww-item ".$sidebar_slug." nojs' width='100%'>
                         <input class='ww-widget-weight' name='ww-widgets[".$widget->post_name."][weight] type='text' size='2' value='$weight' />
@@ -131,7 +133,7 @@ function ww_create_sortable_widgets($widgets, $ref_array, $sidebars)
                         <input class='ww-widget-id' name='ww-widgets[".$widget->post_name."][id]' type='hidden' value='".$widget->ID."' />
                         ".$widget->post_title."
                       </li>";
-                      
+
     // place into output array
     if ($sidebar_slug == 'disabled'){
       $output['disabled'][] = $temp[$weight];
@@ -139,7 +141,7 @@ function ww_create_sortable_widgets($widgets, $ref_array, $sidebars)
     else{
       $output['active'][$sidebar_slug][$weight] = $temp[$weight];
     }
-    
+
     $i++;
   }
   return $output;
@@ -151,7 +153,7 @@ function ww_theme_sortable_widgets($panel_array)
 {
   $sidebars = ww_get_all_sidebars();
   $output = $panel_array['open'];
-  
+
   // loop through sidebars and add active widgets to list
   if (is_array($sidebars))
   {
@@ -160,7 +162,7 @@ function ww_theme_sortable_widgets($panel_array)
       // open the list
       $output.= "<h4>".$sidebar."</h4>";
       $output.= "<ul name='".$slug."' id='ww-sidebar-".$slug."-items' class='inner ww-sortable' width='100%'>";
-      
+
       if (is_array($panel_array['active'][$slug])) {
         // loop through sidebar array and add items to list
         foreach($panel_array['active'][$slug] as $item){
@@ -176,10 +178,10 @@ function ww_theme_sortable_widgets($panel_array)
       $output.= "</ul>";
     }
   }
-  
+
   // disabled list
   $output.= "<h4>Disabled</h4><ul name='disabled' id='ww-disabled-items' class='inner ww-sortable' width='100%'>";
-  
+
   // loop through and add disabled widgets to list
   if (is_array($panel_array['disabled'])){
     foreach ($panel_array['disabled'] as $disabled){
@@ -193,9 +195,9 @@ function ww_theme_sortable_widgets($panel_array)
   // close disabled list
   $output.= "<li class='ww-no-widgets' ".$style.">No disabled Widgets</li>";
   $output.= "</ul>";
-  
+
   $output.= $panel_array['close'];
-  
+
   print $output;
 }
 
@@ -210,34 +212,34 @@ function ww_save_post($id)
   if ( !wp_verify_nonce( $_POST['ww_noncename'], plugin_basename(WW_PLUGIN_DIR.'/forms/admin-panel.inc') )) {
     return $id;
   }
-  
+
   // verify if this is an auto save routine. If it is our form has not been submitted, so we dont want
   // to do anything
   if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
     return $id;
   }
-  
+
   // Check permissions
   $settings = ww_get_settings();
   if (in_array($_POST['post_type'], $settings['post_types']) && !current_user_can('edit_page', $id)){
     return $id;
   }
-  
+
   // OK, we're authenticated: we need to find and save the data
   $this_post_widgets = ww_serialize_widgets($_POST);
 
   //save what we have
   ww_update_post_widgets( $id, $this_post_widgets);
-  
+
   // get defaults without- disabled for comparison
   $defaults = unserialize(get_option('ww_default_widgets'));
   unset($defaults['disabled']);
   $defaults = serialize($defaults);
-  
+
   // last minute check for reset to defaults for this page
   if($_POST['ww-reset-widgets-to-default'] == "on" ||
      ($this_post_widgets == $defaults))
   {
-    ww_delete_post_widgets( $id); 
+    ww_delete_post_widgets( $id);
   }
 }

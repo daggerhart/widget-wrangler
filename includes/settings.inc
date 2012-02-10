@@ -1,7 +1,7 @@
 <?php
 /*
  * Get the Widget Wrangler Settings
- * 
+ *
  * @return settings array
  */
 function ww_get_settings()
@@ -13,7 +13,7 @@ function ww_get_settings()
     ww_settings_set_default();
     $settings = ww_get_settings();
   }
-  
+
   return $settings;
 }
 /*
