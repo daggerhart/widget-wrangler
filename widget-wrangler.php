@@ -24,71 +24,58 @@ define('WW_VERSION', 2.0);
 define('WW_PLUGIN_DIR', dirname(__FILE__));
 define('WW_PLUGIN_URL', get_bloginfo('wpurl')."/wp-content/plugins/widget-wrangler");
 
-// functions
+// common functions for front and back ends
 include_once WW_PLUGIN_DIR.'/common.inc';
+// functions that control display logic of widgets and output
+include_once WW_PLUGIN_DIR.'/display.inc';
 
-// theme functions
-include_once WW_PLUGIN_DIR.'/front.inc';
-
-// settings functions
-include_once WW_PLUGIN_DIR.'/admin/settings.inc';
-
-// add the widget post type class
+// add the widget post type class and initiate it
 include_once WW_PLUGIN_DIR.'/post_type-widget.inc';
+add_action( 'init', 'Widget_Wrangler_Init');
+
+// the widget for the psot_type-widget allows the use widget wrangler widgets within normal WP sidebars
 include_once WW_PLUGIN_DIR.'/post_type-widget.widget.inc';
 
-// include WP standard widgets for corrals
+// the corrals widget allows the use of corrals within normal WP sidebars
 include_once WW_PLUGIN_DIR.'/corral.widget.inc';
 
+
 /*
- * checkout version number and perform an upgrade if necessary
+ * Initialize the post type
  */
-function ww_check_version(){
-  if($last_version = get_option('ww_version'))
-  {
-    // compare versions
-    if ($last_version < WW_VERSION)
-    {
-      add_action('admin_notices', 'ww_upgrade_message');
-      //// include upgrade inc
-      //include_once WW_PLUGIN_DIR.'/includes/upgrade.inc';
-      //$upgrade_function = 'ww_upgrade_'.ww_make_slug($last_version).'_to_'.ww_make_slug(WW_VERSION);
-      //if(function_exists($upgrade_function)){
-      //  $upgrade_function();
-      //}
-      //update_option('ww_version', WW_VERSION);
-    }
-  }
-  // if last version doesn't exist, then its an old 1.x version
-  else
-  {
-    add_action('admin_notices', 'ww_upgrade_message');
-    //// include upgrade inc
-    //include_once WW_PLUGIN_DIR.'/includes/upgrade.inc';
-    //// run version related upgrade
-    //ww_upgrade_1x_to_2x();
-    //update_option('ww_version', WW_VERSION);
-  }
+function Widget_Wrangler_Init() {
+  global $ww;
+	// admin has way more code.  only load it when necessary
+	if (is_admin()){
+		include_once WW_PLUGIN_DIR.'/admin/post_type-widget-admin.inc';
+		$ww = new Widget_Wrangler_Admin();
+	}
+	else {
+		$ww = new Widget_Wrangler();
+	}
 }
+
 
 /*
  * Admin initialize
  */
 function ww_admin_init()
 {
-  // handle upgrades
-  ww_check_version();
-
   // include admin panel and helper functions such as sortable widgets
+	include_once WW_PLUGIN_DIR.'/admin/admin.inc';
+	include_once WW_PLUGIN_DIR.'/admin/settings.inc';
   include_once WW_PLUGIN_DIR.'/admin/widgets-post.inc';
-
+  include_once WW_PLUGIN_DIR.'/admin/upgrade.inc';
+  
+	// handle upgrades
+  ww_check_version();
+ 
   // determine whether to display the admin panel
   // handles adding some css and the js
   ww_display_admin_panel();
 
   // add admin css
   add_action( 'admin_head', 'ww_admin_css');
-
 }
 add_action( 'admin_init', 'ww_admin_init' );
 add_action( 'save_post', 'ww_save_post' );
@@ -104,129 +91,10 @@ function ww_menu()
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',       'Settings',       'manage_options', 'ww-settings', 'ww_settings_page_handler');
   //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
   add_action( "admin_print_scripts-$corrals", 'ww_corral_js' );
+  add_action( "admin_print_scripts-$presets", 'ww_admin_js' );
+  add_action( "admin_print_scripts-$settings", 'ww_widget_js' );
 }
 add_action( 'admin_menu', 'ww_menu');
-
-
-/************************************************************
- * Page handling
- */
-/*
- * Produce the Widget Presets
- */
-function ww_presets_page_handler()
-{
-  include_once WW_PLUGIN_DIR.'/admin/preset.inc';
-  if(isset($_GET['action'])) {
-    switch ($_GET['action'])
-    {
-      // create new widget preset
-      case 'create':
-        $preset_id = ww_create_preset();
-        break;
-
-      // update an existing widget preset
-      case 'update':
-
-        // switch Save & Delete buttons
-        // do not let them delete defaults or post pages
-        if(isset($_POST['action-delete']) &&
-           $_POST['preset-type'] != 'default')
-        {
-          ww_delete_preset();
-          $preset_id = 1;
-        }
-        else if (isset($_POST['action-save'])){
-          $preset_id = ww_update_preset();
-        }
-        break;
-    }
-    // send to the new preset
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-presets&preset_id='.$preset_id);
-
-  }
-  else {
-    // presets edit form
-    ww_preset_form();
-  }
-}
-/*
- * Corral page handler
- */
-function ww_corrals_page_handler()
-{
-  // include the corrals form
-  include_once WW_PLUGIN_DIR.'/admin/corral.inc';
-
-  if(isset($_GET['ww-corral-action'])){
-    switch($_GET['ww-corral-action']){
-      case 'insert':
-        $new_corral_id = ww_corral_insert($_POST);
-        break;
-      case 'delete':
-        ww_corral_delete($_POST);
-        break;
-      case 'update':
-        ww_corral_update($_POST);
-        break;
-      case 'sort':
-        ww_corral_sort($_POST);
-        break;
-    }
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-corrals');
-  }
-  // show corrals page
-  ww_corral_form();
-}
-/*
- * Handles creation of new cloned widgets, and displays clone new widget page
- */
-function ww_clone_page_handler()
-{
-  include_once WW_PLUGIN_DIR.'/admin/clone.inc';
-
-  if(isset($_GET['ww-clone-action'])){
-    switch($_GET['ww-clone-action']){
-      case 'insert':
-        // create new cloned widget
-        $new_post_id = ww_clone_insert($_POST);
-        // goto new widget page
-        wp_redirect(get_bloginfo('wpurl').'/wp-admin/post.php?post='.$new_post_id.'&action=edit');
-        break;
-    }
-  }
-  else{
-    // show clone page
-    ww_clone_form();
-  }
-}
-/*
- * Handles settings page
- */
-function ww_settings_page_handler()
-{
-  if ($_GET['ww-settings-action']){
-    switch($_GET['ww-settings-action']){
-      case "save":
-        ww_settings_save($_POST);
-        break;
-      case "reset":
-        ww_settings_reset_widgets();
-        break;
-    }
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-settings');
-  }
-  else{
-    // settings form
-    ww_settings_form();
-  }
-}
-/*
- * for whatever.
- */
-function ww_debug_page(){}
-// */
-/*********************************************** end page handling */
 
 /*
  * Shortcode support for all widgets

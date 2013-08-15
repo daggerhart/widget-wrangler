@@ -1,3 +1,4 @@
+
 #ww-active-items,
 #ww-disabled-items {
   margin: 8px 0px;
@@ -168,8 +169,14 @@ li.ww-corral-sort-item {
   background-color: #fff;
   border: 1px solid #bbb;
 }
+.ww-settings-field label.ww-corral-checkbox {
+	display: block;
+	float: left;
+	clear: left;
+	padding: 2px 0px 6px;
+}
 .ww-settings-title {
-  margin: 20px 0px 6px;
+  margin: 32px 0px 16px;
   font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
   font-size: 22px;
 }

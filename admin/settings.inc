@@ -1,21 +1,5 @@
 <?php
-/*
- * Get the Widget Wrangler Settings
- *
- * @return settings array
- */
-function ww_get_settings()
-{
-  if ($settings = get_option("ww_settings")){
-    $settings = unserialize($settings);
-  }
-  else{
-    ww_settings_set_default();
-    $settings = ww_get_settings();
-  }
 
-  return $settings;
-}
 /*
  * Reset all pages to use the default widget settings
  */
@@ -59,8 +43,8 @@ function ww_settings_form() {
 	$settings = ww_get_settings();
 	
 	// handle checkboxes
-	if($settings['capabilities'] == 'simple') { $simple_checked =  "checked"; }
-	if($settings['capabilities'] == 'advanced') { $adv_checked = "checked"; } 
+	$simple_checked = (isset($settings['capabilities']) && $settings['capabilities'] == 'simple') ? "checked" : ""; 
+	$adv_checked    = (isset($settings['capabilities']) && $settings['capabilities'] == 'advanced') ? "checked" : ""; 
 	
 	// Get all extra post types
 	$args = array('public'   => true, '_builtin' => false); 
@@ -90,7 +74,26 @@ function ww_settings_form() {
     <div class='wrap'>
       <h2>Widget Wrangler Settings</h2>
       <form action="edit.php?post_type=widget&page=ww-settings&ww-settings-action=save&noheader=true" method="post">
-        <h3 class="ww-settings-title">Capabilities </h3>
+        <h3 class="ww-settings-title">Post Types</h3>
+        <div class="ww-settings-field">
+          <p>
+            Select each post type you would like to be able to control their own widgets with Widget Wrangler.
+          </p>
+            <div class="corral-checkboxes">
+              <?php
+                // loop through post types
+                foreach ($post_types as $post_type )
+                {
+                  $post_type_checked = (isset($settings['post_types'][$post_type])) ? 'checked="checked"' : '';
+                  ?>
+                  <label class="ww-corral-checkbox"><input type="checkbox" name="settings[post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
+                  <?php
+                }
+              ?>
+							<div class="ww-clear-gone">&nbsp;</div>
+            </div>
+        </div>
+				<h3 class="ww-settings-title">Capabilities </h3>
         <div class="ww-settings-field">
           <p> 
             <label>
@@ -106,28 +109,10 @@ function ww_settings_form() {
             </label>
             This is primarily for incorporating third party permission systems. <br />
             A simple use of this setting would be to change the Capability Type to 'page'.  This would make it so that only users who can create and edit pages may create and edit widgets.
-            <br />
           </p>
-          <label><input name="settings[advanced]" type="text" size="20" value="<?php print $settings['advanced']; ?>"/> Capability Type</label> 
+					<p>If unsure what this does, select "Simple" and leave the below field blank.</p>
+          <label><input name="settings[advanced]" type="text" size="20" value="<?php print (isset($settings['advanced'])) ? $settings['advanced'] : ""; ?>"/> Capability Type</label> 
           <br />
-        </div>
-        <h3 class="ww-settings-title">Post Types</h3>
-        <div class="ww-settings-field">
-          <p>
-            Select each post type you would like to use Widget Wrangler on.
-          </p>
-            <div class="space-checkboxes">
-              <?php
-                // loop through post types
-                foreach ($post_types as $post_type )
-                {
-                  $post_type_checked = (isset($settings['post_types'][$post_type])) ? 'checked="checked"' : '';
-                  ?>
-                  <label class="ww-space-checkbox"><input type="checkbox" name="settings[post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /><?php print ucfirst($post_type); ?> </label>
-                  <?php
-                }
-              ?>
-            </div>
         </div>
         <input class="button" type="submit" value="Save Settings" />
       </form>
@@ -136,7 +121,7 @@ function ww_settings_form() {
         <h3 class="ww-settings-title">Mass Reset</h3>
         <div class="ww-settings-field">
           <p>
-            <span style="color: red;">WARNING!</span>  If you click this button, all pages will lose their widget sidebar and order settings and will fall back on the default settings.</p>
+            <span style="color: red;">WARNING!</span>  If you click this button, all pages will lose their individual corral asignments and will fall back on the default settings.</p>
             <input class="button" type="submit" value="Reset All Widgets to Default" onclick="return confirm('Are you Really sure you want to Reset widget settings on all pages?');" />
           </p>
         </div>

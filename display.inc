@@ -6,7 +6,7 @@
  */
 function ww_dynamic_corral($corral_slug = 'default')
 {
-  include_once WW_PLUGIN_DIR.'/admin/corral.inc';
+  //include_once WW_PLUGIN_DIR.'/admin/corral.inc';
   
   // get the post and corrals
   global $post;
@@ -93,12 +93,12 @@ function ww_dynamic_corral($corral_slug = 'default')
   // handle widgets
   if (is_array($widgets_array[$corral_slug]))
   {
-    $i = 0;
-    $total = count($widgets_array[$corral_slug]);
-    
     // custom sorting with callback
     usort($widgets_array[$corral_slug],'ww_cmp');
     $sorted_widgets = array_reverse($widgets_array[$corral_slug]);
+    
+    $i = 0;
+    $total = count($widgets_array[$corral_slug]);
     
     while($i < $total)
     {
@@ -126,14 +126,15 @@ function ww_widget_display_logic($widget)
   // default to false
   $final_show = false;
   
-  // logic array
-  $logic = $widget->widget_data['logic'];
   //print '<pre>'.print_r($logic,1).'</pre>';
   
   // see if any display logic is set
-  if(isset($logic))
+  if(isset($widget->widget_data['logic']))
   {
-    // check conditionals
+		// logic array
+		$logic = $widget->widget_data['logic'];
+    
+		// check conditionals
     /* feature on hold for reconsideration
     if(is_array($logic['conditionals']))
     {
@@ -259,6 +260,7 @@ function ww_template_widget($widget)
   
   return $templated;
 }
+
 /*
  * Handle the advanced parsing for a widget
  *

@@ -43,48 +43,6 @@ function ww_display_admin_panel()
 }
 
 /*
- * Javascript drag and drop for sorting
- */
-function ww_admin_js(){
-  wp_enqueue_script('ww-admin-js',
-                  plugins_url('/js/admin-panel.js', WW_PLUGIN_DIR.'/js' ),
-                  array('jquery-ui-core', 'jquery-ui-sortable'),
-                  false,
-                  true);
-}
-/*
- * Javascript for drag and drop corral sorting
- */
-function ww_corral_js(){
-  wp_enqueue_script('ww-corral-js',
-                    plugins_url('/js/corrals.js', WW_PLUGIN_DIR.'/js' ),
-                    array('jquery-ui-core', 'jquery-ui-sortable'),
-                    false,
-                    true);
-}
-/*
- * Handle CSS necessary for Admin Menu on left
- */
-function ww_adjust_css(){
-  print "<style type='text/css'>
-         li#menu-posts-widget a.wp-has-submenu {
-          letter-spacing: -1px;
-         }";
-  if ($_GET['post_type'] == 'widget')
-  {
-    print "#wpbody-content #icon-edit {
-             background: transparent url('".WW_PLUGIN_URL."/images/wrangler_post_icon.png') no-repeat top left;
-           }";
-  }
-  print  "</style>";
-}
-/*
- * Add css to admin interface
- */
-function ww_admin_css(){
-	print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/widget-wrangler.css" />';
-}
-/*
  * Put all widgets into a list for output
  */
 function ww_create_sortable_widgets($widgets, $ref_array, $corrals)

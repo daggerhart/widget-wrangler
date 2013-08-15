@@ -112,7 +112,7 @@ function ww_corral_form(){
 		<td>
 			<h2>Edit existing Corrals</h2>
 			<div class='description'>
-				Warning! If you change a corral's 'slug', widgets currently assigned to that corral will need to be reassigned.
+				<!-- Warning! If you change a corral's 'slug', widgets currently assigned to that corral will need to be reassigned. -->
 			</div>
 			<ul id='ww-corrals-list'>
 				<?php
@@ -127,13 +127,13 @@ function ww_corral_form(){
 											<div class='widget-title-action'>
 												<div class='widget-action'></div>
 											</div>
-											<h4><?php print $corral." (".$slug.")"; ?></h4>
+											<h4><?php print $corral; //." (".$slug.")"; ?></h4>
 										</div>
 										<div class='widget-inside'>
 											<form action='edit.php?post_type=widget&page=ww-corrals&ww-corral-action=update&noheader=true' method='post'>
 												<label>Name: </label><input class='ww-text' name='ww-update-corral' type='text' value='<?php print $corral; ?>' /><br />
-												<label>Slug: </label><input class='ww-text' name='ww-update-slug' type='text' value='<?php print $slug; ?>' />
-												<input name='ww-update-old-slug' type='hidden' value='<?php print $slug; ?>' />
+												<!-- <label>Slug: </label><input class='ww-text' name='ww-update-slug' type='text' value='<?php print $slug; ?>' />
+												<input name='ww-update-old-slug' type='hidden' value='<?php print $slug; ?>' /> -->
 												<input class='ww-corral-update-submit' name='ww-update-submit' type='submit' value='Update' />
 											</form>
 											<hr />
@@ -173,7 +173,7 @@ function ww_corral_form(){
 						foreach($corrals as $slug => $corral)
 						{ ?>
 							<li class='ww-corral-sort-item'>
-								<strong><?php print $corral." (".$slug.")"; ?></strong>
+								<strong><?php print $corral; //." (".$slug.")"; ?></strong>
 								<input type='hidden' class='ww-corral-weight' name='weight[<?php print $i; ?>]' value='<?php print $slug; ?>' />
 							</li>
 							<?php

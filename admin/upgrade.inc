@@ -1,5 +1,36 @@
 <?php
 
+/*
+ * checkout version number and perform an upgrade if necessary
+ */
+function ww_check_version(){
+  if($last_version = get_option('ww_version'))
+  {
+    // compare versions
+    if ($last_version < WW_VERSION)
+    {
+      add_action('admin_notices', 'ww_upgrade_message');
+      //// include upgrade inc
+      //include_once WW_PLUGIN_DIR.'/includes/upgrade.inc';
+      //$upgrade_function = 'ww_upgrade_'.ww_make_slug($last_version).'_to_'.ww_make_slug(WW_VERSION);
+      //if(function_exists($upgrade_function)){
+      //  $upgrade_function();
+      //}
+      //update_option('ww_version', WW_VERSION);
+    }
+  }
+  // if last version doesn't exist, then its an old 1.x version
+  else
+  {
+    add_action('admin_notices', 'ww_upgrade_message');
+    //// include upgrade inc
+    //include_once WW_PLUGIN_DIR.'/includes/upgrade.inc';
+    //// run version related upgrade
+    //ww_upgrade_1x_to_2x();
+    //update_option('ww_version', WW_VERSION);
+  }
+}
+
 function ww_upgrade_1x_to_2x(){
   global $wpdb;
 
