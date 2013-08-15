@@ -61,7 +61,7 @@ class Widget_Wrangler {
       'name' => _x('Widget Wrangler', 'post type general name'),
       'all_items' => __('All Widgets'),
       'singular_name' => _x('Widget', 'post type singular name'),
-      'add_new' => _x('Add New', 'widget'),
+      'add_new' => _x('Add New Widget', 'widget'),
       'add_new_item' => __('Add New Widget'),
       'edit_item' => __('Edit Widget'),
       'new_item' => __('New Widget'),

@@ -106,7 +106,8 @@ function ww_corral_form(){
 	?>
 	<div class='wrap'>
 		<h2>Widget Corrals</h2>
-		<p>A corral contains any number of widgets, like the pen I keep ma' cattle in...  Wordpress and WidgetWrangler 1.x calls them "sidebars", but I found that confusing. </p>
+		<p>A corral is a way to group widgets.  Like where I keep ma' cattle!  Wordpress and Widget Wrangler 1.x call them "sidebars", but I find that to be confusin'.
+		</p>
 		<table id='ww-corral-page'>
 		<td>
 			<h2>Edit existing Corrals</h2>

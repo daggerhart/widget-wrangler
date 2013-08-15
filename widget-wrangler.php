@@ -35,6 +35,7 @@ include_once WW_PLUGIN_DIR.'/admin/settings.inc';
 
 // add the widget post type class
 include_once WW_PLUGIN_DIR.'/post_type-widget.inc';
+include_once WW_PLUGIN_DIR.'/post_type-widget.widget.inc';
 
 // include WP standard widgets for corrals
 include_once WW_PLUGIN_DIR.'/corral.widget.inc';
@@ -97,8 +98,8 @@ add_action( 'save_post', 'ww_save_post' );
  */
 function ww_menu()
 {
-  $clone    = add_submenu_page( 'edit.php?post_type=widget', 'Clone Widget', 	 'Clone Widget',   'manage_options', 'ww-clone',    'ww_clone_page_handler'   );
-  $corrals 	= add_submenu_page( 'edit.php?post_type=widget', 'Widget Corrals', 'Widget Corrals', 'manage_options', 'ww-corrals',  'ww_corrals_page_handler' );
+  $clone    = add_submenu_page( 'edit.php?post_type=widget', 'Copy Widget', 	 'Copy Widget',    'manage_options', 'ww-clone',    'ww_clone_page_handler'   );
+  $corrals 	= add_submenu_page( 'edit.php?post_type=widget', 'Corrals (Sidebars)', 'Corrals (Sidebars)', 'manage_options', 'ww-corrals',  'ww_corrals_page_handler' );
   $presets  = add_submenu_page( 'edit.php?post_type=widget', 'Corral Presets', 'Corral Presets', 'manage_options', 'ww-presets',  'ww_presets_page_handler' );
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',       'Settings',       'manage_options', 'ww-settings', 'ww_settings_page_handler');
   //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');

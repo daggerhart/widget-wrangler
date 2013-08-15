@@ -1,16 +1,16 @@
 <?php
 /*
- * Output a sidebar
+ * Output a corral
  *
- * @param string $sidebar_slug The slug for the sidebar to be displayed
+ * @param string $corral_slug The slug for the corral to be displayed
  */
-function ww_dynamic_sidebar($sidebar_slug = 'default')
+function ww_dynamic_corral($corral_slug = 'default')
 {
-  include_once WW_PLUGIN_DIR.'/includes/spaces.inc';
+  include_once WW_PLUGIN_DIR.'/admin/corral.inc';
   
-  // get the post and sidebars
+  // get the post and corrals
   global $post;
-  $sidebars = ww_get_all_sidebars();
+  $corrals = ww_get_all_corrals();
   $output = '';
   $op = ww_get_page_op();
   
@@ -28,20 +28,20 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
         $category = array_pop(get_the_tags());
       }
       
-      // get the space
-      $spaces_table = $wpdb->prefix.'ww_widget_spaces';
-      $relation_table = $wpdb->prefix.'ww_space_term_relationships';
+      // get the corral
+      $corrals_table = $wpdb->prefix.'ww_widget_corrals';
+      $relation_table = $wpdb->prefix.'ww_corral_term_relationships';
       
-      // look for spaces for this category
-      $sql = "SELECT r.space_id, s.widgets
+      // look for corrals for this category
+      $sql = "SELECT r.corral_id, s.widgets
               FROM ".$relation_table." as r
-              LEFT JOIN ".$spaces_table." as s ON r.space_id = s.id
+              LEFT JOIN ".$corrals_table." as s ON r.corral_id = s.id
               WHERE r.term_id = ".$category->term_id."
               LIMIT 1";
       $row = $wpdb->get_row($sql);
       
       // make the array
-      if($row->space_id){
+      if($row->corral_id){
         $widgets_array = unserialize($row->widgets);
       }
       break;
@@ -53,36 +53,36 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
       break;
     
     /*
-     * Default widget spaces
+     * Default widget corrals
      */
     case 'home':
       // see if this is the Posts (blog) page
       if(get_option('show_on_front') == 'posts'){
-        // posts page is space 2
-        $space = ww_get_space(2);
-        $widgets_array = unserialize($space->widgets);
+        // posts page is corral 2
+        $corral = ww_get_corral(2);
+        $widgets_array = unserialize($corral->widgets);
       }
       break;
 
     case 'search':
-      // search page is default space 3
-      $space = ww_get_space(3);
-      $widgets_array = unserialize($space->widgets);
+      // search page is default corral 3
+      $corral = ww_get_corral(3);
+      $widgets_array = unserialize($corral->widgets);
       break;
     
     case '404':
-      // 404 page is default space 4
-      $space = ww_get_space(4);
-      $widgets_array = unserialize($space->widgets);
+      // 404 page is default corral 4
+      $corral = ww_get_corral(4);
+      $widgets_array = unserialize($corral->widgets);
       break;
   }
   
   // if still no widgets, fall back to defaults
   if (!is_array($widgets_array))
   {
-    // space 1 is the default widgets
-    if($space = ww_get_space(1)){
-      $widgets_array = unserialize($space->widgets);      
+    // corral 1 is the default widgets
+    if($corral = ww_get_corral(1)){
+      $widgets_array = unserialize($corral->widgets);      
     }
     // no widgets in post and no defaults
     else {
@@ -91,19 +91,19 @@ function ww_dynamic_sidebar($sidebar_slug = 'default')
   }
   
   // handle widgets
-  if (is_array($widgets_array[$sidebar_slug]))
+  if (is_array($widgets_array[$corral_slug]))
   {
     $i = 0;
-    $total = count($widgets_array[$sidebar_slug]);
+    $total = count($widgets_array[$corral_slug]);
     
     // custom sorting with callback
-    usort($widgets_array[$sidebar_slug],'ww_cmp');
-    $sorted_widgets = array_reverse($widgets_array[$sidebar_slug]);
+    usort($widgets_array[$corral_slug],'ww_cmp');
+    $sorted_widgets = array_reverse($widgets_array[$corral_slug]);
     
     while($i < $total)
     {
       // make sure we have a widget
-      if($widget = ww_get_single_widget($widgets_array[$sidebar_slug][$i]['id']))
+      if($widget = ww_get_single_widget($widgets_array[$corral_slug][$i]['id']))
       {
         // check the widget's display logic
         if(ww_widget_display_logic($widget))

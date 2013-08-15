@@ -34,10 +34,10 @@ jQuery(function(){
       connectWith: '.ww-sortable',
       update: function(event,ui){
         var active_widgets = jQuery(this).children(".ww-item");
-        var sidebar_name = jQuery(this).attr("name");
+        var corral_name = jQuery(this).attr("name");
         //console.log(active_widgets);
          jQuery.each(active_widgets, function(i){
-            jQuery(this).children("select").val(sidebar_name);
+            jQuery(this).children("select").val(corral_name);
             //console.log((i+1)+" - "+jQuery(this).attr("id"));
         });
         toggle_no_widgets();
@@ -60,11 +60,11 @@ jQuery(function(){
           //console.log(jQuery(this).val());
           //console.log(jQuery(this));
           jQuery(this).parent('.ww-item').clone()
-            .addClass('nojs').prependTo("#ww-sidebar-"+select_val+"-items").removeClass("disabled");
+            .addClass('nojs').prependTo("#ww-corral-"+select_val+"-items").removeClass("disabled");
           jQuery(this).parent('.ww-item').remove();
-          jQuery("#ww-sidebar-"+select_val+"-items select[name='"+select_name+"']").val(select_val);
+          jQuery("#ww-corral-"+select_val+"-items select[name='"+select_name+"']").val(select_val);
           
-          var this_list = jQuery("#ww-sidebar-"+select_val+"-items").children(".ww-item");
+          var this_list = jQuery("#ww-corral-"+select_val+"-items").children(".ww-item");
           //console.log(this_list);
         }
         else

@@ -11,8 +11,8 @@ function ww_clone_insert($posted)
   // prep new widget info for saving
   $new_widget = array();
   $new_widget['post_author'] = $user_ID; // for now
-  $new_widget['post_title'] = (isset($instance['title'])) ? $instance['title'] : "Clone of ".$clone_class;
-  $new_widget['post_excerpt'] = 'Cloned from '.$clone_class;
+  $new_widget['post_title'] = (isset($instance['title'])) ? $instance['title'] : "Copy of ".$clone_class;
+  $new_widget['post_excerpt'] = 'Copied from '.$clone_class;
   $new_widget['post_date'] = date('Y-m-d H:i:s');
   $new_widget['post_category'] = array(0);
   $new_widget['comment_status'] = 'closed';
@@ -43,8 +43,8 @@ function ww_clone_form() {
 	$half = round($total_widgets/2);
 	?>
 	<div class='wrap'>
-		<h2>Clone a Wordpress Widget</h2>
-		<p>Here you can clone an existing Wordpress widget into the Widget Wrangler system.</p>
+		<h2>Copy a Wordpress Widget</h2>
+		<p>Here you can copy an existing Wordpress widget into the Widget Wrangler system.</p>
 		
 		<ul class='ww-clone-widgets'>
 			<?php

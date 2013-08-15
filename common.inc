@@ -174,17 +174,17 @@ function ww_get_all_widgets()
             WHERE
               post_type = 'widget' AND
               post_status = 'publish'";
-  $widgets = $wpdb->get_results($query);
+  $results = $wpdb->get_results($query);
 
-  $i=0;
-  $total = count($widgets);
-  while($i < $total)
+	$widgets = array();
+	foreach ($results as $i => $widget)
   {
-    $widgets[$i]->adv_enabled = get_post_meta($widgets[$i]->ID,'ww-adv-enabled',TRUE);
-    $widgets[$i]->parse       = get_post_meta($widgets[$i]->ID,'ww-parse', TRUE);
-    $widgets[$i]->wpautop     = get_post_meta($widgets[$i]->ID,'ww-wpautop', TRUE);
-    $i++;
+		$widgets[$widget->ID] = $widget;
+    $widgets[$widget->ID]->adv_enabled = get_post_meta($widget->ID,'ww-adv-enabled',TRUE);
+    $widgets[$widget->ID]->parse       = get_post_meta($widget->ID,'ww-parse', TRUE);
+    $widgets[$widget->ID]->wpautop     = get_post_meta($widget->ID,'ww-wpautop', TRUE);
   }
+	unset($results);
   return $widgets;
 }
 /*

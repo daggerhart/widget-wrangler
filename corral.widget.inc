@@ -33,7 +33,7 @@ class Widget_Wrangler_Corral_Widget extends WP_Widget {
     $control_ops = array( 'id_base' => 'widget-wrangler-corral' );
     
     // Create the widget. 
-    $this->WP_Widget( 'widget-wrangler-corral', __('WW Corral', 'widgetwranglercorral'), $widget_ops, $control_ops );
+    $this->WP_Widget( 'widget-wrangler-corral', __('Widget Wrangler - Corral', 'widgetwranglercorral'), $widget_ops, $control_ops );
   }
   /**
    * How to display the widget on the screen.
@@ -61,7 +61,7 @@ class Widget_Wrangler_Corral_Widget extends WP_Widget {
   function form( $instance )
   {
     // Set up some default widget settings. 
-    $defaults = array( 'title' => __('WW Corral', 'widgetwranglercorral'), 'corral' => '' );
+    $defaults = array( 'title' => __('Widget Wrangler - Corral', 'widgetwranglercorral'), 'corral' => '' );
     $instance = wp_parse_args( (array) $instance, $defaults );
     $corrals = ww_get_all_corrals();
     ?>
