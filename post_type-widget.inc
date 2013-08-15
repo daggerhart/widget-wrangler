@@ -22,9 +22,15 @@ class Widget_Wrangler {
   function Widget_Wrangler()
   {
     // Editing specific widget
-    $this->post_id = ($_GET['post']) ? $_GET['post'] : $_POST['post_ID'];
+    if (isset($_GET['post'])){
+      $this->post_id = $_GET['post'];
+    }
+    else if (isset($_POST['post_ID'])){
+      $this->post_id = $_POST['post_ID'];
+    }
+    
     // this widget has been saved before
-    if($this->post_id){
+    if(isset($this->post_id)){
       $widget = ww_get_widget_data($this->post_id);
       $this->type = $widget->type;
       $this->data = unserialize($widget->data);
@@ -70,6 +76,7 @@ class Widget_Wrangler {
     register_post_type('widget', array(
       'labels' =>$labels,
       'public' => true,
+      'exclude_from_search' => true, // @TODO: setting ?
       'show_in_menu' => true,
       'show_ui' => true, // UI in admin panel
       '_builtin' => false, // It's a custom post type, not built in
@@ -138,7 +145,7 @@ class Widget_Wrangler {
     if ($post->post_type == "widget")
     {
       global $wpdb;
-      $type = $_POST['ww-type'];
+      $type = (isset($_POST['ww-type'])) ? $_POST['ww-type'] : "";
       
       // problems with php and html adding slashes
       if(isset($_POST['ww-data']['standard']['custom-output'])){
@@ -168,11 +175,14 @@ class Widget_Wrangler {
       }
       
       // prep the data and logic for save
-      $widget_data = $_POST['ww-data'][$type];
-      $widget_data['logic'] = $_POST['ww-data']['logic'];
+      $widget_data = array();
+      if (isset($_POST['ww-data'])) {
+        $widget_data = $_POST['ww-data'][$type];
+        $widget_data['logic'] = $_POST['ww-data']['logic'];
+      }
       
       // unset the php value if empty
-      if($widget_data['logic']['php'] == ''){
+      if(isset($widget_data['logic']) && $widget_data['logic']['php'] == ''){
         unset($widget_data['logic']['php']);
       }
       $data = serialize($widget_data);
@@ -204,22 +214,30 @@ class Widget_Wrangler {
                     true);
 
     // add meta boxes
-    $post_id = ($_GET['post']) ? $_GET['post'] : $_POST['post_ID'];
-    $widget = ww_get_widget_data($post_id);
+    if (isset($_GET['post'])){
+      $post_id = $_GET['post'];
+    }
+    else if (isset($_POST['post_ID'])){
+      $post_id = $_POST['post_ID'];
+    }
     
-    if(isset($widget->type) && $widget->type == "clone")
-    {
-      // Clone Class
-      add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
-      // Clone Instance
-      add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
+    if (isset($post_id)){
+      $widget = ww_get_widget_data($post_id);
+  
+      if(isset($widget->type) && $widget->type == "clone")
+      {
+        // Clone Class
+        add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
+        // Clone Instance
+        add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
+      }
+      else if (!isset($widget->type) || $widget->type == 'standard')
+      {
+        // Rewrite output box
+        add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
+      }
     }
-    else if (!isset($widget->type) || $widget->type == 'standard')
-    {
-      // Rewrite output box
-      add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
-    }
-
+    
     // Widget type
     add_meta_box("ww-type", "Widget Details", array(&$this, "meta_widget_details"), "widget", "side", "high");
 
@@ -229,6 +247,7 @@ class Widget_Wrangler {
     // Widget Display Logic
     add_meta_box("ww-display-logic", "Display Logic", array(&$this, "meta_display_logic"), "widget", "normal", "default");
   }
+  
   // Widget Type
   function meta_widget_details()
   {
@@ -321,7 +340,8 @@ class Widget_Wrangler {
       <?php
         /*
          * Custom php
-         */ 
+         */
+        $data_logic_php = (isset($data['logic']['php'])) ? htmlentities($data['logic']['php']) : "";
       ?>
         <div id="tab-php">
           <div class="logic-php-wrapper">
@@ -334,7 +354,7 @@ class Widget_Wrangler {
                 </ul>
               </strong>
             </p>
-            <textarea name="ww-data[logic][php]" cols="40" rows="16" style="width: 100%;"><?php print htmlentities($data['logic']['php']); ?></textarea>
+            <textarea name="ww-data[logic][php]" cols="40" rows="16" style="width: 100%;"><?php print $data_logic_php; ?></textarea>
           </div>
         </div>
         <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
@@ -392,7 +412,7 @@ class Widget_Wrangler {
         eval('$w = new '.$clone_class.'(); $w->form($instance);');
         $instance_form = ob_get_clean();
         
-      $hide_title_checked = ($data['hide_title']) ? 'checked="checked"' : '';
+      $hide_title_checked = (isset($data['hide_title'])) ? 'checked="checked"' : '';
       ?>
         <label>
           <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> Hide the Widget's title on display
@@ -411,7 +431,7 @@ class Widget_Wrangler {
     if ($this->post_id)
     {
       // query widgets break edit page
-      if($this->data['clone-class'] == "Query_Wrangler_Widget") {
+      if(isset($this->data['clone-class']) && $this->data['clone-class'] == "Query_Wrangler_Widget") {
         print "Query Widgets cannot be previewed";
       }
       else {
@@ -433,8 +453,9 @@ class Widget_Wrangler {
     
     // default to checked upon creation
     $rewrite_output_checked = (isset($data['rewrite-output'])) ? 'checked="checked"' : '';
-    $adv_template_checked = (isset($data['adv-template'])) ? 'checked="checked"' : '';
+    $adv_template_checked   = (isset($data['adv-template'])) ? 'checked="checked"' : '';
     $filter_content_checked = (isset($data['filter-content']) || (($_GET['action'] == null) && ($_GET['post_type'] == 'widget'))) ? 'checked="checked"' : '';
+    $data_custom_output     = (isset($data['custom-output'])) ? htmlentities($data['custom-output']) : "";
     ?>
       <div id="ww-template">
         <div>
@@ -450,7 +471,7 @@ class Widget_Wrangler {
               <div id="ww-advanced-template">
                 <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> Template the Advanced Parsing Area</label>
               </div>
-              <textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print htmlentities($data['custom-output']); ?></textarea>
+              <textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print $data_custom_output; ?></textarea>
               <div class="adv-parse-description">
                 <h5>In the Advanced Parsing area you can:</h5>
                 <ul>

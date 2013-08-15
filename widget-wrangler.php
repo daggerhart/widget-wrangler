@@ -25,17 +25,19 @@ define('WW_PLUGIN_DIR', dirname(__FILE__));
 define('WW_PLUGIN_URL', get_bloginfo('wpurl')."/wp-content/plugins/widget-wrangler");
 
 // functions
-include_once WW_PLUGIN_DIR.'/functions.inc';
+include_once WW_PLUGIN_DIR.'/common.inc';
+
 // theme functions
-include_once WW_PLUGIN_DIR.'/theme.inc';
+//include_once WW_PLUGIN_DIR.'/theme.inc';
+
 // settings functions
-include_once WW_PLUGIN_DIR.'/includes/settings.inc';
+include_once WW_PLUGIN_DIR.'/admin/settings.inc';
 
 // add the widget post type class
-include_once WW_PLUGIN_DIR.'/post_type.widget.inc';
+include_once WW_PLUGIN_DIR.'/post_type-widget.inc';
 
-// include WP standard widgets for sidebars
-include_once WW_PLUGIN_DIR.'/widget.sidebar.inc';
+// include WP standard widgets for corrals
+include_once WW_PLUGIN_DIR.'/corral.widget.inc';
 
 /*
  * checkout version number and perform an upgrade if necessary
@@ -77,7 +79,7 @@ function ww_admin_init()
   ww_check_version();
 
   // include admin panel and helper functions such as sortable widgets
-  include_once WW_PLUGIN_DIR.'/includes/admin-panel.inc';
+  include_once WW_PLUGIN_DIR.'/admin/widgets-post.inc';
 
   // determine whether to display the admin panel
   // handles adding some css and the js
@@ -96,11 +98,11 @@ add_action( 'save_post', 'ww_save_post' );
 function ww_menu()
 {
   $clone    = add_submenu_page( 'edit.php?post_type=widget', 'Clone WP Widget', 'Clone WP Widget',  'manage_options', 'ww-clone',    'ww_clone_page_handler');
-  $spaces   = add_submenu_page( 'edit.php?post_type=widget', 'Widget Spaces', 'Widget Spaces',     'manage_options', 'ww-spaces', 'ww_spaces_page_handler');
-  $sidebars = add_submenu_page( 'edit.php?post_type=widget', 'Widget Sidebars', 'Sidebars',         'manage_options', 'ww-sidebars', 'ww_sidebars_page_handler');
+  $presets   = add_submenu_page( 'edit.php?post_type=widget', 'Widget Presets', 'Widget Presets',     'manage_options', 'ww-presets', 'ww_presets_page_handler');
+  $corrals = add_submenu_page( 'edit.php?post_type=widget', 'Widget Corrals', 'Corrals',         'manage_options', 'ww-corrals', 'ww_corrals_page_handler');
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',        'Settings',         'manage_options', 'ww-settings', 'ww_settings_page_handler');
   //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets', 'Debug', 'manage_options', 'ww-debug', 'ww_debug_page');
-  add_action( "admin_print_scripts-$sidebars", 'ww_sidebar_js' );
+  add_action( "admin_print_scripts-$corrals", 'ww_corral_js' );
 }
 add_action( 'admin_menu', 'ww_menu');
 
@@ -109,78 +111,78 @@ add_action( 'admin_menu', 'ww_menu');
  * Page handling
  */
 /*
- * Produce the Widget Spaces
+ * Produce the Widget Presets
  */
-function ww_spaces_page_handler()
+function ww_presets_page_handler()
 {
-  include_once WW_PLUGIN_DIR.'/includes/spaces.inc';
-  if($_GET['action']) {
+  include_once WW_PLUGIN_DIR.'/admin/presets.inc';
+  if(isset($_GET['action'])) {
     switch ($_GET['action'])
     {
-      // create new widget space
+      // create new widget preset
       case 'create':
-        $space_id = ww_create_space();
+        $preset_id = ww_create_preset();
         break;
 
-      // update an existing widget space
+      // update an existing widget preset
       case 'update':
 
         // switch Save & Delete buttons
         // do not let them delete defaults or post pages
         if(isset($_POST['action-delete']) &&
-           $_POST['space-type'] != 'default')
+           $_POST['preset-type'] != 'default')
         {
-          ww_delete_space();
-          $space_id = 0;
+          ww_delete_preset();
+          $preset_id = 0;
         }
         else if (isset($_POST['action-save'])){
-          $space_id = ww_update_space();
+          $preset_id = ww_update_preset();
         }
         break;
     }
-    // send to the new space
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-spaces&space_id='.$space_id);
+    // send to the new preset
+    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-presets&preset_id='.$preset_id);
 
   }
   else {
-    // spaces edit form
-    include_once WW_PLUGIN_DIR.'/forms/spaces.inc';
+    // presets edit form
+    ww_preset_form();
   }
 }
 /*
- * Sidebar page handler
+ * Corral page handler
  */
-function ww_sidebars_page_handler()
+function ww_corrals_page_handler()
 {
-  // include the sidebars form
-  include_once WW_PLUGIN_DIR.'/includes/sidebars.inc';
+  // include the corrals form
+  include_once WW_PLUGIN_DIR.'/admin/corrals.inc';
 
-  if($_GET['ww-sidebar-action']){
-    switch($_GET['ww-sidebar-action']){
+  if($_GET['ww-corral-action']){
+    switch($_GET['ww-corral-action']){
       case 'insert':
-        $new_sidebar_id = ww_sidebar_insert($_POST);
+        $new_corral_id = ww_corral_insert($_POST);
         break;
       case 'delete':
-        ww_sidebar_delete($_POST);
+        ww_corral_delete($_POST);
         break;
       case 'update':
-        ww_sidebar_update($_POST);
+        ww_corral_update($_POST);
         break;
       case 'sort':
-        ww_sidebar_sort($_POST);
+        ww_corral_sort($_POST);
         break;
     }
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-sidebars');
+    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-corrals');
   }
-  // show sidebars page
-  include_once WW_PLUGIN_DIR.'/forms/sidebars.inc';
+  // show corrals page
+  //include_once WW_PLUGIN_DIR.'/forms/corrals.inc';
 }
 /*
  * Handles creation of new cloned widgets, and displays clone new widget page
  */
 function ww_clone_page_handler()
 {
-  include_once WW_PLUGIN_DIR.'/includes/clone.inc';
+  include_once WW_PLUGIN_DIR.'/admin/clone.inc';
 
   if($_GET['ww-clone-action']){
     switch($_GET['ww-clone-action']){
@@ -194,7 +196,7 @@ function ww_clone_page_handler()
   }
   else{
     // show clone page
-    include_once WW_PLUGIN_DIR.'/forms/clone.inc';
+    ww_clone_form();
   }
 }
 /*
@@ -215,7 +217,7 @@ function ww_settings_page_handler()
   }
   else{
     // settings form
-    include_once WW_PLUGIN_DIR.'/forms/settings.inc';
+    ww_settings_form();
   }
 }
 /*
@@ -224,13 +226,15 @@ function ww_settings_page_handler()
 function ww_debug_page(){}
 // */
 /*********************************************** end page handling */
+
 /*
  * Shortcode support for all widgets
  *
  * @param array $atts Attributes within the executed shortcode.  'id' => widget->ID
  * @return string HTML for a single themed widget
  */
-function ww_single_widget_shortcode($atts) {
+function ww_single_widget_shortcode($atts)
+{
   $short_array = shortcode_atts(array('id' => ''), $atts);
   extract($short_array);
   return ww_theme_single_widget(ww_get_single_widget($id));
@@ -256,9 +260,10 @@ function ww_hec_show_dbx( $to_show )
 // activation hooks
 register_activation_hook(__FILE__, 'ww_post_widgets_table');
 register_activation_hook(__FILE__, 'ww_widget_data_table');
-register_activation_hook(__FILE__, 'ww_widget_spaces_table');
-register_activation_hook(__FILE__, 'ww_widget_space_term_relationships_table');
-register_activation_hook(__FILE__, 'ww_default_spaces');
+register_activation_hook(__FILE__, 'ww_widget_presets_table');
+register_activation_hook(__FILE__, 'ww_widget_preset_term_relationships_table');
+register_activation_hook(__FILE__, 'ww_default_presets');
+
 /*
  * Create post - widgets table
  */
@@ -293,11 +298,11 @@ function ww_widget_data_table(){
   dbDelta($sql);
 }
 /*
- * Create widget spaces table
+ * Create widget presets table
  */
-function ww_widget_spaces_table(){
+function ww_widget_presets_table(){
   global $wpdb;
-  $table = $wpdb->prefix."ww_widget_spaces";
+  $table = $wpdb->prefix."ww_widget_presets";
 
   $sql = "CREATE TABLE " . $table . " (
 	  id mediumint(11) NOT NULL AUTO_INCREMENT,
@@ -311,14 +316,14 @@ function ww_widget_spaces_table(){
   dbDelta($sql);
 }
 /*
- * Create widget spaces table
+ * Create widget presets table
  */
-function ww_widget_space_term_relationships_table(){
+function ww_widget_preset_term_relationships_table(){
   global $wpdb;
-  $table = $wpdb->prefix."ww_space_term_relationships";
+  $table = $wpdb->prefix."ww_preset_term_relationships";
 
   $sql = "CREATE TABLE " . $table . " (
-	  space_id mediumint(11) NOT NULL,
+	  preset_id mediumint(11) NOT NULL,
 	  term_id mediumint(11) NOT NULL
   );";
 
@@ -326,11 +331,11 @@ function ww_widget_space_term_relationships_table(){
   dbDelta($sql);
 }
 /*
- * Look for an insert default spaces
+ * Look for an insert default presets
  */
-function ww_default_spaces(){
+function ww_default_presets(){
   global $wpdb;
-  $table = $wpdb->prefix."ww_widget_spaces";
+  $table = $wpdb->prefix."ww_widget_presets";
   $data = array(
     'id' => 0,
     'type' => 'default',
