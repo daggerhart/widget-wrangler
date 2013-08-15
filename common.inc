@@ -58,7 +58,7 @@ function ww_serialize_widgets($posted)
   {
     $name = $posted['ww-widgets'][$widget->post_name]['name'];
     $weight = $posted['ww-widgets'][$widget->post_name]['weight'];
-    $sidebar = $posted['ww-widgets'][$widget->post_name]['sidebar'];
+    $corral = $posted['ww-widgets'][$widget->post_name]['corral'];
 
     // if something was submitted without a weight, make it neutral
     if ($weight < 1)
@@ -66,10 +66,10 @@ function ww_serialize_widgets($posted)
       $weight = $i;
     }
     // add widgets to save array
-    if (($sidebar && $name) &&
-        ($sidebar != 'disabled'))
+    if (($corral && $name) &&
+        ($corral != 'disabled'))
     {
-      $active_widgets[$sidebar][] = array(
+      $active_widgets[$corral][] = array(
             'id' => $widget->ID,
             'name' => $widget->post_title,
             'weight' => $weight,
@@ -218,24 +218,24 @@ function ww_get_single_widget($post_id){
 
 
 /*
- * Retrieve list of sidebars
+ * Retrieve list of corrals
  *
- * @return array of sidebars
+ * @return array of corrals
  */
-function ww_get_all_sidebars()
+function ww_get_all_corrals()
 {
-  if ($sidebars_string = get_option('ww_sidebars')){
-    $sidebars_array = unserialize($sidebars_string);
+  if ($corrals_string = get_option('ww_corrals')){
+    $corrals_array = unserialize($corrals_string);
   }
   else{
-    $sidebars_array = array('No Sidebars Defined');
+    $corrals_array = array('No Corrals Defined');
   }
-  return $sidebars_array;
+  return $corrals_array;
 }
 
 /* ==================================== HELPER FUNCTIONS ===== */
 /*
- * Helper function for making sidebar slugs
+ * Helper function for making corral slugs
  */
 function ww_make_slug($string){
   $search = array("!","@","#","$","%","^","&","*","(",")","-","+","=","{","}","[","]","\\","|",":",";","'","<",",",">",".","?","/","~","`");

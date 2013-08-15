@@ -150,13 +150,13 @@ function ww_create_preset()
  *
  * Other variables
  * -----
- * $all_sidebars
+ * $all_corrals
  * $all_widgets
  * $all_presets
  */
 function ww_preset_form() {
 	// prepare preset data  
-	if(!isset($_GET['preset_id']) || !is_numeric($_GET['preset_id'])){
+	if(!isset($_GET['preset_id']) || !is_numeric($_GET['preset_id']) || $_GET['preset_id'] < 1){
 		$preset_id = 1;
 	} else {
 		$preset_id = $_GET['preset_id'];
@@ -169,17 +169,17 @@ function ww_preset_form() {
 	
 	$sortable_widgets = array();
 	$all_widgets = ww_get_all_widgets();
-	$all_sidebars = ww_get_all_sidebars();  
+	$all_corrals = ww_get_all_corrals();  
 	
-	// add additional sidebars to output
-	if (is_array($all_widgets) && count($all_sidebars) > 0 && count($all_widgets) > 0){
-		$sortable_widgets = ww_create_sortable_widgets($all_widgets, $preset_widgets, $all_sidebars);
+	// add additional corrals to output
+	if (is_array($all_widgets) && count($all_corrals) > 0 && count($all_widgets) > 0){
+		$sortable_widgets = ww_create_sortable_widgets($all_widgets, $preset_widgets, $all_corrals);
 	}
 	
-	// sort each sidebar
+	// sort each corral
 	if(isset($sortable_widgets['active']) && is_array($sortable_widgets['active'])){
-		foreach($sortable_widgets['active'] as $sidebar => $unsorted_widgets){
-			ksort($sortable_widgets['active'][$sidebar]);  
+		foreach($sortable_widgets['active'] as $corral => $unsorted_widgets){
+			ksort($sortable_widgets['active'][$corral]);  
 		}
 	}
 	?>
@@ -193,7 +193,7 @@ function ww_preset_form() {
 				
 				</div>
 				
-				<div id="presets-sidebar">
+				<div id="presets-corral">
 					<div id="presets-list">
 						<h4>Corral Presets</h4>
 						<?php

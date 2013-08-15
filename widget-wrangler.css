@@ -9,7 +9,7 @@
   background: #eee; 
 }
 li.ww-item,
-li.ww-sidebar-sort-item{
+li.ww-corral-sort-item{
   line-height: 30px;
   border: 1px solid #bbb;
   border-radius: 4px;
@@ -58,34 +58,34 @@ li.ww-sidebar-sort-item{
   float: left;
   margin: 0px 0px 0px 24px;
 }
-#ww-sidebar-page ul {
+#ww-corral-page ul {
   width: 350px;
 }
 .ww-clone-widgets h4,
-#ww-sidebar-page h4 {
+#ww-corral-page h4 {
   margin: 0px;
   padding: 7px 12px;
 }
-.ww-sidebar-edit {
+.ww-corral-edit {
   float: right;
   padding: 6px 4px;
   cursor: pointer;
   color:#21759B;
   text-decoration: underline;
 }
-.ww-sidebar-details label {
-  font-family: monospace;
+.ww-corral-details label {
+  font-family: monopreset;
 }
-.ww-sidebar-details .ww-text {
+.ww-corral-details .ww-text {
   width: 84%;
 }
 .ww-clone-submit,
-.ww-sidebar-update-submit{
+.ww-corral-update-submit{
   display: block;
   width: auto;
   margin: 4px 0px 0px auto;
 }
-.ww-sidebar-sort-submit {
+.ww-corral-sort-submit {
   margin-top: 24px;
 }
 #ww-advanced-field {
@@ -110,10 +110,10 @@ li.ww-sidebar-sort-item{
   font: normal 11px Arial;
   color: #555;
 }
-#ww-sidebar-page {
+#ww-corral-page {
   width: 98%;
 }
-#ww-sidebar-page td {
+#ww-corral-page td {
   width: 50%;
   vertical-align: top;
 }
@@ -132,9 +132,9 @@ li.ww-sidebar-sort-item{
 #ww-defaults { border-bottom: 1px solid #666;padding-top: 8px; }
 #ww-defaults p { padding-left: 20px; }
 #ww-defaults dt { font-weight: bold; }
-#ww-sidebar-page .description {
+#ww-corral-page .description {
   width: 350px;
-  font: bold 11px/14px monospace;
+  font: bold 11px/14px monopreset;
   margin-bottom: 12px;
 }
 .widget-title-action {
@@ -151,14 +151,14 @@ div.widget-action {
   display: none;
   padding: 6px 12px;
 }
-#ww-sidebar-page .widget-top {
+#ww-corral-page .widget-top {
   cursor: default;
 }
-li.ww-sidebar-sort-item {
+li.ww-corral-sort-item {
   background: #DFDFDF url('images/gray-grad.png') repeat-x scroll left top;
   margin-bottom: 2px;
 }
-.ww-sidebar-sort-item,
+.ww-corral-sort-item,
 .ww-item {
   cursor: move;
 }
@@ -218,79 +218,79 @@ li.ww-sidebar-sort-item {
 /*
  * Spaces
  */
-#spaces-sidebar {
+#presets-corral {
   width: 140px;
   float: left;
   border: 1px solid #888;
   margin-right: 12px;
 }
-#spaces-list {}
-#spaces-list h4 {
+#presets-list {}
+#presets-list h4 {
   padding: 3px 5px;
   margin: 0px;
   border-bottom: 1px solid #888;
 }
-.space-list-item a {
+.preset-list-item a {
   display: block;
   background: #eee;
   padding: 3px 5px;
   border-bottom: 1px solid #bbb;
 }
-#spaces-list .active a {
+#presets-list .active a {
   background: #fff;
 }
-#spaces-add-new {
+#presets-add-new {
   padding: 12px 3px 6px;
   background : #eee;
   border-top: 1px solid #888;
 }
-#space-data {
+#preset-data {
   padding: 6px 6px 12px;
   border-bottom: 1px solid #888;
   background: #fff;
 }
-#space-action {
+#preset-action {
   float: right;
 }
-#space-terms {
+#preset-terms {
   padding: 6px 12px;
   border-bottom: 1px solid #888;
 }
-#space-terms .description {
+#preset-terms .description {
   color: red;
 }
-#space-name {
+#preset-name {
   font-weight: bold;
 }
-#space-name .detail{
+#preset-name .detail{
   padding: 3px;
 }
-#space-name label {
+#preset-name label {
   display: block;
   float: left;
   width: 52px;
 }
-#space-details {
+#preset-details {
   width: 600px;
   float: left;
   margin: 0px;
   border: 1px solid #888;
   background: #eee;
 }
-#space-widgets {
+#preset-widgets {
   padding: 6px;
   background: #fff;
 }
 
-label.ww-space-checkbox {
+label.ww-preset-checkbox {
   display: block;
   margin: 3px 0px;
   padding: 3px;
 }
-label.ww-space-checkbox input {
+label.ww-preset-checkbox input {
   margin-right: 6px;
 }
-.space-checkboxes {
+.preset-checkboxes {
   border: 1px solid #bbb;
   background: #fff;
   margin: 4px;

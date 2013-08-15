@@ -28,7 +28,7 @@ define('WW_PLUGIN_URL', get_bloginfo('wpurl')."/wp-content/plugins/widget-wrangl
 include_once WW_PLUGIN_DIR.'/common.inc';
 
 // theme functions
-//include_once WW_PLUGIN_DIR.'/theme.inc';
+include_once WW_PLUGIN_DIR.'/front.inc';
 
 // settings functions
 include_once WW_PLUGIN_DIR.'/admin/settings.inc';
@@ -97,11 +97,11 @@ add_action( 'save_post', 'ww_save_post' );
  */
 function ww_menu()
 {
-  $clone    = add_submenu_page( 'edit.php?post_type=widget', 'Clone WP Widget', 'Clone WP Widget',  'manage_options', 'ww-clone',    'ww_clone_page_handler');
-  $presets   = add_submenu_page( 'edit.php?post_type=widget', 'Widget Presets', 'Widget Presets',     'manage_options', 'ww-presets', 'ww_presets_page_handler');
-  $corrals = add_submenu_page( 'edit.php?post_type=widget', 'Widget Corrals', 'Corrals',         'manage_options', 'ww-corrals', 'ww_corrals_page_handler');
-  $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',        'Settings',         'manage_options', 'ww-settings', 'ww_settings_page_handler');
-  //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets', 'Debug', 'manage_options', 'ww-debug', 'ww_debug_page');
+  $clone    = add_submenu_page( 'edit.php?post_type=widget', 'Clone Widget', 	 'Clone Widget',   'manage_options', 'ww-clone',    'ww_clone_page_handler'   );
+  $corrals 	= add_submenu_page( 'edit.php?post_type=widget', 'Widget Corrals', 'Widget Corrals', 'manage_options', 'ww-corrals',  'ww_corrals_page_handler' );
+  $presets  = add_submenu_page( 'edit.php?post_type=widget', 'Corral Presets', 'Corral Presets', 'manage_options', 'ww-presets',  'ww_presets_page_handler' );
+  $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',       'Settings',       'manage_options', 'ww-settings', 'ww_settings_page_handler');
+  //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
   add_action( "admin_print_scripts-$corrals", 'ww_corral_js' );
 }
 add_action( 'admin_menu', 'ww_menu');
@@ -115,7 +115,7 @@ add_action( 'admin_menu', 'ww_menu');
  */
 function ww_presets_page_handler()
 {
-  include_once WW_PLUGIN_DIR.'/admin/presets.inc';
+  include_once WW_PLUGIN_DIR.'/admin/preset.inc';
   if(isset($_GET['action'])) {
     switch ($_GET['action'])
     {
@@ -133,7 +133,7 @@ function ww_presets_page_handler()
            $_POST['preset-type'] != 'default')
         {
           ww_delete_preset();
-          $preset_id = 0;
+          $preset_id = 1;
         }
         else if (isset($_POST['action-save'])){
           $preset_id = ww_update_preset();
@@ -155,9 +155,9 @@ function ww_presets_page_handler()
 function ww_corrals_page_handler()
 {
   // include the corrals form
-  include_once WW_PLUGIN_DIR.'/admin/corrals.inc';
+  include_once WW_PLUGIN_DIR.'/admin/corral.inc';
 
-  if($_GET['ww-corral-action']){
+  if(isset($_GET['ww-corral-action'])){
     switch($_GET['ww-corral-action']){
       case 'insert':
         $new_corral_id = ww_corral_insert($_POST);
@@ -175,7 +175,7 @@ function ww_corrals_page_handler()
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-corrals');
   }
   // show corrals page
-  //include_once WW_PLUGIN_DIR.'/forms/corrals.inc';
+  ww_corral_form();
 }
 /*
  * Handles creation of new cloned widgets, and displays clone new widget page
@@ -184,7 +184,7 @@ function ww_clone_page_handler()
 {
   include_once WW_PLUGIN_DIR.'/admin/clone.inc';
 
-  if($_GET['ww-clone-action']){
+  if(isset($_GET['ww-clone-action'])){
     switch($_GET['ww-clone-action']){
       case 'insert':
         // create new cloned widget
