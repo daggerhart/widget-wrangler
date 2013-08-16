@@ -1,4 +1,52 @@
 <?php
+/*
+ * Widget Wrangler Admin Panel and related functions
+ */
+function ww_display_admin_panel()
+{
+  $settings = ww_get_settings();
+	$ww_pages = array(
+    //'ww-defaults',
+    'ww-debug',
+    //'ww-new',
+    'ww-clone',
+    'ww-corrals',
+    'ww-presets',
+    //'ww-postspage'		
+	);
+	
+  // eventually I will handle access control this way
+  $show_panel = true;
+
+  if ($show_panel)
+  {
+    if(is_array($settings['post_types'])){
+      // Add panels into the editing corral(s)
+      foreach($settings['post_types'] as $post_type){
+        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/images/wrangler_icon.png" />Widget Wrangler'), 'ww_widget_post_form', $post_type, 'normal', 'high');
+      }
+    }
+
+    // Add some CSS to the admin header on the widget wrangler pages, and edit pages
+    if( 
+				// new page/post
+				(isset($_GET['post_type']) && isset($settings['post_types'][$_GET['post_type']]))
+				||
+				// editing
+			  (isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit')
+				||
+				// internal admin pages
+				(isset($_GET['page']) && (in_array($_GET['page'], $ww_pages)))
+			)
+    {		
+      add_action( 'admin_head', 'ww_admin_css');
+      add_action( 'admin_enqueue_scripts', 'ww_admin_js');
+    }
+  }
+  add_action('admin_head', 'ww_adjust_css');
+  //disable autosave
+  //wp_deregister_script('autosave');
+}
 
 /* ================================ Page handling */
 /*
@@ -130,6 +178,7 @@ function ww_admin_js(){
                   array('jquery-ui-core', 'jquery-ui-sortable'),
                   false,
                   true);
+	wp_localize_script( 'ww-admin-js', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = {};') );	
 }
 /*
  * Javascript for drag and drop corral sorting
@@ -147,7 +196,7 @@ function ww_corral_js(){
 function ww_widget_js(){
   wp_enqueue_script('ww-widget-js',
                     plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
-                    array('jquery-ui-core', 'jquery-ui-sortable'),
+                    array('jquery-ui-core', 'jquery-ui-sortable', 'jquery-ui-tabs'),
                     false,
                     true);
 }
@@ -160,7 +209,7 @@ function ww_adjust_css(){
          li#menu-posts-widget a.wp-has-submenu {
           letter-spacing: -1px;
          }";
-  if ($_GET['post_type'] == 'widget')
+  if (isset($_GET['post_type']) && $_GET['post_type'] == 'widget')
   {
     print "#wpbody-content #icon-edit {
              background: transparent url('".WW_PLUGIN_URL."/images/wrangler_post_icon.png') no-repeat top left;
@@ -177,93 +226,7 @@ function ww_admin_css(){
 
 
 
-
-/*
- * Serialize widgets from a saved form
- *
- * @param array $posted $_POST array for a saved widget
- * @return string serialized array of the widgets within the $_POST array
- */
-function ww_serialize_widgets($posted)
-{
-  $active_widgets = array();
-  $all_widgets = ww_get_all_widgets();
-
-  // loop through post data and build widgets array for saving
-  $i = 1;
-  foreach($all_widgets as $key => $widget)
-  {
-    $name = $posted['ww-widgets'][$widget->post_name]['name'];
-    $weight = $posted['ww-widgets'][$widget->post_name]['weight'];
-    $corral = $posted['ww-widgets'][$widget->post_name]['corral'];
-
-    // if something was submitted without a weight, make it neutral
-    if ($weight < 1)
-    {
-      $weight = $i;
-    }
-    // add widgets to save array
-    if (($corral && $name) &&
-        ($corral != 'disabled'))
-    {
-      $active_widgets[$corral][] = array(
-            'id' => $widget->ID,
-            'name' => $widget->post_title,
-            'weight' => $weight,
-            );
-    }
-    $i++;
-  }
-  // serialize the results
-  return serialize($active_widgets);
-}
-
 /* ========================================== Page/post edit */
-
-/*
- * Save a post's widgets
- *
- * @param int $post_id The WP post ID for the page or post to assign widgets
- * @param string $widgets Serialized array of widgets on this post
- */
-function ww_update_post_widgets($post_id, $post_widgets = ''){
-  global $wpdb;
-  $table = $wpdb->prefix."ww_post_widgets";
-  $set = array(
-    'widgets' => $post_widgets,
-  );
-  $where = array(
-    'post_id' => $post_id,
-  );
-
-  // If can't update, insert
-  // $wpdb->update responds false on errors
-  if(!$wpdb->update($table, $set, $where))
-  {
-    // send along the post_id
-    $set['post_id'] = $post_id;
-
-    $wpdb->insert($table, $set);
-  }
-}
-
-
-
-/*
- * Delete a post's widgets
- *
- * @param int $post_id The WP post ID for the page or post to delete widgets from
- */
-function ww_delete_post_widgets($post_id){
-  if(is_numeric($post_id))
-  {
-    global $wpdb;
-    $table = $wpdb->prefix."ww_post_widgets";
-
-    $sql = "DELETE FROM ".$table." WHERE post_id = ".$post_id;
-    $wpdb->query($sql);
-  }
-}
 
 
 /*
@@ -285,4 +248,18 @@ function ww_all_widget_types(){
 function ww_make_slug($string){
   $search = array("!","@","#","$","%","^","&","*","(",")","-","+","=","{","}","[","]","\\","|",":",";","'","<",",",">",".","?","/","~","`");
   return str_replace(" ", "_", strtolower(str_replace($search, "", strip_tags($string))));
+}
+
+// http://www.wprecipes.com/how-to-show-an-urgent-message-in-the-wordpress-admin-area
+function ww_set_message($message, $type = 'updated')
+{
+		 return '<div id="message" class="'.$type.'">
+             <p>'.$message.'</p>
+           </div>';
+}
+
+function ww_upgrade_message(){
+  $msg = '<strong>Widget Wrangler requires a database update!</strong><br />
+          Backup your database, and then visit <a href="">this page</a> to perform the update.';
+  print ww_set_message($msg, 'error');
 }

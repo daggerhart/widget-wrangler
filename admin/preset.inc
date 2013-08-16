@@ -1,40 +1,8 @@
 <?php
 
+
 /*
- * Get all Corral Presets
- *
- * @return array All widget presets found in the DB
- */
-function ww_get_all_presets(){
-  global $wpdb;
-  $table = $wpdb->prefix."ww_widget_presets";
-  
-  $sql = "SELECT id,type,data,widgets FROM ".$table." ORDER BY id ASC";
-  $results = $wpdb->get_results($sql);
-  
-  //$presets = array();
-  
-  return $results;
-}
-/*
- * Get a single Corral Preset
- *
- * @param int $preset_id The id for the Corral Preset
- * @return array The Corral Preset details
- */
-function ww_get_preset($preset_id){
-  global $wpdb;
-  $table = $wpdb->prefix."ww_widget_presets";
-  
-  $sql = "SELECT id,type,data,widgets FROM ".$table." WHERE id = ".$preset_id." LIMIT 1";
-  $results = $wpdb->get_row($sql);
-  if (isset($results->data) && is_string($results->data)){
-    $results->data = unserialize($results->data);
-  }
-  return $results;
-}
-/*
- * All Corral Preset types
+ * All Widget Preset types
  *
  * @return array All widget preset types
  */
@@ -45,11 +13,11 @@ function ww_preset_types(){
   );
 }
 /*
- * Delete a Corral Preset
+ * Delete a Widget Preset
  */
 function ww_delete_preset(){
   global $wpdb;
-  $table = $wpdb->prefix."ww_widget_presets";
+  $table = $wpdb->prefix."ww_presets";
   
   $preset_id = $_POST['preset-id'];
   $preset_type = $_POST['preset-type'];
@@ -58,20 +26,20 @@ function ww_delete_preset(){
   $wpdb->query($sql);
 }
 /*
- * Update a Corral Preset
+ * Update a Widget Preset
  *
- * @return int Corral Preset id
+ * @return int Widget Preset id
  */
 function ww_update_preset(){
   global $wpdb;
-  $table = $wpdb->prefix."ww_widget_presets";
+  $table = $wpdb->prefix."ww_presets";
   
   $preset_id = $_POST['preset-id'];
   $preset_type = $_POST['preset-type'];
   $preset_data = serialize($_POST['data']);
-  $preset_widgets = ww_serialize_widgets($_POST);
+  $preset_widgets = ww_serialize_widgets($_POST['ww-widgets']);
   
-  // update the ww_widget_presets db
+  // update the ww_presets db
   $data = array(
     'data' => $preset_data,
     'widgets' => $preset_widgets,
@@ -111,16 +79,16 @@ function ww_update_preset(){
   return $preset_id;
 }
 /*
- * Create a new Corral Preset
+ * Create a new Widget Preset
  *
- * @return int New Corral Preset id
+ * @return int New Widget Preset id
  */
 function ww_create_preset()
 {
   //print_r($_POST);exit();
   
   global $wpdb;
-  $table = $wpdb->prefix."ww_widget_presets";
+  $table = $wpdb->prefix."ww_presets";
       
   switch($_POST['type'])
   {
@@ -164,7 +132,7 @@ function ww_preset_form() {
 	$this_preset     = ww_get_preset($preset_id);
 	$preset_type     = $this_preset->type;
 	$preset_data     = $this_preset->data;
-	$preset_widgets  = unserialize($this_preset->widgets);
+	$preset_widgets  = $this_preset->widgets;
 	$all_presets     = ww_get_all_presets();
 	
 	$sortable_widgets = array();
@@ -195,17 +163,16 @@ function ww_preset_form() {
 				
 				<div id="presets-corral">
 					<div id="presets-list">
-						<h4>Corral Presets</h4>
+						<h4>Widget Presets</h4>
 						<?php
 							// show all presets
 							if(is_array($all_presets)){
 								foreach($all_presets as $preset)
 								{
-									$this_data = unserialize($preset->data);
 									$classes = ($preset_id == $preset->id) ? 'active' : '';
 									?>
 									<div class="preset-list-item <?php print $classes; ?>">
-										<a href="edit.php?post_type=widget&page=ww-presets&preset_id=<?php print $preset->id; ?>"><?php print $this_data['name']; ?><?php print ($preset->type != 'default') ? ' ('.$preset->type.')' : ''; ?></a>
+										<a href="edit.php?post_type=widget&page=ww-presets&preset_id=<?php print $preset->id; ?>"><?php print $preset->data['name']; ?><?php print ($preset->type != 'default') ? ' ('.$preset->type.')' : ''; ?></a>
 									</div>
 									<?php
 								}
@@ -321,7 +288,7 @@ function ww_preset_form() {
 							
 							<?php
 								// themes draggable widgets
-								ww_theme_sortable_widgets($sortable_widgets);
+								print ww_theme_sortable_widgets($sortable_widgets);
 							?>
 							
 						</div>

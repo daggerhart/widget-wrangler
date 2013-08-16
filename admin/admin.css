@@ -340,3 +340,14 @@ label.ww-preset-checkbox input {
   list-style-type: disc;
   list-style-position: inside;
 }
+label.ww-logic-checkbox {
+	display: block;
+	font-size: 1em;
+	line-height: 2em;
+}
+label.ww-logic-checkbox input {
+	margin-top: -1px;
+}
+.ww-presets {
+	padding: 12px 0px 16px;
+}

@@ -1,5 +1,104 @@
 <?php
 
+// gonna make widgets global
+function ww_set_page_widgets() {
+	global $ww_page_widgets;
+	$ww_page_widgets = ww_find_page_widgets();
+}
+add_action( 'wp', 'ww_set_page_widgets');
+
+/*
+ *
+ */
+function ww_find_page_widgets() {
+  // get the post and corrals
+	global $post;
+  $presets = ww_get_all_presets();
+	$settings = ww_get_settings();
+  $op = ww_get_page_op();
+	
+  switch ($op)
+  {
+    // tags and categories are controlled the same way
+    case 'tag':
+    case 'category':
+      global $wpdb;
+      // get first category
+      if($op == 'category') {
+        $category = array_pop(get_the_category());  
+      }
+      else if ($op == 'tag'){
+        $category = array_pop(get_the_tags());
+      }
+      
+      // get the preset
+      $presets_table = $wpdb->prefix.'ww_presets';
+      $relation_table = $wpdb->prefix.'ww_preset_term_relationships';
+      
+      // look for presets for this category
+      $sql = "SELECT r.preset_id, s.widgets
+              FROM ".$relation_table." as r
+              LEFT JOIN ".$presets_table." as s ON r.preset_id = s.id
+              WHERE r.term_id = ".$category->term_id."
+              LIMIT 1";
+      $row = $wpdb->get_row($sql);
+      
+      // make the array
+      if(isset($row->preset_id)){
+        $widgets_array = $row->widgets;
+      }
+      break;
+    
+    case 'single':
+    case 'page':
+			if (isset($settings['post_types'][$post->post_type])){
+				// see if we have widgets for this page
+				if ($post_widgets = ww_get_post_widgets($post->ID)){
+					// individual widgets or a preset ?
+					if (!isset($post_widgets->preset_id) || $post_widgets->preset_id == 0){
+						$widgets_array = $post_widgets->widgets;
+					}
+					else {
+						// preset
+						$preset = ww_get_preset($post_widgets->preset_id);
+						$widgets_array = $preset->widgets;
+					}
+				}
+				else {
+					// widget wrnagler enabled for type, server default widgets
+					$preset = ww_get_preset(1);
+					$widgets_array = $preset->widgets;
+				}
+			}
+      break;
+    
+    case 'home':
+      // see if this is the Posts (blog) page
+      if(get_option('show_on_front') == 'posts'){
+        // posts page is preset 2
+        $preset = ww_get_preset(2);
+        $widgets_array = $preset->widgets;
+      }
+      break;
+
+    case 'search':
+      // search page is default preset 3
+      $preset = ww_get_preset(3);
+      $widgets_array = $preset->widgets;
+      break;
+    
+    case '404':
+      // 404 page is default preset 4
+      $preset = ww_get_preset(4);
+      $widgets_array = $preset->widgets;
+      break;
+  }
+	
+	if (isset($widgets_array)){
+		return $widgets_array;
+	}
+}
+
 /*
  * Get the Widget Wrangler Settings
  *
@@ -27,13 +126,12 @@ function ww_get_post_widgets($post_id){
   global $wpdb;
   $table = $wpdb->prefix."ww_post_widgets";
 
-  $sql = "SELECT widgets FROM ".$table." WHERE post_id = ".$post_id;
+  $sql = "SELECT widgets,preset_id FROM ".$table." WHERE post_id = ".$post_id;
   if($results = $wpdb->get_row($sql)){
-    //print_r($results);
-    return $results->widgets;
-  } else {
-    return false;
-  }
+    $results->widgets = unserialize($results->widgets);
+    return $results;
+  } 
+  return false;
 }
 
 /*
@@ -44,7 +142,10 @@ function ww_get_post_widgets($post_id){
 function ww_get_widget_data($post_id){
   global $wpdb;
   $sql = "SELECT type,data FROM ".$wpdb->prefix."ww_widget_data WHERE post_id = ".$post_id;
-  return $wpdb->get_row($sql);
+  $widget = $wpdb->get_row($sql);
+	$widget->data = unserialize($widget->data);
+	d($widget);d(debug_backtrace());
+	return $widget;
 }
 
 /*
@@ -104,6 +205,47 @@ function ww_get_single_widget($post_id){
   return $widget;
 }
 
+/* ================================= presets */
+/*
+ * Get all Corral Presets
+ *
+ * @return array All widget presets found in the DB
+ */
+function ww_get_all_presets(){
+  global $wpdb;
+  $table = $wpdb->prefix."ww_presets";
+  
+  $sql = "SELECT id,type,data,widgets FROM ".$table." ORDER BY id ASC";
+  $results = $wpdb->get_results($sql);
+  
+  $presets = array();
+	foreach ($results as $i => $preset){
+		$preset->data = unserialize($preset->data);
+		$preset->widgets = unserialize($preset->widgets);
+		$presets[$preset->id] = $preset;
+	}
+  unset($results);
+	
+  return $presets;
+}
+/*
+ * Get a single Corral Preset
+ *
+ * @param int $preset_id The id for the Corral Preset
+ * @return array The Corral Preset details
+ */
+function ww_get_preset($preset_id){
+  global $wpdb;
+  $table = $wpdb->prefix."ww_presets";
+  
+  $sql = "SELECT id,type,data,widgets FROM ".$table." WHERE id = ".$preset_id." LIMIT 1";
+  $results = $wpdb->get_row($sql);
+  if (isset($results->data) && is_string($results->data)){
+    $results->data = unserialize($results->data);
+    $results->widgets = unserialize($results->widgets);
+  }
+  return $results;
+}
 /* ================================= corrals */
 /*
  * Retrieve list of corrals

@@ -13,6 +13,15 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
    */
   function Widget_Wrangler_Admin(){
 		parent::__construct();
+    add_filter("manage_edit-widget_columns", array(&$this, "edit_columns"));
+    add_action("manage_posts_custom_column", array(&$this, "custom_columns"));
+   
+    // Admin interface init
+    add_action("admin_init", array(&$this, "admin_init"));
+    //add_action("template_redirect", array(&$this, 'template_redirect'));
+    
+    // Insert post hook
+    add_action("wp_insert_post", array(&$this, "wp_insert_post"), 10, 2);
   }
   
 	/*
@@ -37,18 +46,17 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
   {
     global $post;
     $widget = ww_get_widget_data($post->ID);
-    $data = unserialize($widget->data);
     
     switch ($column)
     {
       case "ww_type":
-        print $widget->type;
+        print isset($widget->type) ? $widget->type : "";
         break;
       case "ww_description":
         the_excerpt();
         break;
       case "ww_rewrite_output":
-        print isset($data['rewrite-output']) ? $data['rewrite-output']: "off";
+        print isset($widget->data['rewrite-output']) ? $widget->data['rewrite-output']: "off";
         break;
     }
   }
@@ -122,46 +130,48 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
   // Custom meta boxes for the edit widget screen
   function admin_init() 
   {
-    // add js
-    wp_enqueue_script('ww-widget-js',
-                    plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
-                    array('jquery-ui-core', 'jquery-ui-tabs'),
-                    false,
-                    true);
-
-    // add meta boxes
+		// add meta boxes
     if (isset($_GET['post'])){
       $post_id = $_GET['post'];
     }
     else if (isset($_POST['post_ID'])){
       $post_id = $_POST['post_ID'];
     }
-    
-    if (isset($post_id)){
-      $widget = ww_get_widget_data($post_id);
-  
-      if(isset($widget->type) && $widget->type == "clone")
-      {
-        // Clone Class
-        add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
-        // Clone Instance
-        add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
-      }
-      else if (!isset($widget->type) || $widget->type == 'standard')
-      {
-        // Rewrite output box
-        add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
-      }
-    }
-    
-    // Widget type
-    add_meta_box("ww-type", "Widget Details", array(&$this, "meta_widget_details"), "widget", "side", "high");
-
-    // Widget Preview
-    add_meta_box("ww-widget-preview", "Widget Preview", array(&$this, "meta_widget_preview"), "widget", "side", "default");
-    
-    // Widget Display Logic
-    add_meta_box("ww-display-logic", "Display Logic", array(&$this, "meta_display_logic"), "widget", "normal", "default");
+		
+		if (isset($post_id) && get_post_type($post_id) == "widget"){
+			// add js
+			wp_enqueue_script('ww-widget-js',
+											plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
+											array('jquery-ui-core', 'jquery-ui-tabs'),
+											false,
+											true);
+			
+			if (isset($post_id)){
+				$widget = ww_get_widget_data($post_id);
+		
+				if(isset($widget->type) && $widget->type == "clone")
+				{
+					// Clone Class
+					add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
+					// Clone Instance
+					add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
+				}
+				else if (!isset($widget->type) || $widget->type == 'standard')
+				{
+					// Rewrite output box
+					add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
+				}
+			}
+			
+			// Widget type
+			add_meta_box("ww-type", "Widget Details", array(&$this, "meta_widget_details"), "widget", "side", "high");
+	
+			// Widget Preview
+			add_meta_box("ww-widget-preview", "Widget Preview", array(&$this, "meta_widget_preview"), "widget", "side", "default");
+			
+			// Widget Display Logic
+			add_meta_box("ww-display-logic", "Display Logic", array(&$this, "meta_display_logic"), "widget", "normal", "default");
+		}
   }
   
   // Widget Type
@@ -240,14 +250,14 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
           <p>
             <strong>Select which post types this widget should display on.</strong>
           </p>
-          <div class="space-checkboxes">
+          <div class="logic-checkboxes">
             <?php  
               // loop through post types
               foreach ($post_types as $post_type )
               {
                 $post_type_checked = (isset($data['logic']['post_types'][$post_type])) ? 'checked="checked"' : '';
                 ?>
-                <label class="ww-space-checkbox"><input type="checkbox" name="ww-data[logic][post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /><?php print ucfirst($post_type); ?> </label>
+                <label class="ww-logic-checkbox"><input type="checkbox" name="ww-data[logic][post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
                 <?php
               }
             ?>

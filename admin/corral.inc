@@ -102,7 +102,7 @@ function ww_corral_update($posted = array())
  * $corrals = all corrals
  */
 function ww_corral_form(){
-	$corrals = unserialize(get_option('ww_corrals'));
+	$corrals = ww_get_all_corrals();
 	?>
 	<div class='wrap'>
 		<h2>Widget Corrals</h2>

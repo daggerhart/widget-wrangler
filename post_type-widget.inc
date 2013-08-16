@@ -9,32 +9,45 @@ class Widget_Wrangler {
   var $data = array();
   var $type;
   var $post_id;
-  
+	
   /*
    * Constructor, build the new post type
    */
   function Widget_Wrangler()
   {
-    // Editing specific widget
-    if (isset($_GET['post'])){
-      $this->post_id = $_GET['post'];
-    }
-    else if (isset($_POST['post_ID'])){
-      $this->post_id = $_POST['post_ID'];
-    }
+		// Editing specific widget
+		if (isset($_GET['post'])){
+			$pid = $_GET['post'];
+		}
+		else if (isset($_POST['post_ID'])){
+			$pid = $_POST['post_ID'];
+		}
+		// get the type
+		if (isset($pid)){
+			$post_type = get_post_type($pid);
+		}
     
-    // this widget has been saved before
-    if(isset($this->post_id)){
-      $widget = ww_get_widget_data($this->post_id);
-      $this->type = $widget->type;
-      $this->data = unserialize($widget->data);
-      $supports = array(
-        'title',
-        'excerpt'
-      );
-      if($this->type == 'standard'){
-        $supports[] = 'editor';
-      }
+		// load some extra data if we are on a WW widget post_type
+		if (isset($post_type) && $post_type == 'widget')
+		{
+			// this widget has been saved before, we now $pid exists
+			$this->post_id = $pid;
+			
+			// get widget data
+			if ($widget = ww_get_widget_data($this->post_id)) {
+				$this->type = $widget->type;
+				$this->data = $widget->data;
+			}
+			// handle editing page for all widgets
+			$supports = array(
+				'title',
+				'excerpt'
+			);
+			
+			// Clones do not need an editor
+			if($this->type == 'standard'){
+				$supports[] = 'editor';
+			}
     }
     // this is a new widget
     else
@@ -47,8 +60,7 @@ class Widget_Wrangler {
       );
     }
     
-    // get ww settings
-    $settings = ww_get_settings();
+		$settings = ww_get_settings();
     // allow for custom capability type
     $capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced'])) ? $settings['advanced'] : "post";
     $labels = array(
@@ -82,16 +94,6 @@ class Widget_Wrangler {
       'supports' => $supports,
       'menu_icon' => WW_PLUGIN_URL.'/images/wrangler_icon.png'
     ));
-   
-    add_filter("manage_edit-widget_columns", array(&$this, "edit_columns"));
-    add_action("manage_posts_custom_column", array(&$this, "custom_columns"));
-   
-    // Admin interface init
-    add_action("admin_init", array(&$this, "admin_init"));
-    //add_action("template_redirect", array(&$this, 'template_redirect'));
-    
-    // Insert post hook
-    add_action("wp_insert_post", array(&$this, "wp_insert_post"), 10, 2);
   }
 }
 // end widget class

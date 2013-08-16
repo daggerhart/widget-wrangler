@@ -10,24 +10,17 @@ function ww_check_version(){
     if ($last_version < WW_VERSION)
     {
       add_action('admin_notices', 'ww_upgrade_message');
-      //// include upgrade inc
-      //include_once WW_PLUGIN_DIR.'/includes/upgrade.inc';
-      //$upgrade_function = 'ww_upgrade_'.ww_make_slug($last_version).'_to_'.ww_make_slug(WW_VERSION);
-      //if(function_exists($upgrade_function)){
-      //  $upgrade_function();
-      //}
-      //update_option('ww_version', WW_VERSION);
+			
+			// run the obvious upgrade
     }
   }
-  // if last version doesn't exist, then its an old 1.x version
+  // if last version doesn't exist, then its an old 1.x from before versioning
   else
   {
-    add_action('admin_notices', 'ww_upgrade_message');
-    //// include upgrade inc
-    //include_once WW_PLUGIN_DIR.'/includes/upgrade.inc';
+		add_action('admin_notices', 'ww_upgrade_message');
     //// run version related upgrade
     //ww_upgrade_1x_to_2x();
-    //update_option('ww_version', WW_VERSION);
+    //
   }
 }
 
@@ -37,17 +30,17 @@ function ww_upgrade_1x_to_2x(){
   // create new tables
   ww_post_widgets_table();
   ww_widget_data_table();
-  ww_widget_spaces_table();
-  ww_widget_space_term_relationships_table();
-  ww_default_spaces();
+  ww_presets_table();
+  ww_widget_preset_term_relationships_table();
+  ww_default_presets();
   
   $posts_table = $wpdb->prefix.'posts';
   $postmeta_table = $wpdb->prefix.'postmeta';
 
   $post_widgets_table  = $wpdb->prefix.'ww_post_widgets';
   $widget_data_table   = $wpdb->prefix.'ww_widget_data';
-  $widget_spaces_table = $wpdb->prefix.'ww_widget_spaces';
-  $space_terms_table   = $wpdb->prefix.'ww_space_term_relationship';
+  $widget_presets_table = $wpdb->prefix.'ww_presets';
+  $preset_terms_table   = $wpdb->prefix.'ww_preset_term_relationship';
 
 
   // get all widgets and convert their meta fields to the new ones
@@ -106,25 +99,25 @@ function ww_upgrade_1x_to_2x(){
     }
   }
 
-  // get the default widgets and update the space
+  // get the default widgets and update the preset
   if($default_widgets = get_option('ww_default_widgets')) {
     $default_data = array(
       'widgets' => $default_widgets,
     );
     $where = array('id' => 1);
-    $wpdb->update( $widget_spaces_table, $default, $where);
+    $wpdb->update( $widget_presets_table, $default, $where);
 
     // clean up old data
     delete_option('ww_default_widgets');
   }
 
-  // get the postspage widgets and update the space
+  // get the postspage widgets and update the preset
   if($postspage_widgets = get_option('ww_postspage_widgets')){
     $postspage_data = array(
       'widgets' => $postspage_widgets,
     );
     $where = array('id' => 2);
-    $wpdb->update( $widget_spaces_table, $postspage_data, $where);
+    $wpdb->update( $widget_presets_table, $postspage_data, $where);
 
     // clean up old data
     delete_option('ww_postspage_widgets');
@@ -161,4 +154,6 @@ function ww_upgrade_1x_to_2x(){
     ww_settings_save(array('settings' => serialize($settings)));
   }
 
+	// update version
+	update_option('ww_version', WW_VERSION);
 }

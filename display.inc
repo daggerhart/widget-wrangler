@@ -1,4 +1,6 @@
 <?php
+
+
 /*
  * Output a corral
  *
@@ -6,83 +8,14 @@
  */
 function ww_dynamic_corral($corral_slug = 'default')
 {
-  //include_once WW_PLUGIN_DIR.'/admin/corral.inc';
-  
-  // get the post and corrals
-  global $post;
-  $corrals = ww_get_all_corrals();
-  $output = '';
-  $op = ww_get_page_op();
-  
-  switch ($op)
-  {
-    // tags and categories are controlled the same way
-    case 'tag':
-    case 'category':
-      global $wpdb;
-      // get first category
-      if($op == 'category') {
-        $category = array_pop(get_the_category());  
-      }
-      else if ($op == 'tag'){
-        $category = array_pop(get_the_tags());
-      }
-      
-      // get the corral
-      $corrals_table = $wpdb->prefix.'ww_widget_corrals';
-      $relation_table = $wpdb->prefix.'ww_corral_term_relationships';
-      
-      // look for corrals for this category
-      $sql = "SELECT r.corral_id, s.widgets
-              FROM ".$relation_table." as r
-              LEFT JOIN ".$corrals_table." as s ON r.corral_id = s.id
-              WHERE r.term_id = ".$category->term_id."
-              LIMIT 1";
-      $row = $wpdb->get_row($sql);
-      
-      // make the array
-      if($row->corral_id){
-        $widgets_array = unserialize($row->widgets);
-      }
-      break;
-    
-    case 'single':
-    case 'page':
-      $widgets = ww_get_post_widgets($post->ID);
-      $widgets_array = unserialize($widgets);
-      break;
-    
-    /*
-     * Default widget corrals
-     */
-    case 'home':
-      // see if this is the Posts (blog) page
-      if(get_option('show_on_front') == 'posts'){
-        // posts page is corral 2
-        $corral = ww_get_corral(2);
-        $widgets_array = unserialize($corral->widgets);
-      }
-      break;
-
-    case 'search':
-      // search page is default corral 3
-      $corral = ww_get_corral(3);
-      $widgets_array = unserialize($corral->widgets);
-      break;
-    
-    case '404':
-      // 404 page is default corral 4
-      $corral = ww_get_corral(4);
-      $widgets_array = unserialize($corral->widgets);
-      break;
-  }
+	global $ww_page_widgets;
   
   // if still no widgets, fall back to defaults
-  if (!is_array($widgets_array))
+  if (!is_array($ww_page_widgets))
   {
-    // corral 1 is the default widgets
-    if($corral = ww_get_corral(1)){
-      $widgets_array = unserialize($corral->widgets);      
+    // preset 1 is the default widgets
+    if($preset = ww_get_preset(1)){
+      $ww_page_widgets = $preset->widgets;
     }
     // no widgets in post and no defaults
     else {
@@ -91,31 +24,33 @@ function ww_dynamic_corral($corral_slug = 'default')
   }
   
   // handle widgets
-  if (is_array($widgets_array[$corral_slug]))
+  if (isset($ww_page_widgets[$corral_slug]) && is_array($ww_page_widgets[$corral_slug]))
   {
     // custom sorting with callback
-    usort($widgets_array[$corral_slug],'ww_cmp');
-    $sorted_widgets = array_reverse($widgets_array[$corral_slug]);
+    usort($ww_page_widgets[$corral_slug],'ww_cmp');
+    $sorted_widgets = array_reverse($ww_page_widgets[$corral_slug]);
     
     $i = 0;
-    $total = count($widgets_array[$corral_slug]);
-    
+    $total = count($ww_page_widgets[$corral_slug]);
+    $output = array();
     while($i < $total)
     {
       // make sure we have a widget
-      if($widget = ww_get_single_widget($widgets_array[$corral_slug][$i]['id']))
+      if($widget = ww_get_single_widget($ww_page_widgets[$corral_slug][$i]['id']))
       {
         // check the widget's display logic
         if(ww_widget_display_logic($widget))
         {
           // output the widget
-          $output.= ww_theme_single_widget($widget);  
+          $output[] = ww_theme_single_widget($widget);  
         }
       }
       $i++;
     }
-    // output the widgets  
-    print $output;
+    // output the widgets if not empty
+		if (count($output)){
+			print implode("", $output);
+		}
   }
 }
 /*
@@ -151,11 +86,10 @@ function ww_widget_display_logic($widget)
     // */
     
     // check post_types
-    if(is_array($logic['post_types']))
+		$post_type_show = false;
+    if(isset($logic['post_types']) && is_array($logic['post_types']))
     {
       global $post;
-      $post_type_show = false;
-
       // check current post_type
       if(in_array($post->post_type, $logic['post_types'])){
         $post_type_show = true;
@@ -163,6 +97,7 @@ function ww_widget_display_logic($widget)
     }
     
     // check php
+		$php_show = false;
     if(isset($logic['php']))
     {      
       // execute the php and get returned value
@@ -181,7 +116,7 @@ function ww_widget_display_logic($widget)
 
     // if all are empty, show the widget
     //if(!is_array($logic['conditionals']) && !is_array($logic['post_types']) && !isset($logic['php']))
-    if(!is_array($logic['post_types']) && !isset($logic['php']))
+    if(!isset($logic['post_types']) && !isset($logic['php']))
     {
       $final_show = true;
     }

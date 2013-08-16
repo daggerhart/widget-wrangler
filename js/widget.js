@@ -26,3 +26,19 @@ jQuery(document).ready(function(){
   // ui tabs for display logic
   jQuery('#logic-tabs').tabs();
 });
+
+jQuery(document).ready(function(){
+  // open and close widget menu
+  jQuery('.widget-action').click(function(){
+    jQuery(this).parent('div').parent('div').next('.widget-inside').slideToggle();
+  });
+  // handle advanced parsing template description/option
+  if(jQuery('#ww-adv-parse-toggle').is(':checked')){
+    jQuery('#ww-advanced-template').show();
+  } else {
+    jQuery('#ww-advanced-template').hide();
+  }
+  jQuery('#ww-adv-parse-toggle').click(function(){
+    jQuery('#ww-advanced-template').toggle();
+  });
+});
