@@ -15,6 +15,8 @@ function ww_settings_reset_widgets()
  */
 function ww_settings_save($post)
 {
+	// handle exclude from search
+	$post['settings']['exclude_from_search'] = (isset($post['settings']['exclude_from_search']) && $post['settings']['exclude_from_search'] == "on") ? 1 : 0;
   $settings = serialize($post['settings']);
   
   // save to wordpress options
@@ -29,6 +31,8 @@ function ww_settings_set_default()
   $settings["capabilities"] = "simple";
   $settings["post_types"]['page'] = "page";
   $settings["post_types"]['post'] = "post";
+	$settings["exclude_from_search"] = 1;
+	
   update_option("ww_settings", serialize($settings));
 }
 
@@ -45,6 +49,7 @@ function ww_settings_form() {
 	// handle checkboxes
 	$simple_checked = (isset($settings['capabilities']) && $settings['capabilities'] == 'simple') ? "checked" : ""; 
 	$adv_checked    = (isset($settings['capabilities']) && $settings['capabilities'] == 'advanced') ? "checked" : ""; 
+	$exclude_from_search_checked = (isset($settings['exclude_from_search']) && $settings['exclude_from_search'] == 1) ? "checked='checked'" : "";
 	
 	// Get all extra post types
 	$args = array('public'   => true, '_builtin' => false); 
@@ -74,25 +79,36 @@ function ww_settings_form() {
     <div class='wrap'>
       <h2>Widget Wrangler Settings</h2>
       <form action="edit.php?post_type=widget&page=ww-settings&ww-settings-action=save&noheader=true" method="post">
-        <h3 class="ww-settings-title">Post Types</h3>
+				<h3 class="ww-settings-title">General</h3>
         <div class="ww-settings-field">
-          <p>
-            Select each post type you would like to be able to control their own widgets with Widget Wrangler.
-          </p>
-            <div class="corral-checkboxes">
-              <?php
-                // loop through post types
-                foreach ($post_types as $post_type )
-                {
-                  $post_type_checked = (isset($settings['post_types'][$post_type])) ? 'checked="checked"' : '';
-                  ?>
-                  <label class="ww-corral-checkbox"><input type="checkbox" name="settings[post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
-                  <?php
-                }
-              ?>
+					
+					<h4 class="ww-settings-title">Exclude from search</h4>
+          <p class="corral-checkboxes">
+            <label class="ww-corral-checkbox">
+              <input name="settings[exclude_from_search]" type="checkbox" <?php print $exclude_from_search_checked; ?> /> -  If checked, widgets will excluded from search results.
+            </label>
+						<div class="ww-clear-gone">&nbsp;</div>
+					</p>
+				
+					<h4 class="ww-settings-title">Post types</h4>
+					<p>
+						Select each post type you would like to be able to control their own widgets with Widget Wrangler.
+					</p>
+						<div class="corral-checkboxes">
+							<?php
+								// loop through post types
+								foreach ($post_types as $post_type )
+								{
+									$post_type_checked = (isset($settings['post_types'][$post_type])) ? 'checked="checked"' : '';
+									?>
+									<label class="ww-corral-checkbox"><input type="checkbox" name="settings[post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
+									<?php
+								}
+							?>
 							<div class="ww-clear-gone">&nbsp;</div>
-            </div>
-        </div>
+						</div>
+				</div>
+					
 				<h3 class="ww-settings-title">Capabilities </h3>
         <div class="ww-settings-field">
           <p> 

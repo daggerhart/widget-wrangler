@@ -60,26 +60,36 @@ class Widget_Wrangler_Corral_Widget extends WP_Widget {
    */
   function form( $instance )
   {
+		$exists = 	isset($corrals[$instance['corral']]) ? true : false;
+		//$wp_widget_title = ($exists) ? __('Widget Wrangler - Corral', 'widgetwranglercorral') : __('WW Corral - '.$title, 'widgetwranglercorral');
+		$input_title =  ($exists) ? $corrals[$instance['corral']] : "!Error!";
     // Set up some default widget settings. 
     $defaults = array( 'title' => __('Widget Wrangler - Corral', 'widgetwranglercorral'), 'corral' => '' );
     $instance = wp_parse_args( (array) $instance, $defaults );
     $corrals = ww_get_all_corrals();
     ?>
     <?php // Widget Title: Hidden Input ?>
-    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $corrals[$instance['corral']]; ?>" style="width:100%;" />
+    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $input_title; ?>" style="width:100%;" />
     
     <?php // Corral: Select Box ?>
     <p>
-     <label for="<?php echo $this->get_field_id( 'corral' ); ?>"><?php _e('Corral:', 'corral'); ?></label> 
-     <select id="<?php echo $this->get_field_id( 'corral' ); ?>" name="<?php echo $this->get_field_name( 'corral' ); ?>" class="widefat" style="width:100%;">
-      <?php
-        foreach($corrals as $slug => $name){
-          ?>
-          <option <?php if ($instance['corral'] == $slug){ print 'selected="selected"'; }?> value="<?php print $slug; ?>"><?php print $name; ?></option>
-          <?php
-        }
-      ?>
-     </select>
+			<?php
+				if (!$exists)
+				{ ?>
+					<p class="ww-error"><strong>!Error!</strong>: The previously selected corral does not exist. Please choose another and save.</p>
+					<?php
+				}
+			?>
+			<label for="<?php echo $this->get_field_id( 'corral' ); ?>"><strong><?php _e('Corral:', 'corral'); ?></strong></label> 
+			<select id="<?php echo $this->get_field_id( 'corral' ); ?>" name="<?php echo $this->get_field_name( 'corral' ); ?>" class="widefat" style="width:100%;">
+			 <?php
+				 foreach($corrals as $slug => $name){
+					 ?>
+					 <option <?php if ($instance['corral'] == $slug){ print 'selected="selected"'; }?> value="<?php print $slug; ?>"><?php print $name; ?></option>
+					 <?php
+				 }
+			 ?>
+			</select>
     </p>
     <?php
   }

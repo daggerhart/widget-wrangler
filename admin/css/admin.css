@@ -146,7 +146,7 @@ div.widget-action {
   height: 26px;
   width: 26px;
   cursor: pointer;
-  background:transparent url('images/menu-bits.gif') no-repeat scroll 0 -110px;
+  background:transparent url('../images/menu-bits.gif') no-repeat scroll 0 -110px;
 }
 .widget-inside {
   display: none;
@@ -156,7 +156,7 @@ div.widget-action {
   cursor: default;
 }
 li.ww-corral-sort-item {
-  background: #DFDFDF url('images/gray-grad.png') repeat-x scroll left top;
+  background: #DFDFDF url('../images/gray-grad.png') repeat-x scroll left top;
   margin-bottom: 2px;
 }
 .ww-corral-sort-item,
@@ -164,7 +164,7 @@ li.ww-corral-sort-item {
   cursor: move;
 }
 .ww-settings-field {
-  padding: 0px 20px 10px;
+  padding: 12px 20px 10px;
   margin: 6px 0px;
   background-color: #fff;
   border: 1px solid #bbb;
@@ -175,10 +175,20 @@ li.ww-corral-sort-item {
 	clear: left;
 	padding: 2px 0px 6px;
 }
-.ww-settings-title {
+.ww-settings-field label.ww-corral-checkbox input {
+	margin-top: -1px;
+}
+h3.ww-settings-title {
   margin: 32px 0px 16px;
   font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
   font-size: 22px;
+}
+h4.ww-settings-title {
+  margin: 16px 0px 8px;
+	padding-bottom: 8px;
+  font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+  font-size: 18px;
+	border-bottom: 1px solid #bbb;
 }
 .ww-settings-roles {
   padding: 8px 24px;
@@ -223,7 +233,7 @@ li.ww-corral-sort-item {
 }
 
 /*
- * Spaces
+ * Presets
  */
 #presets-corral {
   width: 140px;
@@ -313,12 +323,15 @@ label.ww-preset-checkbox input {
 }
 #logic-tabs .ui-tabs-panel {
   float: left;
-  width: 77%;
+  width: 74%;
+	background: #fff;
+  padding: 0 2% 16px;
+  border: 1px solid #888;
 }
 #logic-tabs-list {
   float: left;
   width: 20%;
-  margin-right: 2%;
+  margin-right: 1%;
   border: 1px solid #888;
 }
 #logic-tabs-list li {

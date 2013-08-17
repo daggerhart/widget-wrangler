@@ -1,56 +1,38 @@
 <?php
 /*
- * Handle sorting of corrals
- *
- * @param array $posted $_POST data from submission
- */
-function ww_corral_sort($posted = array())
-{
-  $all_corrals = ww_get_all_corrals();
-  $new_order_array = array();
-  $new_order_string = '';
-  
-  if (is_array($posted['weight']))
-  {
-    $i = 1;
-    $total = count($posted['weight']);
-    while($i <= $total)
-    {
-      $new_order_array[$posted['weight'][$i]] = $all_corrals[$posted['weight'][$i]];
-      $i++;
-    }
-    $new_order_string = serialize($new_order_array);
-    
-    update_option('ww_corrals',$new_order_string);
-  }
-}
-/*
  * Add a new corral
  * 
- * @param array $posted $_POST data from submission
+ * @param array $posted  -
+ * 		$_POST data from submission
  */
 function ww_corral_insert($posted = array())
 {
   // just in case
   $new_corral = strip_tags($posted['ww-new-corral']);
-  // clean name
-  $slug_name = ww_make_slug($new_corral);
-  
-  if ($corrals_string = get_option('ww_corrals'))
-  {
-    $corrals_array = unserialize($corrals_string);
+  $corrals = ww_get_all_corrals();
+
+	// no corrals, make this #1
+	if(!count($corrals)){
+		$corrals[1] = $new_corral;
+	}
+	else {
+		// add new corral safely, start at 2 and get highest number
+		$next = 0;
+		foreach($corrals as $i => $corral){
+			$next = ($i > $next) ? $i : $next;
+		}
+		$corrals[($next+1)] = $new_corral;
   }
-  // add new corral
-  $corrals_array[$slug_name] = $new_corral;
-  // encode
-  $new_option = serialize($corrals_array);
+	
+  $corrals_str = serialize($corrals);
   // save
-  update_option('ww_corrals',$new_option);
+  update_option('ww_corrals', $corrals_str);
 }
 /*
  * Delete a corral
  * 
- * @param array $posted $_POST data from submission
+ * @param array $posted  -
+ * 		$_POST data from submission
  */
 function ww_corral_delete($posted = array())
 {
@@ -75,25 +57,47 @@ function ww_corral_delete($posted = array())
  */
 function ww_corral_update($posted = array())
 {
-  $update_corral = strip_tags($posted['ww-update-corral']);
-  $update_slug = ww_make_slug($posted['ww-update-slug']);
-  $old_slug = $posted['ww-update-old-slug'];
+	if (isset($posted['ww-update-corral']) && isset($posted['ww-corral-id'])){
+		$update_corral = strip_tags($posted['ww-update-corral']);
+		$id = $posted['ww-corral-id'];
+		
+		if ($corrals = ww_get_all_corrals())
+		{
+			if (isset($corrals[$id])) {
+				$corrals[$id] = $update_corral;
+				// serialize
+				$corrals_str = serialize($corrals);
+				update_option('ww_corrals', $corrals_str);
+			}
+		}
+	}
+}
+
+/*
+ * Handle sorting of corrals
+ *
+ * @param array $posted-
+ * 		$_POST data from submission
+ */
+function ww_corral_sort($posted = array())
+{
+  $all_corrals = ww_get_all_corrals();
+  $new_order_array = array();
+  $new_order_string = '';
   
-  if ($corrals_string = get_option('ww_corrals'))
+  if (is_array($posted['weight']))
   {
-    $corrals_array = unserialize($corrals_string);
-    // delete old one
-    unset($corrals_array[$old_slug]);
-    // add new one
-    $corrals_array[$update_slug] = $update_corral;
-    // serialize
-    $new_option = serialize($corrals_array);
+    $i = 1;
+    $total = count($posted['weight']);
+    while($i <= $total)
+    {
+      $new_order_array[$posted['weight'][$i]] = $all_corrals[$posted['weight'][$i]];
+      $i++;
+    }
+    $new_order_string = serialize($new_order_array);
+    
+    update_option('ww_corrals',$new_order_string);
   }
-  else
-  {
-    $new_option = '';
-  }
-  update_option('ww_corrals', $new_option);
 }
 
 /*
@@ -106,7 +110,8 @@ function ww_corral_form(){
 	?>
 	<div class='wrap'>
 		<h2>Widget Corrals</h2>
-		<p>A corral is a way to group widgets.  Like where I keep ma' cattle!  Wordpress and Widget Wrangler 1.x call them "sidebars", but I find that to be confusin'.
+		<p>
+			A <strong>Corral</strong> is an arbitrary group of widgets. Wordpress and Widget Wrangler 1.x call them "sidebars", but they are ultimately not limited by that terminology.
 		</p>
 		<table id='ww-corral-page'>
 		<td>
@@ -116,10 +121,9 @@ function ww_corral_form(){
 			</div>
 			<ul id='ww-corrals-list'>
 				<?php
-					if (is_array($corrals))
-					{
+					if (count($corrals)){
 						// loop through each corral and build form
-						foreach($corrals as $slug => $corral)
+						foreach($corrals as $id => $corral)
 						{ ?>
 								<li class='ww-corral-item'>
 									<div class='widget'>
@@ -127,18 +131,17 @@ function ww_corral_form(){
 											<div class='widget-title-action'>
 												<div class='widget-action'></div>
 											</div>
-											<h4><?php print $corral; //." (".$slug.")"; ?></h4>
+											<h4><?php print $corral ." (id: ".$id.")"; ?></h4>
 										</div>
 										<div class='widget-inside'>
 											<form action='edit.php?post_type=widget&page=ww-corrals&ww-corral-action=update&noheader=true' method='post'>
 												<label>Name: </label><input class='ww-text' name='ww-update-corral' type='text' value='<?php print $corral; ?>' /><br />
-												<!-- <label>Slug: </label><input class='ww-text' name='ww-update-slug' type='text' value='<?php print $slug; ?>' />
-												<input name='ww-update-old-slug' type='hidden' value='<?php print $slug; ?>' /> -->
+												<input name='ww-corral-id' type='hidden' value='<?php print $id; ?>' />
 												<input class='ww-corral-update-submit' name='ww-update-submit' type='submit' value='Update' />
 											</form>
 											<hr />
 											<form class='ww-delete-corral' action='edit.php?post_type=widget&page=ww-corrals&ww-corral-action=delete&noheader=true' method='post'>
-												<input name='ww-delete-slug' type='hidden' value='<?php print $slug; ?>' />
+												<input name='ww-delete-slug' type='hidden' value='<?php print $id; ?>' />
 												<input class='ww-corral-delete-submit' name='ww-delete-submit' type='submit' value='Delete' />
 											</form>
 										</div>
@@ -146,7 +149,7 @@ function ww_corral_form(){
 								</li>
 							<?php
 						}
-					}                            
+					}
 					else
 					{ ?>
 						<li>No Corrals defined</li>
@@ -167,18 +170,15 @@ function ww_corral_form(){
 				<ul id='ww-corrals-sort'>
 				<?php
 					//loop
-					if(is_array($corrals))
-					{
-						$i = 1;
-						foreach($corrals as $slug => $corral)
-						{ ?>
-							<li class='ww-corral-sort-item'>
-								<strong><?php print $corral; //." (".$slug.")"; ?></strong>
-								<input type='hidden' class='ww-corral-weight' name='weight[<?php print $i; ?>]' value='<?php print $slug; ?>' />
-							</li>
-							<?php
-							$i++;
-						}
+					$weight = 1;
+					foreach($corrals as $id => $corral)
+					{ ?>
+						<li class='ww-corral-sort-item'>
+							<strong><?php print $corral ." (id: ".$id.")"; ?></strong>
+							<input type='hidden' class='ww-corral-weight' name='weight[<?php print $weight; ?>]' value='<?php print $id; ?>' />
+						</li>
+						<?php
+						$weight++;
 					}
 				?>
 				</ul>

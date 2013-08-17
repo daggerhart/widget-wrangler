@@ -258,7 +258,7 @@ function ww_get_all_corrals()
     $corrals_array = unserialize($corrals_string);
   }
   else{
-    $corrals_array = array('No Corrals Defined');
+    $corrals_array = array();
   }
   return $corrals_array;
 }

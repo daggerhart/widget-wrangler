@@ -63,7 +63,9 @@ class Widget_Wrangler {
 		$settings = ww_get_settings();
     // allow for custom capability type
     $capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced'])) ? $settings['advanced'] : "post";
-    $labels = array(
+    
+		// custom post type labels
+		$labels = array(
       'name' => _x('Widget Wrangler', 'post type general name'),
       'all_items' => __('All Widgets'),
       'singular_name' => _x('Widget', 'post type singular name'),
@@ -73,16 +75,17 @@ class Widget_Wrangler {
       'new_item' => __('New Widget'),
       'view_item' => __('View Widget'),
       'search_items' => __('Search Widgets'),
-      'menu_icon' => WW_PLUGIN_DIR.'/icon-wrangler.png',
+      'menu_icon' => WW_PLUGIN_DIR.'/admin/images/icon-wrangler.png',
       'not_found' =>  __('No widgets found'),
       'not_found_in_trash' => __('No widgets found in Trash'), 
       'parent_item_colon' => '',
     );
+		
     // Register custom post types
     register_post_type('widget', array(
       'labels' =>$labels,
       'public' => true,
-      'exclude_from_search' => true, // @TODO: setting ?
+      'exclude_from_search' => (isset($settings['exclude_from_search']) && $settings['exclude_from_search'] == 0) ? false : true, 
       'show_in_menu' => true,
       'show_ui' => true, // UI in admin panel
       '_builtin' => false, // It's a custom post type, not built in
@@ -92,7 +95,7 @@ class Widget_Wrangler {
       'rewrite' => array("slug" => "widget"), // Permalinks
       'query_var' => "widget", // This goes to the WP_Query schema
       'supports' => $supports,
-      'menu_icon' => WW_PLUGIN_URL.'/images/wrangler_icon.png'
+      'menu_icon' => WW_PLUGIN_URL.'/admin/images/wrangler_icon.png'
     ));
   }
 }

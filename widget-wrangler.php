@@ -40,7 +40,7 @@ include_once WW_PLUGIN_DIR.'/display.inc';
 // add the widget post type class and initiate it
 include_once WW_PLUGIN_DIR.'/post_type-widget.inc';
 
-// the widget for the psot_type-widget allows the use widget wrangler widgets within normal WP sidebars
+// the widget for the post_type-widget allows the use widget wrangler widgets within normal WP sidebars
 include_once WW_PLUGIN_DIR.'/post_type-widget.widget.inc';
 
 // the corrals widget allows the use of corrals within normal WP sidebars
@@ -69,11 +69,12 @@ add_action( 'init', 'Widget_Wrangler_Init');
  * Admin initialize
  */
 function ww_admin_init() {
+	
   // include admin panel and helper functions such as sortable widgets
 	include_once WW_PLUGIN_DIR.'/admin/admin.inc';
-	include_once WW_PLUGIN_DIR.'/admin/admin-sortable.inc';
 	include_once WW_PLUGIN_DIR.'/admin/settings.inc';
   include_once WW_PLUGIN_DIR.'/admin/single-post-widgets.admin_panel.inc';
+	include_once WW_PLUGIN_DIR.'/admin/sortable-widgets.inc';
   include_once WW_PLUGIN_DIR.'/admin/upgrade.inc';
   
 	// handle upgrades

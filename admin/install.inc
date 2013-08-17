@@ -9,8 +9,8 @@ function ww_post_widgets_table(){
 
   $sql = "CREATE TABLE " . $table . " (
 	  post_id mediumint(11) NOT NULL,
-	  widgets text NOT NULL,
 		preset_id mediumint(11) NOT NULL,
+	  widgets text NOT NULL,
 	  UNIQUE KEY id (post_id)
   );";
 

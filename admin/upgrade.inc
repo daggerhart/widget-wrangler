@@ -4,14 +4,15 @@
  * checkout version number and perform an upgrade if necessary
  */
 function ww_check_version(){
+
   if($last_version = get_option('ww_version'))
   {
     // compare versions
-    if ($last_version < WW_VERSION)
+    if ((int)$last_version < WW_VERSION)
     {
       add_action('admin_notices', 'ww_upgrade_message');
-			
 			// run the obvious upgrade
+			
     }
   }
   // if last version doesn't exist, then its an old 1.x from before versioning
@@ -20,8 +21,8 @@ function ww_check_version(){
 		add_action('admin_notices', 'ww_upgrade_message');
     //// run version related upgrade
     //ww_upgrade_1x_to_2x();
-    //
   }
+  //update_option('ww_version', WW_VERSION);
 }
 
 function ww_upgrade_1x_to_2x(){
@@ -133,6 +134,7 @@ function ww_upgrade_1x_to_2x(){
   foreach($rows as $row){
     $insert = array(
       'post_id' => $row->post_id,
+			'preset_id' => 0,
       'widgets' => $row->meta_value,
     );
     $wpdb->insert($post_widgets_table, $insert, array('%d','%s'));
@@ -151,6 +153,7 @@ function ww_upgrade_1x_to_2x(){
   // make sure we handle default post_types
   if (!is_array($settings['post_types'])){
     $settings['post_types'] = array('page' => 'page', 'post' => 'post');
+		$settings['exclude_from_search'] = 1;
     ww_settings_save(array('settings' => serialize($settings)));
   }
 

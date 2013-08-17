@@ -27,8 +27,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
 	/*
    * Custom columns for the main Widgets management page
    */  
-  function edit_columns($columns)
-  {
+  function edit_columns($columns){
     $columns = array(
       "cb" => "<input type=\"checkbox\" />",
       "title" => "Widget Title",
@@ -101,7 +100,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       // prep the data and logic for save
       $widget_data = array();
       if (isset($_POST['ww-data'])) {
-        $widget_data = $_POST['ww-data'][$type];
+				$widget_data = $_POST['ww-data'][$type];
         $widget_data['logic'] = $_POST['ww-data']['logic'];
       }
       
@@ -139,28 +138,21 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
     }
 		
 		if (isset($post_id) && get_post_type($post_id) == "widget"){
-			// add js
-			wp_enqueue_script('ww-widget-js',
-											plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
-											array('jquery-ui-core', 'jquery-ui-tabs'),
-											false,
-											true);
+			// get widget data
+			$widget = ww_get_widget_data($post_id);
 			
-			if (isset($post_id)){
-				$widget = ww_get_widget_data($post_id);
-		
-				if(isset($widget->type) && $widget->type == "clone")
-				{
-					// Clone Class
-					add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
-					// Clone Instance
-					add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
-				}
-				else if (!isset($widget->type) || $widget->type == 'standard')
-				{
-					// Rewrite output box
-					add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
-				}
+			// add js
+      add_action( 'admin_enqueue_scripts', 'ww_widget_js');
+			
+			if(isset($widget->type) && $widget->type == "clone") {
+				// Clone Class
+				add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
+				// Clone Instance
+				add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
+			}
+			else if (!isset($widget->type) || $widget->type == 'standard') {
+				// Rewrite output box
+				add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
 			}
 			
 			// Widget type

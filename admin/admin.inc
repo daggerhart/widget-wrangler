@@ -7,12 +7,12 @@ function ww_display_admin_panel()
   $settings = ww_get_settings();
 	$ww_pages = array(
     //'ww-defaults',
-    'ww-debug',
+    //'ww-postspage',
     //'ww-new',
+    'ww-debug',
     'ww-clone',
     'ww-corrals',
     'ww-presets',
-    //'ww-postspage'		
 	);
 	
   // eventually I will handle access control this way
@@ -23,7 +23,7 @@ function ww_display_admin_panel()
     if(is_array($settings['post_types'])){
       // Add panels into the editing corral(s)
       foreach($settings['post_types'] as $post_type){
-        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/images/wrangler_icon.png" />Widget Wrangler'), 'ww_widget_post_form', $post_type, 'normal', 'high');
+        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/wrangler_icon.png" />Widget Wrangler'), 'ww_widget_post_form', $post_type, 'normal', 'high');
       }
     }
 
@@ -38,7 +38,7 @@ function ww_display_admin_panel()
 				// internal admin pages
 				(isset($_GET['page']) && (in_array($_GET['page'], $ww_pages)))
 			)
-    {		
+    {
       add_action( 'admin_head', 'ww_admin_css');
       add_action( 'admin_enqueue_scripts', 'ww_admin_js');
     }
@@ -106,7 +106,7 @@ function ww_corrals_page_handler()
         ww_corral_delete($_POST);
         break;
       case 'update':
-        ww_corral_update($_POST);
+				ww_corral_update($_POST);
         break;
       case 'sort':
         ww_corral_sort($_POST);
@@ -174,7 +174,7 @@ function ww_debug_page(){}
  */
 function ww_admin_js(){
   wp_enqueue_script('ww-admin-js',
-                  plugins_url('/js/admin-panel.js', WW_PLUGIN_DIR.'/js' ),
+                  plugins_url('/js/sortable-widgets.js', WW_PLUGIN_DIR.'/admin/js' ),
                   array('jquery-ui-core', 'jquery-ui-sortable'),
                   false,
                   true);
@@ -185,7 +185,7 @@ function ww_admin_js(){
  */
 function ww_corral_js(){
   wp_enqueue_script('ww-corral-js',
-                    plugins_url('/js/corrals.js', WW_PLUGIN_DIR.'/js' ),
+                    plugins_url('/js/corrals.js', WW_PLUGIN_DIR.'/admin/js' ),
                     array('jquery-ui-core', 'jquery-ui-sortable'),
                     false,
                     true);
@@ -195,7 +195,7 @@ function ww_corral_js(){
  */
 function ww_widget_js(){
   wp_enqueue_script('ww-widget-js',
-                    plugins_url('/js/widget.js', WW_PLUGIN_DIR.'/js' ),
+                    plugins_url('/js/single-widget.js', WW_PLUGIN_DIR.'/admin/js' ),
                     array('jquery-ui-core', 'jquery-ui-sortable', 'jquery-ui-tabs'),
                     false,
                     true);
@@ -212,7 +212,7 @@ function ww_adjust_css(){
   if (isset($_GET['post_type']) && $_GET['post_type'] == 'widget')
   {
     print "#wpbody-content #icon-edit {
-             background: transparent url('".WW_PLUGIN_URL."/images/wrangler_post_icon.png') no-repeat top left;
+             background: transparent url('".WW_PLUGIN_URL."/admin/images/wrangler_post_icon.png') no-repeat top left;
            }";
   }
   print  "</style>";
@@ -221,7 +221,7 @@ function ww_adjust_css(){
  * Add css to admin interface
  */
 function ww_admin_css(){
-	print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/admin/admin.css" />';
+	print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/admin/css/admin.css" />';
 }
 
 
