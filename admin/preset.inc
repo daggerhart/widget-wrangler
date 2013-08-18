@@ -90,25 +90,25 @@ function ww_update_preset(){
  */
 function ww_create_preset()
 {
-  
   global $wpdb;
   $table = $wpdb->prefix."ww_presets";
-      
-  switch($_POST['type'])
-  {
-    case 'term':
-    case 'standard':
-      $data = array(
-        'type' => $_POST['type'],
-        'data' => serialize(array('name' => ucfirst($_POST['type']))),
-        'widgets' => serialize(array()),
-      );
-      
-      $wpdb->insert($table, $data);
-      
-      return $wpdb->insert_id;
-      break;
-  }  
+  if (isset($_POST['create']['type'])){
+		switch($_POST['create']['type'])
+		{
+			case 'term':
+			case 'standard':
+				$data = array(
+					'type' => $_POST['create']['type'],
+					'data' => serialize(array('name' => ucfirst($_POST['create']['type']))),
+					'widgets' => serialize(array()),
+				);
+				
+				$wpdb->insert($table, $data);
+				
+				return $wpdb->insert_id;
+				break;
+		}
+	}
 }
 
 
