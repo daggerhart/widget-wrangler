@@ -112,6 +112,22 @@ function ww_get_settings()
 
   return $settings;
 }
+
+
+/*
+ * Default settings
+ */
+function ww_settings_set_default()
+{
+  $settings["capabilities"] = "simple";
+  $settings["post_types"]['page'] = "page";
+  $settings["post_types"]['post'] = "post";
+	$settings["exclude_from_search"] = 1;
+	$settings["disable_autosave"] = 1;
+	
+  update_option("ww_settings", serialize($settings));
+}
+
 /* ================================= widgets */
 /*
  * Get a post's widgets

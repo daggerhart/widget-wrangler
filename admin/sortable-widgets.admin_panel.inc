@@ -133,19 +133,24 @@ function ww_save_post($post_id)
 	if (!isset($_POST['widget-wrangler-edit'])){
 		return $post_id;
 	}
+
+  // verify this came from the our screen and with proper authorization,
+  // because save_post can be triggered at other times
+  if (isset($_POST['ww_noncename']) && !wp_verify_nonce( $_POST['ww_noncename'], plugin_basename(WW_PLUGIN_DIR.'/admin/sortable-widgets.admin_panel.inc') )) {
+    //print 'bad nonce';exit();
+		return $post_id;
+  }
 	
 	// make sure we're posted good info
 	if (empty($_POST) || !isset($_POST['post_type']) || !isset($_POST['ww-widgets'])){
 		// nothing good posted, so we're not saving
 		return $post_id;
 	}
-	
-  // verify this came from the our screen and with proper authorization,
-  // because save_post can be triggered at other times
-  if (isset($_POST['ww_noncename']) && !wp_verify_nonce( $_POST['ww_noncename'], plugin_basename(WW_PLUGIN_DIR.'/admin/sortable-widgets.admin_panel.inc') )) {
-    print 'bad nonce';exit();
+
+	// don't track revisions independently
+	if ( wp_is_post_revision( $post_id ) ) {
 		return $post_id;
-  }
+	}
 
   // verify if this is an auto save routine. If it is, our form has not been submitted, so we dont want
   // to do anything
@@ -153,7 +158,7 @@ function ww_save_post($post_id)
     return $post_id;
   }
 
-  // Check permissions
+  // Check permissions to save widgets
   if (isset($_POST['post_type']) && in_array($_POST['post_type'], $settings['post_types']) && !current_user_can('edit_page', $post_id)){
 		return $post_id;
   }
