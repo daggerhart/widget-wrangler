@@ -5,10 +5,10 @@
  * @param array $posted  -
  * 		$_POST data from submission
  */
-function ww_corral_insert($posted = array())
+function ww_corral_insert()
 {
   // just in case
-  $new_corral = strip_tags($posted['ww-new-corral']);
+  $new_corral = strip_tags($_POST['ww-new-corral']);
   $corrals = ww_get_all_corrals();
 
 	// no corrals, make this #1
@@ -31,40 +31,38 @@ function ww_corral_insert($posted = array())
 /*
  * Delete a corral
  * 
- * @param array $posted  -
+ * @param array $_POST  -
  * 		$_POST data from submission
  */
-function ww_corral_delete($posted = array())
+function ww_corral_delete()
 {
-  $old_slug = $posted['ww-delete-slug'];
-  
-  if ($corrals_string = get_option('ww_corrals'))
-  {
-    $corrals_array = unserialize($corrals_string);
-    unset($corrals_array[$old_slug]);
-    $new_option = serialize($corrals_array);
-  }
-  else
-  {
-    $new_option = '';
-  }
-  update_option('ww_corrals', $new_option);
+  if (isset($_POST['ww-delete-slug'])) {
+		$old_slug = $_POST['ww-delete-slug'];
+		
+		if ($corrals_string = get_option('ww_corrals'))
+		{
+			$corrals_array = unserialize($corrals_string);
+			unset($corrals_array[$old_slug]);
+			$new_option = serialize($corrals_array);
+			update_option('ww_corrals', $new_option);
+		}
+	}
 }
 /*
  * Update/Edit a corral
  * 
- * @param array $posted $_POST data from submission
+ * @param array $_POST $_POST data from submission
  */
-function ww_corral_update($posted = array())
+function ww_corral_update()
 {
-	if (isset($posted['ww-update-corral']) && isset($posted['ww-corral-id'])){
-		$update_corral = strip_tags($posted['ww-update-corral']);
-		$id = $posted['ww-corral-id'];
-		
-		if ($corrals = ww_get_all_corrals())
-		{
+	$id = array_pop(array_keys($_POST['action']['update']));
+	if (isset($_POST['ww-update-corral-name'][$id])) {
+		$update_name = strip_tags($_POST['ww-update-corral-name'][$id]);
+	
+		// make sure corral exists
+		if ($corrals = ww_get_all_corrals()){
 			if (isset($corrals[$id])) {
-				$corrals[$id] = $update_corral;
+				$corrals[$id] = $update_name;
 				// serialize
 				$corrals_str = serialize($corrals);
 				update_option('ww_corrals', $corrals_str);
@@ -76,23 +74,25 @@ function ww_corral_update($posted = array())
 /*
  * Handle sorting of corrals
  *
- * @param array $posted-
+ * @param array $_POST-
  * 		$_POST data from submission
  */
-function ww_corral_sort($posted = array())
+function ww_corral_sort()
 {
-  $all_corrals = ww_get_all_corrals();
+	$all_corrals = ww_get_all_corrals();
   $new_order_array = array();
   $new_order_string = '';
   
-  if (is_array($posted['weight']))
+  if (is_array($_POST['weight']))
   {
     $i = 1;
-    $total = count($posted['weight']);
+    $total = count($_POST['weight']);
     while($i <= $total)
     {
-      $new_order_array[$posted['weight'][$i]] = $all_corrals[$posted['weight'][$i]];
-      $i++;
+			if (isset($_POST['weight'][$i]) && isset($all_corrals[$_POST['weight'][$i]])){
+				$new_order_array[$_POST['weight'][$i]] = $all_corrals[$_POST['weight'][$i]];
+				$i++;
+			}
     }
     $new_order_string = serialize($new_order_array);
     
@@ -113,79 +113,94 @@ function ww_corral_form(){
 		<p>
 			A <strong>Corral</strong> is an arbitrary group of widgets. Wordpress and Widget Wrangler 1.x call them "sidebars", but they are ultimately not limited by that terminology.
 		</p>
-		<table id='ww-corral-page'>
-		<td>
-			<h2>Edit existing Corrals</h2>
-			<div class='description'>
-				<!-- Warning! If you change a corral's 'slug', widgets currently assigned to that corral will need to be reassigned. -->
-			</div>
-			<ul id='ww-corrals-list'>
-				<?php
-					if (count($corrals)){
-						// loop through each corral and build form
+		<form action='edit.php?post_type=widget&page=ww-corrals&noheader=true' method='post' name='widget-wrangler-form'>		
+			<div id="ww-admin-tabs">	
+				<ul id="corrals-tabs" class="ww-admin-tab-list">
+					<li class="ww-admin-tab-list-title">Corrals</li>
+					<li><a href="#ww-corrals-edit"><span>All Corrals</span></a></li>
+					<li><a href="#ww-corrals-add"><span>Add New Corral</span></a></li>
+					<li><a href="#ww-corrals-sort"><span>Sort Corrals</span></a></li>
+				</ul>
+				
+				<div id="ww-corrals-edit" class="ww-admin-tab">
+					<h2>All Corrals</h2>
+					<div class='description'>
+						<!-- Warning! If you change a corral's 'slug', widgets currently assigned to that corral will need to be reassigned. -->
+					</div>
+					<ul id='ww-corrals-list'>
+						<?php
+							if (count($corrals)){
+								// loop through each corral and build form
+								foreach($corrals as $id => $corral)
+								{ ?>
+									<li class='ww-corral-item'>
+										<div class='widget'>
+											<div class='widget-top'>
+												<div class='widget-title-action'>
+													<div class='widget-action'></div>
+												</div>
+												<h4><?php print $corral ." (id: ".$id.")"; ?></h4>
+											</div>
+											<div class='widget-inside'>
+												<div>
+													<label>Name: </label><input class='ww-text' name='ww-update-corral-name[<?php print $id; ?>]' type='text' value='<?php print $corral; ?>' /><br />
+												</div>
+												<hr class="ww-hr" />					
+												<div class='ww-delete-corral'>
+													<input class='ww-corral-delete-submit' name='action[delete][<?php print $id; ?>]' type='submit' value='Delete' />
+												</div>
+												<div class='ww-update-corral'>
+													<input class='button button-primary button-large' name='action[update][<?php print $id; ?>]' type='submit' value='Update' />
+												</div>
+											</div>
+										</div>
+									</li>
+									<?php
+								}
+							}
+							else
+							{ ?>
+								<li>No Corrals defined</li>
+								<?php
+							}
+						?>
+					</ul>
+				</div>
+				
+				<div id="ww-corrals-add" class="ww-admin-tab">
+					<h2>Add New Corral</h2>
+					<div class="description">
+						
+					</div>
+					<p>
+						Corral Name: <input name='ww-new-corral' type='text' value='' />
+					</p>
+					<hr class="ww-hr" />					
+					<input name="action[insert]" class='button button-primary button-large' type='submit' value='Create Corral' />
+				</div>
+				
+				<div id="ww-corrals-sort" class="ww-admin-tab">
+					<h2>Sort Corrals</h2>
+					<ul id='ww-corrals-sort-list'>
+					<?php
+						//loop
+						$weight = 1;
 						foreach($corrals as $id => $corral)
 						{ ?>
-								<li class='ww-corral-item'>
-									<div class='widget'>
-										<div class='widget-top'>
-											<div class='widget-title-action'>
-												<div class='widget-action'></div>
-											</div>
-											<h4><?php print $corral ." (id: ".$id.")"; ?></h4>
-										</div>
-										<div class='widget-inside'>
-											<form action='edit.php?post_type=widget&page=ww-corrals&ww-corral-action=update&noheader=true' method='post'>
-												<label>Name: </label><input class='ww-text' name='ww-update-corral' type='text' value='<?php print $corral; ?>' /><br />
-												<input name='ww-corral-id' type='hidden' value='<?php print $id; ?>' />
-												<input class='ww-corral-update-submit' name='ww-update-submit' type='submit' value='Update' />
-											</form>
-											<hr />
-											<form class='ww-delete-corral' action='edit.php?post_type=widget&page=ww-corrals&ww-corral-action=delete&noheader=true' method='post'>
-												<input name='ww-delete-slug' type='hidden' value='<?php print $id; ?>' />
-												<input class='ww-corral-delete-submit' name='ww-delete-submit' type='submit' value='Delete' />
-											</form>
-										</div>
-									</div>
-								</li>
+							<li class='ww-corral-sort-item'>
+								<strong><?php print $corral ." (id: ".$id.")"; ?></strong>
+								<input type='hidden' class='ww-corral-weight' name='weight[<?php print $weight; ?>]' value='<?php print $id; ?>' />
+							</li>
 							<?php
+							$weight++;
 						}
-					}
-					else
-					{ ?>
-						<li>No Corrals defined</li>
-						<?php
-					}
-				?>
-			</ul>
-		</td>
-		<td>
-			<h2>Create New Corral</h2>
-			<form action='edit.php?post_type=widget&page=ww-corrals&ww-corral-action=insert&noheader=true' method='post'>
-				Corral Name: <br />
-				<input name='ww-new-corral' type='text' value='' />
-				<input class='button' type='submit' value='Create Corral' />
-			</form>
-			<h2>Sort your Corrals</h2>
-			<form action='edit.php?post_type=widget&page=ww-corrals&ww-corral-action=sort&noheader=true' method='post'>
-				<ul id='ww-corrals-sort'>
-				<?php
-					//loop
-					$weight = 1;
-					foreach($corrals as $id => $corral)
-					{ ?>
-						<li class='ww-corral-sort-item'>
-							<strong><?php print $corral ." (id: ".$id.")"; ?></strong>
-							<input type='hidden' class='ww-corral-weight' name='weight[<?php print $weight; ?>]' value='<?php print $id; ?>' />
-						</li>
-						<?php
-						$weight++;
-					}
-				?>
-				</ul>
-				<input class='ww-corral-sort-submit button' type='submit' name='ww-corrals-save' value='Save Order' />
-			</form>
-		</td>
-		</table>
+					?>
+					</ul>
+					<hr class="ww-hr" />					
+					<input class='button button-primary button-large' type='submit' name='action[sort]' value='Save Order' />
+				</div>
+			</div>
+		</form>
 	</div>
 	<?php
 }

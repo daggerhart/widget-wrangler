@@ -258,7 +258,7 @@ function ww_the_widget($widget_data)
   }
  
   // args for spliting title from content
-  $args = array('before_widget'=>'','after_widget'=>'','before_title'=>'','after_title'=>'[explode]');
+  $args = array('before_widget'=>'','after_widget'=>'','before_title'=>'','after_title'=>'[eXpl0de]');
  
   // output to variable for replacements
   ob_start();
@@ -266,7 +266,7 @@ function ww_the_widget($widget_data)
   $temp = ob_get_clean();
   
   // get title and content separate
-  $array = explode("[explode]", $temp);
+  $array = explode("[eXpl0de]", $temp);
   
   // prep object for template
   $obj                = new stdClass();

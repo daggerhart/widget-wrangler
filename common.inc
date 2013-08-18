@@ -39,9 +39,9 @@ function ww_find_page_widgets() {
       $sql = "SELECT r.preset_id, s.widgets
               FROM ".$relation_table." as r
               LEFT JOIN ".$presets_table." as s ON r.preset_id = s.id
-              WHERE r.term_id = ".$category->term_id."
+              WHERE r.term_id = %d
               LIMIT 1";
-      $row = $wpdb->get_row($sql);
+      $row = $wpdb->get_row($wpdb->prepare($sql,$category->term_id));
       
       // make the array
       if(isset($row->preset_id)){
@@ -60,14 +60,12 @@ function ww_find_page_widgets() {
 					}
 					else {
 						// preset
-						$preset = ww_get_preset($post_widgets->preset_id);
-						$widgets_array = $preset->widgets;
+						$widgets_array = ww_get_preset($post_widgets->preset_id)->widgets;
 					}
 				}
 				else {
 					// widget wrnagler enabled for type, server default widgets
-					$preset = ww_get_preset(1);
-					$widgets_array = $preset->widgets;
+					$widgets_array = ww_get_preset(1)->widgets;
 				}
 			}
       break;
@@ -76,21 +74,18 @@ function ww_find_page_widgets() {
       // see if this is the Posts (blog) page
       if(get_option('show_on_front') == 'posts'){
         // posts page is preset 2
-        $preset = ww_get_preset(2);
-        $widgets_array = $preset->widgets;
+        $widgets_array = ww_get_preset(2)->widgets;
       }
       break;
 
     case 'search':
       // search page is default preset 3
-      $preset = ww_get_preset(3);
-      $widgets_array = $preset->widgets;
+      $widgets_array = ww_get_preset(3)->widgets;
       break;
     
     case '404':
       // 404 page is default preset 4
-      $preset = ww_get_preset(4);
-      $widgets_array = $preset->widgets;
+      $widgets_array = ww_get_preset(4)->widgets;
       break;
   }
 	
@@ -126,8 +121,8 @@ function ww_get_post_widgets($post_id){
   global $wpdb;
   $table = $wpdb->prefix."ww_post_widgets";
 
-  $sql = "SELECT widgets,preset_id FROM ".$table." WHERE post_id = ".$post_id;
-  if($results = $wpdb->get_row($sql)){
+  $sql = "SELECT widgets,preset_id FROM ".$table." WHERE post_id = %d";
+  if($results = $wpdb->get_row($wpdb->prepare($sql, $post_id))){
     $results->widgets = unserialize($results->widgets);
     return $results;
   } 
@@ -141,10 +136,9 @@ function ww_get_post_widgets($post_id){
  */
 function ww_get_widget_data($post_id){
   global $wpdb;
-  $sql = "SELECT type,data FROM ".$wpdb->prefix."ww_widget_data WHERE post_id = ".$post_id;
-  $widget = $wpdb->get_row($sql);
+  $sql = "SELECT type,data FROM ".$wpdb->prefix."ww_widget_data WHERE post_id = %d";
+  $widget = $wpdb->get_row($wpdb->prepare($sql,$post_id));
 	$widget->data = unserialize($widget->data);
-	d($widget);d(debug_backtrace());
 	return $widget;
 }
 
@@ -184,17 +178,19 @@ function ww_get_all_widgets()
  */
 function ww_get_single_widget($post_id){
   global $wpdb;
+	$widget_data_table = $wpdb->prefix."ww_widget_data";
+	$posts_table = $wpdb->prefix."posts";
   $query = "SELECT
               posts.ID, posts.post_name, posts.post_title, posts.post_content,
               data.type as widget_type, data.data as widget_data
             FROM
-              ".$wpdb->prefix."posts as posts
-              LEFT JOIN ".$wpdb->prefix."ww_widget_data as data on data.post_id = posts.ID
+              ".$posts_table." as posts
+              LEFT JOIN ".$widget_data_table." as data on data.post_id = posts.ID
             WHERE
               posts.post_type = 'widget' AND
               posts.post_status = 'publish' AND
-              posts.ID = ".$post_id;
-  $widget = $wpdb->get_row($query);
+              posts.ID = %d";
+  $widget = $wpdb->get_row($wpdb->prepare($query, $post_id));
 
   // unserialize widget data and clone instance
   $widget->widget_data = unserialize($widget->widget_data);
@@ -238,8 +234,8 @@ function ww_get_preset($preset_id){
   global $wpdb;
   $table = $wpdb->prefix."ww_presets";
   
-  $sql = "SELECT id,type,data,widgets FROM ".$table." WHERE id = ".$preset_id." LIMIT 1";
-  $results = $wpdb->get_row($sql);
+  $sql = "SELECT id,type,data,widgets FROM ".$table." WHERE id = %d LIMIT 1";
+  $results = $wpdb->get_row($wpdb->prepare($sql,$preset_id));
   if (isset($results->data) && is_string($results->data)){
     $results->data = unserialize($results->data);
     $results->widgets = unserialize($results->widgets);

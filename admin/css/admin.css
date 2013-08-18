@@ -1,36 +1,208 @@
 
-#ww-active-items,
-#ww-disabled-items {
-  margin: 8px 0px;
+/****************************************************
+ * Common
+ ****************************************************/
+#ww-page-top {
+	text-align: right;
+	margin-bottom: 16px;
+	padding-right: 1%;
 }
-#ww-active-items li {
-  background: #fff;
+.ww-admin-tab {
+  float: left;
+  width: 74%;
+	background: #fff;
+  padding: 0 2% 16px;
+  border: 1px solid #888;
 }
-#ww-disabled-items li {
-  background: #eee; 
+ul.ww-admin-tab-list {
+  float: left;
+  width: 20%;
+  margin: 0 1% 0 0;
+  border: 1px solid #888;
 }
-li.ww-item,
-li.ww-corral-sort-item{
-  line-height: 30px;
-  border: 1px solid #bbb;
-  border-radius: 4px;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
+ul.ww-admin-tab-list li {
+  padding: 0px;
   margin: 0px;
-  padding: 0px 4px 0px 12px;
-  background: #fff;
 }
-.ww-widget-weight {
+ul.ww-admin-tab-list li a {
   display: block;
-  float: right;
-  margin-top: 4px;
+  padding: 0px 6px;
+  line-height: 24px;
+  border-bottom: 1px solid #bbb;
+  background: #eee;
 }
-#ww-disabled-items .ww-widget-weight {
+ul.ww-admin-tab-list li.ui-state-active a {
+  background-color: #fff;
+}
+ul.ww-admin-tab-list .ww-admin-tab-list-title {
+	border-bottom: 1px solid #888888;
+	margin: 0;
+	padding: 3px 5px;
+	font-size: 1em;
+	font-weight: bold;
+}
+hr.ww-hr {
+	border: none;
+	border-bottom: 1px solid #bbb;
+	margin: 8px 0px;
+}
+.ww-options-hidden {
   display: none;
 }
-#ww-active-items li:hover {
-  cursor: n-resize;
+.ww-clear-gone {
+  display: block;
+  float: none;
+  clear: both;
+  height: 0px;
+  line-height: 0px;
+  font-size: 0px;
 }
+.ww-checkboxes {
+	
+}
+.ww-checkbox {
+	display: block;
+	font-size: 1em;
+	line-height: 2em;
+}
+.ww-checkbox input {
+	margin-top: -1px;
+}
+
+/******************************************************
+ * Corrals
+ *****************************************************/
+#ww-corral-page {
+  width: 98%;
+}
+#ww-corral-page td {
+  width: 50%;
+  vertical-align: top;
+}
+#ww-corral-page ul {
+  width: 350px;
+}
+#ww-corrals-edit h4 {
+  margin: 0px;
+  padding: 7px 12px;
+}
+#ww-corral-page .description {
+  width: 350px;
+  font: bold 11px/14px monopreset;
+  margin-bottom: 12px;
+}
+#ww-corral-page .widget-top {
+  cursor: default;
+}
+.ww-corral-edit {
+  float: right;
+  padding: 6px 4px;
+  cursor: pointer;
+  color:#21759B;
+  text-decoration: underline;
+}
+.ww-corral-details label {
+  font-family: monopreset;
+}
+.ww-corral-details .ww-text {
+  width: 84%;
+}
+.ww-corral-update-submit{
+  display: block;
+  width: auto;
+  margin: 4px 0px 0px auto;
+}
+.ww-corral-sort-submit {
+  margin-top: 24px;
+}
+li.ww-corral-sort-item {
+  background: #DFDFDF url('../images/gray-grad.png') repeat-x scroll left top;
+  margin-bottom: 2px;
+}
+.ww-delete-corral {
+	float: right;
+}
+
+/******************************************************
+ * Presets
+ *****************************************************/
+#presets-links {
+  width: 20%;
+  float: left;
+  border: 1px solid #888;
+  margin-right: 1%;
+}
+#presets-links .ww-admin-tab-list {
+	float: none;
+	width: 100%;
+	border: none;
+}
+
+#presets-links .active a {
+  background: #fff;
+}
+#presets-add-new {
+  padding: 12px 3px 6px;
+  background : #eee;
+  border-top: 1px solid #888;
+}
+#preset-data {
+  padding: 6px 6px 12px;
+  border-bottom: 1px solid #888;
+  background: #fff;
+}
+#preset-action {
+  
+}
+#preset-terms {
+  padding: 6px 12px;
+  border-bottom: 1px solid #888;
+}
+#preset-terms .description {
+  color: red;
+}
+#preset-name {
+  font-weight: bold;
+}
+#preset-name .detail{
+  padding: 3px;
+}
+#preset-name label {
+  display: block;
+  float: left;
+  width: 52px;
+}
+#preset-widgets {
+  padding: 6px;
+  background: #fff;
+}
+
+label.ww-preset-checkbox {
+  display: block;
+  margin: 3px 0px;
+  padding: 3px;
+}
+label.ww-preset-checkbox input {
+  margin-right: 6px;
+}
+.preset-checkboxes {
+  border: 1px solid #bbb;
+  background: #fff;
+  margin: 4px;
+  padding: 6px;
+  height: 100px;
+  overflow-y: scroll;
+}
+.ww-presets {
+	padding: 12px 0px 16px;
+}
+#ww-post-preset { border-bottom: 1px solid #666;padding-top: 8px; }
+#ww-post-preset p { padding-left: 20px; }
+#ww-post-preset dt { font-weight: bold; }
+
+/******************************************************
+ * Widgets
+ *****************************************************/
 #all-widgets {
   font: normal 18px/20px Arial;
 }
@@ -54,41 +226,7 @@ li.ww-corral-sort-item{
 #all-widgets td.title { font-weight: bold; width: 60%; }
 #all-widgets td.name { font-size: 16px;}
 #all-widgets td.edit { text-align: center;}
-.ww-clone-widgets {
-  width: 300px;
-  float: left;
-  margin: 0px 0px 0px 24px;
-}
-#ww-corral-page ul {
-  width: 350px;
-}
-.ww-clone-widgets h4,
-#ww-corral-page h4 {
-  margin: 0px;
-  padding: 7px 12px;
-}
-.ww-corral-edit {
-  float: right;
-  padding: 6px 4px;
-  cursor: pointer;
-  color:#21759B;
-  text-decoration: underline;
-}
-.ww-corral-details label {
-  font-family: monopreset;
-}
-.ww-corral-details .ww-text {
-  width: 84%;
-}
-.ww-clone-submit,
-.ww-corral-update-submit{
-  display: block;
-  width: auto;
-  margin: 4px 0px 0px auto;
-}
-.ww-corral-sort-submit {
-  margin-top: 24px;
-}
+
 #ww-advanced-field {
   padding: 0px 0px 12px;
 }
@@ -111,32 +249,48 @@ li.ww-corral-sort-item{
   font: normal 11px Arial;
   color: #555;
 }
-#ww-corral-page {
-  width: 98%;
+
+#ww_admin_meta_box h3.hndle {
+  line-height: 18px;
 }
-#ww-corral-page td {
-  width: 50%;
-  vertical-align: top;
+#ww_admin_meta_box h3.hndle span img {
+  float: left;
+  margin-right: 8px;
 }
-#ww-disabled-items,
-.ww-sortable {
-  min-height: 20px;
-  height: auto !important;
-  height: 20px;
-  border: 2px dashed #eee;
-}
-.ww-item select {
-  display: block;
+.ww-widget-postid {
   float: right;
-  margin: 4px 8% 0px 12px;
+  text-align: center;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  padding: 3px 0px 2px;
 }
-#ww-defaults { border-bottom: 1px solid #666;padding-top: 8px; }
-#ww-defaults p { padding-left: 20px; }
-#ww-defaults dt { font-weight: bold; }
-#ww-corral-page .description {
-  width: 350px;
-  font: bold 11px/14px monopreset;
-  margin-bottom: 12px;
+.ww-widget-postid span {
+  display: block;
+  font-size: 22px;
+  line-height: 30px;
+  border-top: 1px solid #bbb;
+  background: #fff;
+  padding: 0px 6px;
+}
+
+/******************************************************
+ * Clones
+ *****************************************************/
+.ww-clone-widgets {
+  width: 300px;
+  float: left;
+  margin: 0px 0px 0px 24px;
+}
+.ww-clone-widgets h4 {
+  margin: 0px;
+  padding: 7px 12px;
+}
+.ww-clone-submit {
+  display: block;
+  width: auto;
+  margin: 4px 0px 0px auto;
 }
 .widget-title-action {
   float: right;
@@ -152,17 +306,63 @@ div.widget-action {
   display: none;
   padding: 6px 12px;
 }
-#ww-corral-page .widget-top {
-  cursor: default;
+.ww-clone-form {
+  margin-top: 32px;
 }
-li.ww-corral-sort-item {
-  background: #DFDFDF url('../images/gray-grad.png') repeat-x scroll left top;
-  margin-bottom: 2px;
+
+/******************************************************
+ * Sortable Widgets
+ *****************************************************/
+#ww-active-items,
+#ww-disabled-items {
+  margin: 8px 0px;
 }
-.ww-corral-sort-item,
-.ww-item {
+#ww-active-items li {
+  background: #fff;
+}
+#ww-disabled-items li {
+  background: #eee; 
+}
+li.ww-item,
+li.ww-corral-sort-item{
+  line-height: 30px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  margin: 0px;
+  padding: 0px 4px 0px 12px;
+  background: #fff;
   cursor: move;
 }
+.ww-widget-weight {
+  display: block;
+  float: right;
+  margin-top: 4px;
+}
+#ww-disabled-items .ww-widget-weight {
+  display: none;
+}
+#ww-active-items li:hover {
+  cursor: n-resize;
+}
+#ww-disabled-items,
+.ww-sortable {
+  min-height: 20px;
+  height: auto !important;
+  height: 20px;
+  border: 2px dashed #eee;
+}
+.ww-item select {
+  display: block;
+  float: right;
+  margin: 4px 8% 0px 12px;
+}
+
+/******************************************************
+ * Settings
+ *****************************************************/
+
 .ww-settings-field {
   padding: 12px 20px 10px;
   margin: 6px 0px;
@@ -193,174 +393,21 @@ h4.ww-settings-title {
 .ww-settings-roles {
   padding: 8px 24px;
 }
-#ww_admin_meta_box h3.hndle {
-  line-height: 18px;
-}
-#ww_admin_meta_box h3.hndle span img {
-  float: left;
-  margin-right: 8px;
-}
-.ww-widget-postid {
-  float: right;
-  text-align: center;
-  border: 1px solid #bbb;
-  border-radius: 4px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  padding: 3px 0px 2px;
-}
-.ww-widget-postid span {
-  display: block;
-  font-size: 22px;
-  line-height: 30px;
-  border-top: 1px solid #bbb;
-  background: #fff;
-  padding: 0px 6px;
-}
-.ww-clone-form {
-  margin-top: 32px;
-}
-.ww-options-hidden {
-  display: none;
-}
-.ww-clear-gone {
-  display: block;
-  float: none;
-  clear: both;
-  height: 0px;
-  line-height: 0px;
-  font-size: 0px;
-}
 
-/*
- * Presets
- */
-#presets-corral {
-  width: 140px;
-  float: left;
-  border: 1px solid #888;
-  margin-right: 12px;
-}
-#presets-list {}
-#presets-list h4 {
-  padding: 3px 5px;
-  margin: 0px;
-  border-bottom: 1px solid #888;
-}
-.preset-list-item a {
-  display: block;
-  background: #eee;
-  padding: 3px 5px;
-  border-bottom: 1px solid #bbb;
-}
-#presets-list .active a {
-  background: #fff;
-}
-#presets-add-new {
-  padding: 12px 3px 6px;
-  background : #eee;
-  border-top: 1px solid #888;
-}
-#preset-data {
-  padding: 6px 6px 12px;
-  border-bottom: 1px solid #888;
-  background: #fff;
-}
-#preset-action {
-  float: right;
-}
-#preset-terms {
-  padding: 6px 12px;
-  border-bottom: 1px solid #888;
-}
-#preset-terms .description {
-  color: red;
-}
-#preset-name {
-  font-weight: bold;
-}
-#preset-name .detail{
-  padding: 3px;
-}
-#preset-name label {
-  display: block;
-  float: left;
-  width: 52px;
-}
-#preset-details {
-  width: 600px;
-  float: left;
-  margin: 0px;
-  border: 1px solid #888;
-  background: #eee;
-}
-#preset-widgets {
-  padding: 6px;
-  background: #fff;
-}
-
-label.ww-preset-checkbox {
-  display: block;
-  margin: 3px 0px;
-  padding: 3px;
-}
-label.ww-preset-checkbox input {
-  margin-right: 6px;
-}
-.preset-checkboxes {
-  border: 1px solid #bbb;
-  background: #fff;
-  margin: 4px;
-  padding: 6px;
-  height: 100px;
-  overflow-y: scroll;
-}
-/*
+/******************************************************
  * Display Logic
- */
-#logic-tabs {
-  
+ *****************************************************/
+#logic-tabs .description {
+	padding: 12px 2% 6px;
 }
-#logic-tabs .ui-tabs-panel {
-  float: left;
-  width: 74%;
-	background: #fff;
-  padding: 0 2% 16px;
-  border: 1px solid #888;
-}
-#logic-tabs-list {
-  float: left;
-  width: 20%;
-  margin-right: 1%;
-  border: 1px solid #888;
-}
-#logic-tabs-list li {
-  padding: 0px;
-  margin: 0px;
-}
-#logic-tabs-list li a {
-  display: block;
-  padding: 0px 6px;
-  line-height: 24px;
-  border-bottom: 1px solid #bbb;
-  background: #eee;
-}
-#logic-tabs-list li.ui-state-active a {
-  background-color: #fff;
-}
-.logic-php-wrapper ul li {
+.description ul li {
   list-style: disc;
   list-style-type: disc;
   list-style-position: inside;
 }
-label.ww-logic-checkbox {
-	display: block;
-	font-size: 1em;
-	line-height: 2em;
+#tab-php.ww-admin-tab {
+	float: none;
 }
-label.ww-logic-checkbox input {
-	margin-top: -1px;
-}
-.ww-presets {
-	padding: 12px 0px 16px;
+#tab-php.ww-admin-tab .description {
+	float: left;
 }

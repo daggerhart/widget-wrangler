@@ -6,46 +6,34 @@ function ww_display_admin_panel()
 {
   $settings = ww_get_settings();
 	$ww_pages = array(
-    //'ww-defaults',
-    //'ww-postspage',
-    //'ww-new',
     'ww-debug',
     'ww-clone',
     'ww-corrals',
     'ww-presets',
+		'ww-settings',
 	);
 	
-  // eventually I will handle access control this way
-  $show_panel = true;
-
-  if ($show_panel)
-  {
-    if(is_array($settings['post_types'])){
-      // Add panels into the editing corral(s)
-      foreach($settings['post_types'] as $post_type){
-        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/wrangler_icon.png" />Widget Wrangler'), 'ww_widget_post_form', $post_type, 'normal', 'high');
-      }
-    }
-
-    // Add some CSS to the admin header on the widget wrangler pages, and edit pages
-    if( 
-				// new page/post
-				(isset($_GET['post_type']) && isset($settings['post_types'][$_GET['post_type']]))
-				||
-				// editing
-			  (isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit')
-				||
-				// internal admin pages
-				(isset($_GET['page']) && (in_array($_GET['page'], $ww_pages)))
-			)
-    {
-      add_action( 'admin_head', 'ww_admin_css');
-      add_action( 'admin_enqueue_scripts', 'ww_admin_js');
-    }
-  }
-  add_action('admin_head', 'ww_adjust_css');
-  //disable autosave
-  //wp_deregister_script('autosave');
+  // add admin css
+  add_action( 'admin_head', 'ww_admin_css');
+	add_action( 'admin_head', 'ww_adjust_css');
+	add_action( 'save_post', 'ww_save_post' );
+	
+	// add meta boxes to all enabled post types
+	if(is_array($settings['post_types'])){
+		foreach($settings['post_types'] as $post_type){
+			add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/wrangler_icon.png" />Widget Wrangler'), 'ww_widget_post_form', $post_type, 'normal', 'high');
+		}
+	}
+  
+	// ww internal admin pages
+	if (isset($_GET['page']) && (in_array($_GET['page'], $ww_pages))) {
+		add_action( 'admin_enqueue_scripts', 'ww_admin_js');
+		add_action( 'admin_enqueue_scripts', 'ww_post_type_widget_js');
+		add_action( 'admin_enqueue_scripts', 'ww_sortable_widgets_js');
+		if (isset($settings['disable_autosave']) && $settings['disable_autosave'] == 1) {
+			add_action( 'admin_enqueue_scripts', 'ww_dequeue_autosave' );
+		}
+	}
 }
 
 /* ================================ Page handling */
@@ -55,31 +43,31 @@ function ww_display_admin_panel()
 function ww_presets_page_handler()
 {
   include_once WW_PLUGIN_DIR.'/admin/preset.inc';
+	$actions = array("create", "update");
   
-	if(isset($_GET['action'])) {
-    switch ($_GET['action'])
-    {
-      // create new widget preset
-      case 'create':
-        $preset_id = ww_create_preset();
-        break;
-
-      // update an existing widget preset
-      case 'update':
-
-        // switch Save & Delete buttons
-        // do not let them delete defaults or post pages
-        if(isset($_POST['action-delete']) &&
-           $_POST['preset-type'] != 'default')
-        {
-          ww_delete_preset();
-          $preset_id = 1;
-        }
-        else if (isset($_POST['action-save'])){
-          $preset_id = ww_update_preset();
-        }
-        break;
-    }
+	if (isset($_POST['action'])){
+		$action = array_pop(array_keys($_POST['action']));
+		
+		if (in_array($action, $actions)) {
+			switch ($action)
+			{
+				// create new widget preset
+				case 'create':
+					$preset_id = ww_create_preset();
+					break;
+	
+				// update an existing widget preset
+				case 'update':
+					$preset_id = ww_update_preset();
+					break;
+				
+				case 'delete':
+					ww_delete_preset();
+					// send back to default
+					$preset_id = 1;
+					break;
+			}
+		}
     // send to the new preset
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-presets&preset_id='.$preset_id);
   }
@@ -97,25 +85,60 @@ function ww_corrals_page_handler()
   // include the corrals form
   include_once WW_PLUGIN_DIR.'/admin/corral.inc';
 
-  if(isset($_GET['ww-corral-action'])){
-    switch($_GET['ww-corral-action']){
-      case 'insert':
-        $new_corral_id = ww_corral_insert($_POST);
-        break;
-      case 'delete':
-        ww_corral_delete($_POST);
-        break;
-      case 'update':
-				ww_corral_update($_POST);
-        break;
-      case 'sort':
-        ww_corral_sort($_POST);
-        break;
-    }
+	$actions = array("insert", "delete", "update", "sort");
+  
+	if (isset($_POST['action'])){
+		$action = array_pop(array_keys($_POST['action']));
+		$tab = "";
+	  if (in_array($action, $actions)) {
+			switch($action){
+				case 'insert':
+					ww_corral_insert();
+					break;
+				case 'delete':
+					ww_corral_delete();
+					break;
+				case 'update':
+					ww_corral_update();
+					break;
+				case 'sort':
+					ww_corral_sort();
+					break;
+			}
+		}
+		
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-corrals');
   }
   // show corrals page
   ww_corral_form();
+}
+
+/*
+ * Handles settings page
+ */
+function ww_settings_page_handler()
+{
+	$actions = array("save", "reset");
+  
+	if (isset($_POST['action'])){
+		$action = array_pop(array_keys($_POST['action']));
+		
+	  if (in_array($action, $actions)) {
+			switch($action){
+				case "save":
+					ww_settings_save($_POST);
+					break;
+				case "reset":
+					ww_settings_reset_widgets();
+					break;
+			}
+		}
+    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-settings');
+  }
+  else{
+    // settings form
+    ww_settings_form();
+  }
 }
 
 /*
@@ -142,27 +165,6 @@ function ww_clone_page_handler()
 }
 
 /*
- * Handles settings page
- */
-function ww_settings_page_handler()
-{
-  if (isset($_GET['ww-settings-action'])){
-    switch($_GET['ww-settings-action']){
-      case "save":
-        ww_settings_save($_POST);
-        break;
-      case "reset":
-        ww_settings_reset_widgets();
-        break;
-    }
-    wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-settings');
-  }
-  else{
-    // settings form
-    ww_settings_form();
-  }
-}
-/*
  * for whatever.
  */
 function ww_debug_page(){}
@@ -170,35 +172,45 @@ function ww_debug_page(){}
 
 /*==================================== JS & CSS */
 /*
- * Javascript drag and drop for sorting
+ * Javascript for general admin stuff
  */
 function ww_admin_js(){
   wp_enqueue_script('ww-admin-js',
-                  plugins_url('/js/sortable-widgets.js', WW_PLUGIN_DIR.'/admin/js' ),
-                  array('jquery-ui-core', 'jquery-ui-sortable'),
-                  false,
-                  true);
-	wp_localize_script( 'ww-admin-js', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = {};') );	
-}
-/*
- * Javascript for drag and drop corral sorting
- */
-function ww_corral_js(){
-  wp_enqueue_script('ww-corral-js',
-                    plugins_url('/js/corrals.js', WW_PLUGIN_DIR.'/admin/js' ),
+                    plugins_url('/js/admin.js', WW_PLUGIN_DIR.'/admin/js' ),
                     array('jquery-ui-core', 'jquery-ui-sortable'),
                     false,
                     true);
 }
 /*
- * Javascript for drag and drop corral sorting
+ * Javascript for sortable widgets
  */
-function ww_widget_js(){
-  wp_enqueue_script('ww-widget-js',
-                    plugins_url('/js/single-widget.js', WW_PLUGIN_DIR.'/admin/js' ),
+function ww_sortable_widgets_js(){
+  wp_enqueue_script('ww-sortable-widgets-js',
+                  plugins_url('/js/sortable-widgets.js', WW_PLUGIN_DIR.'/admin/js' ),
+                  array('jquery-ui-core', 'jquery-ui-sortable'),
+                  false,
+                  true);
+	wp_localize_script( 'ww-sortable-widgets-js', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = {};') );	
+}
+
+/*
+ * Javascript for the widget post type edit page
+ */
+function ww_post_type_widget_js(){
+  wp_enqueue_script('ww-post-type-widget-js',
+                    plugins_url('/js/post_type-widget.js', WW_PLUGIN_DIR.'/admin/js' ),
                     array('jquery-ui-core', 'jquery-ui-sortable', 'jquery-ui-tabs'),
                     false,
                     true);
+}
+
+/*
+ * Probably don't want to autosave widgets
+ */
+function ww_dequeue_autosave() {
+	if ( 'widget' == get_post_type() ){
+		wp_dequeue_script( 'autosave' );
+	}
 }
 
 /*

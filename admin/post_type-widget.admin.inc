@@ -22,6 +22,9 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
     
     // Insert post hook
     add_action("wp_insert_post", array(&$this, "wp_insert_post"), 10, 2);
+		
+		// delet_post
+		add_action('delete_post', array(&$this, "delete_post"), 10, 2);
   }
   
 	/*
@@ -59,7 +62,30 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
         break;
     }
   }
-  
+	
+	/*
+	 * clean up widget data on delete
+	 */
+  function delete_post($post_id)
+  {
+    if (is_numeric($post_id)){
+			global $wpdb;
+			$table = $wpdb->prefix."ww_widget_data";
+			
+			// see if this is a widget
+			$widget_data = $wpdb->get_row($wpdb->prepare("SELECT post_id,type FROM ".$table." WHERE post_id = %d", $post_id));
+			
+			if (isset($widget_data)){
+				$where = array(
+					'post_id' => $widget_data->post_id,
+					'type' => $widget_data->type,
+				);
+				
+				$wpdb->delete($table, $where);
+			}
+		}
+	}
+	
   /*
    * When a post is inserted or updated
    */ 
@@ -68,7 +94,8 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
     if ($post->post_type == "widget")
     {
       global $wpdb;
-      $type = (isset($_POST['ww-type'])) ? $_POST['ww-type'] : "";
+			$table = $wpdb->prefix."ww_widget_data";
+      $type = (isset($_POST['ww-type'])) ? $_POST['ww-type'] : "standard";
       
       // problems with php and html adding slashes
       if(isset($_POST['ww-data']['standard']['custom-output'])){
@@ -111,15 +138,15 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       $data = serialize($widget_data);
 
       // see if this post has data
-      $exists = $wpdb->get_results("SELECT type FROM ".$wpdb->prefix."ww_widget_data WHERE post_id = ".$post_id);
+      $exists = $wpdb->get_results("SELECT type FROM ".$table." WHERE post_id = ".$post_id);
       
       // update if exists
       if(count($exists) > 0){
-        $wpdb->update($wpdb->prefix.'ww_widget_data', array('type' => $type, 'data' => $data), array('post_id' => $post_id));
+        $wpdb->update($table, array('type' => $type, 'data' => $data), array('post_id' => $post_id));
       }
       // insert if not
       else {
-        $wpdb->insert($wpdb->prefix.'ww_widget_data', array('post_id' => $post_id, 'type' => $type, 'data' => $data));
+        $wpdb->insert($table, array('post_id' => $post_id, 'type' => $type, 'data' => $data));
       }
     }
   }
@@ -137,12 +164,12 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       $post_id = $_POST['post_ID'];
     }
 		
-		if (isset($post_id) && get_post_type($post_id) == "widget"){
+		if (isset($post_id) && get_post_type($post_id) == "widget")
+		{
+			add_action( 'admin_enqueue_scripts', 'ww_post_type_widget_js');
+	
 			// get widget data
 			$widget = ww_get_widget_data($post_id);
-			
-			// add js
-      add_action( 'admin_enqueue_scripts', 'ww_widget_js');
 			
 			if(isset($widget->type) && $widget->type == "clone") {
 				// Clone Class
@@ -222,7 +249,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       </em>
     </p>
     <div id="logic-tabs">
-      <ul id="logic-tabs-list">
+      <ul id="logic-tabs-list"  class="ww-admin-tab-list">
         <li><a href="#tab-post-types"><span>Post Types</span></a></li>
         <!--<li><a href="#tab-conditional-tags"><span>Conditional Tags</span></a></li>-->
         <li><a href="#tab-php"><span>Custom PHP</span></a></li>
@@ -238,44 +265,43 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
         unset($post_types['widget']);
         ksort($post_types);    
       ?>
-        <div id="tab-post-types">
-          <p>
-            <strong>Select which post types this widget should display on.</strong>
-          </p>
-          <div class="logic-checkboxes">
-            <?php  
-              // loop through post types
-              foreach ($post_types as $post_type )
-              {
-                $post_type_checked = (isset($data['logic']['post_types'][$post_type])) ? 'checked="checked"' : '';
-                ?>
-                <label class="ww-logic-checkbox"><input type="checkbox" name="ww-data[logic][post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
-                <?php
-              }
-            ?>
-          </div>
-        </div>
+			<div id="tab-post-types" class="ww-admin-tab">
+				<div class="description">
+					<strong>Select which post types this widget should display on.</strong>
+				</div>
+				<div class="ww-checkboxes">
+					<?php  
+						// loop through post types
+						foreach ($post_types as $post_type )
+						{
+							$post_type_checked = (isset($data['logic']['post_types'][$post_type])) ? 'checked="checked"' : '';
+							?>
+							<label class="ww-checkbox"><input type="checkbox" name="ww-data[logic][post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
+							<?php
+						}
+					?>
+				</div>
+			</div>
       <?php
         /*
          * Custom php
          */
         $data_logic_php = (isset($data['logic']['php'])) ? htmlentities($data['logic']['php']) : "";
       ?>
-        <div id="tab-php">
-          <div class="logic-php-wrapper">
-            <p>
-              <strong>
-                Use custom php to determine if the widget should be displayed.
-                <ul>
-                  <li>Must return true to display the widget.</li>
-                  <li>Do not! use open and close php tags. (eg &lt;php , ?&gt;)</li>
-                </ul>
-              </strong>
-            </p>
-            <textarea name="ww-data[logic][php]" cols="40" rows="16" style="width: 100%;"><?php print $data_logic_php; ?></textarea>
-          </div>
-        </div>
-        <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
+			<div id="tab-php" >
+				<div class="ww-admin-tab description">
+					Use custom php to determine if the widget should be displayed.
+					<ul>
+						<li>If there is code present, it must return true to display the widget.</li>
+						<li>Do not use php tags. (eg. &lt;?php , ?&gt;)</li>
+					</ul>
+				</div>
+				<div class="logic-php-textarea">
+					<strong>PHP code:</strong><br/>
+					<textarea name="ww-data[logic][php]" cols="40" rows="16" style="width: 100%;"><?php print $data_logic_php; ?></textarea>
+				</div>
+			</div>
+      <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
     </div>
     <?php
   }
@@ -333,7 +359,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       $hide_title_checked = (isset($data['hide_title'])) ? 'checked="checked"' : '';
       ?>
         <label>
-          <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> Hide the Widget's title on display
+          <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> - Hide the Widget's title on display
         </label>
         <div class="ww-clone-form">
           <?php print $instance_form; ?>
@@ -377,23 +403,23 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
     ?>
       <div id="ww-template">
         <div>
-          <label><input type="checkbox" name="ww-data[standard][filter-content]" <?php print $filter_content_checked; ?> /> Apply Content filters to this Widget's Content.</label>
+          <label><input type="checkbox" name="ww-data[standard][filter-content]" <?php print $filter_content_checked; ?> /> - Apply Content filters to this Widget's Content.</label>
         </div>
         <div>
           <h4>Rewrite Output</h4>
           <div class="ww-options-group">
             <div class="ww-options-group-title">
-              <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> Rewrite the output of this widget</label>
+              <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> - Rewrite the output of this widget</label>
             </div>
             <div class="ww-options-group-content ww-options-hidden">
               <div id="ww-advanced-template">
-                <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> Template the Advanced Parsing Area</label>
+                <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> - Template the Advanced Parsing Area</label>
               </div>
               <textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print $data_custom_output; ?></textarea>
               <div class="adv-parse-description">
                 <h5>In the Advanced Parsing area you can:</h5>
                 <ul>
-                  <li>Use PHP ( &lt;?php and ?&gt; are required )</li>
+                  <li>Use PHP tags ( &lt;?php and ?&gt; are required )</li>
                   <li>Use {{title}} or $widget->post_title to insert the widget's title</li>
                   <li>Use {{content}} or $widget->post_content to insert the widget's content</li>
                   <li>Access the $widget object for more widget data (see provided template for examples)</li>

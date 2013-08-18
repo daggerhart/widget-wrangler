@@ -24,6 +24,9 @@ function ww_widget_post_form($post){
 	
   if (isset($post_id) && is_numeric($post_id))
   {
+		// add our js
+		ww_sortable_widgets_js();
+
     // get some data to work with
     $all_widgets = ww_get_all_widgets(); 
     $all_presets = ww_get_all_presets();
@@ -88,7 +91,7 @@ function ww_widget_post_form($post){
 					}
 				?>
 				<div class='outer'>
-					<div id='ww-defaults'>
+					<div id='ww-post-preset'>
 						<span><?php print $post_preset_message; ?></span>
 						<div class='ww-presets'>
 							Widget Preset:
@@ -144,7 +147,7 @@ function ww_save_post($post_id)
 	
   // verify this came from the our screen and with proper authorization,
   // because save_post can be triggered at other times
-  if (isset($_POST['ww_noncename']) && !wp_verify_nonce( $_POST['ww_noncename'], plugin_basename(WW_PLUGIN_DIR.'/admin/single-post-widgets.admin_panel.inc') )) {
+  if (isset($_POST['ww_noncename']) && !wp_verify_nonce( $_POST['ww_noncename'], plugin_basename(WW_PLUGIN_DIR.'/admin/sortable-widgets.admin_panel.inc') )) {
     print 'bad nonce';exit();
 		return $post_id;
   }
@@ -267,12 +270,9 @@ function ww_update_post_widgets($post_id, $preset_id = 0, $post_widgets = NULL){
  * @param int $post_id The WP post ID for the page or post to delete widgets from
  */
 function ww_delete_post_widgets($post_id){
-  if(is_numeric($post_id))
-  {
+  if(is_numeric($post_id)) {
     global $wpdb;
     $table = $wpdb->prefix."ww_post_widgets";
-
-    $sql = "DELETE FROM ".$table." WHERE post_id = ".$post_id;
-    $wpdb->query($sql);
+    $wpdb->query($wpdb->prepare("DELETE FROM ".$table." WHERE post_id = %d", $post_id));
   }
 }

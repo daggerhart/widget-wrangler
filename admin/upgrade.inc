@@ -90,7 +90,7 @@ function ww_upgrade_1x_to_2x(){
 
     $wpdb->insert($widget_data_table, $insert_data, array('%d', '%s', '#s'));
 
-    // test for success
+    // @TODO: test for success
     if (1){
       // delete old postmeta data
       $delete = 'DELETE FROM '.$postmeta_table.'

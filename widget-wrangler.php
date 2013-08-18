@@ -73,8 +73,8 @@ function ww_admin_init() {
   // include admin panel and helper functions such as sortable widgets
 	include_once WW_PLUGIN_DIR.'/admin/admin.inc';
 	include_once WW_PLUGIN_DIR.'/admin/settings.inc';
-  include_once WW_PLUGIN_DIR.'/admin/single-post-widgets.admin_panel.inc';
 	include_once WW_PLUGIN_DIR.'/admin/sortable-widgets.inc';
+  include_once WW_PLUGIN_DIR.'/admin/sortable-widgets.admin_panel.inc';
   include_once WW_PLUGIN_DIR.'/admin/upgrade.inc';
   
 	// handle upgrades
@@ -83,10 +83,6 @@ function ww_admin_init() {
   // determine whether to display the admin panel
   // handles adding some css and the js
   ww_display_admin_panel();
-
-  // add admin css
-  add_action( 'admin_head', 'ww_admin_css');
-	add_action( 'save_post', 'ww_save_post' );
 }
 add_action( 'admin_init', 'ww_admin_init' );
 
@@ -99,7 +95,6 @@ function ww_menu() {
   $presets  = add_submenu_page( 'edit.php?post_type=widget', 'Widget Presets', 'Widget Presets', 'manage_options', 'ww-presets',  'ww_presets_page_handler' );
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',       'Settings',       'manage_options', 'ww-settings', 'ww_settings_page_handler');
   //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
-  add_action( "admin_print_scripts-$corrals", 'ww_corral_js' );
 }
 add_action( 'admin_menu', 'ww_menu');
 
