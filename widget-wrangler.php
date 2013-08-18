@@ -99,7 +99,7 @@ function ww_menu() {
   $corrals 	= add_submenu_page( 'edit.php?post_type=widget', 'Corrals (Sidebars)', 'Corrals (Sidebars)', 'manage_options', 'ww-corrals',  'ww_corrals_page_handler' );
   $presets  = add_submenu_page( 'edit.php?post_type=widget', 'Widget Presets', 'Widget Presets', 'manage_options', 'ww-presets',  'ww_presets_page_handler' );
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',       'Settings',       'manage_options', 'ww-settings', 'ww_settings_page_handler');
-  $debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
+  //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
 }
 add_action( 'admin_menu', 'ww_menu');
 
