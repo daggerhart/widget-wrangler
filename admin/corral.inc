@@ -138,11 +138,16 @@ function ww_corral_form(){
 												<div class='widget-title-action'>
 													<div class='widget-action'></div>
 												</div>
-												<h4><?php print $corral ." (id: ".$id.")"; ?></h4>
+												<h4><?php print $corral; ?></h4>
 											</div>
 											<div class='widget-inside'>
 												<div>
-													<label>Name: </label><input class='ww-text' name='ww-update-corral-name[<?php print $id; ?>]' type='text' value='<?php print $corral; ?>' /><br />
+													<p>
+														<label><strong>Corral id: </strong></label><?php print $id; ?>
+													</p>
+													<p>
+														<label><strong>Name: </strong></label><input class='ww-text' name='ww-update-corral-name[<?php print $id; ?>]' type='text' value='<?php print $corral; ?>' />
+													</p>
 												</div>
 												<hr class="ww-hr" />					
 												<div class='ww-delete-corral'>
@@ -187,7 +192,7 @@ function ww_corral_form(){
 						foreach($corrals as $id => $corral)
 						{ ?>
 							<li class='ww-corral-sort-item'>
-								<strong><?php print $corral ." (id: ".$id.")"; ?></strong>
+								<strong><?php print $corral; ?></strong>
 								<input type='hidden' class='ww-corral-weight' name='weight[<?php print $weight; ?>]' value='<?php print $id; ?>' />
 							</li>
 							<?php

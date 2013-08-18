@@ -83,15 +83,15 @@ function theme_ww_sortable_widgets($active_widgets)
 	$themed = "";
 	
   // loop through corrals and add active widgets to list
-	foreach($all_corrals as $slug => $corral)
+	foreach($all_corrals as $corral_id => $corral)
 	{
 		// open the list
-		$themed.= "<h4 class='ww-sortable-widgets-corral-title'>".$corral."</h4>
-								<ul name='".$slug."' id='ww-corral-".$slug."-items' class='inner ww-sortable' width='100%'>";
+		$themed.= "<h4 class='ww-sortable-widgets-corral-title'>".$corral." <sup>id: ".$corral_id."</sup></h4>
+								<ul name='".$corral_id."' id='ww-corral-".$corral_id."-items' class='inner ww-sortable' width='100%'>";
 		$style = '';
-		if (isset($corrals_array['active']) && isset($corrals_array['active'][$slug]) && is_array($corrals_array['active'][$slug])) {
+		if (isset($corrals_array['active']) && isset($corrals_array['active'][$corral_id]) && is_array($corrals_array['active'][$corral_id])) {
 			// loop through corral array and add items to list
-			foreach($corrals_array['active'][$slug] as $item){
+			foreach($corrals_array['active'][$corral_id] as $item){
 				$themed.= $item;
 			}
 			//hide the 'no widgets' list item when widgets are present

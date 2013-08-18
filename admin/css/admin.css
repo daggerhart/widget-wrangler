@@ -364,14 +364,14 @@ div.widget-action {
   background: #fff;
 }
 #ww-disabled-items li {
-  background-color: #eee; 
+  background: linear-gradient(to top, #E9E9E9, #EFEFEF) repeat scroll 0 0;
 }
 .ww-sortable-widgets-corral-title {
 	margin-bottom: 12px;
 }
 li.ww-item,
 li.ww-corral-sort-item{
-  background: linear-gradient(to top, #FBFBFB, #FFFFFF) repeat scroll 0 0 #FFFFFF;
+  background: linear-gradient(to top, #F9F9F9, #FFFFFF) repeat scroll 0 0 #FFFFFF;
 	background-image: url('../images/drag_handle.png');
 	background-repeat: no-repeat;
 	background-position: 4px center;
@@ -411,6 +411,7 @@ li.ww-corral-sort-item{
   height: 20px;
   border: 2px dashed #eee;
 	background: #ddd;
+	margin-top: 4px;
 }
 .ww-item select {
   display: block;
@@ -424,6 +425,13 @@ li.ww-corral-sort-item{
 	height: 32px;
 	padding: 0px 12px 0px 30px;
 	margin: 0px;
+	background: transparent url('../images/empty-bg.png') repeat;
+}
+h4.ww-sortable-widgets-corral-title{
+	margin: 16px 0 0px 0;
+	border-bottom: 1px solid #bbb;
+	font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+	font-size: 1.1em;
 }
 
 /******************************************************

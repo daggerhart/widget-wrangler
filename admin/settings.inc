@@ -128,15 +128,14 @@ function ww_settings_form() {
 				</div>
 				
 				<div id="ww-settings-advanced" class="ww-admin-tab">
-					<h3 class="ww-settings-title">Capabilities </h3>
-					<div class="ww-settings-field">
+					<h4 class="ww-settings-title">Capabilities </h4>
+					<div>
 						<p> 
 							<label>
 								<input name="settings[capabilities]" type="radio" value="simple" <?php print $simple_checked; ?> />
 								<strong>Simple</strong>:  Widgets can be Created and Edited by anyone who can edit Posts.  Anyone who can edit a Page can change the Widgets displayed on that Page.
 							</label>
 						</p>
-						<hr />
 						<p>
 							<label>
 								<input name="settings[capabilities]" type="radio" value="advanced" <?php print $adv_checked; ?> />
@@ -152,8 +151,8 @@ function ww_settings_form() {
 				</div>
 				
 				<div id="ww-settings-tools" class="ww-admin-tab">
-					<h3 class="ww-settings-title">Mass Reset</h3>
-					<div class="ww-settings-field">
+					<h4 class="ww-settings-title">Mass Reset</h4>
+					<div>
 						<p>
 							<span style="color: red;">WARNING!</span>  If you click this button, all pages will lose their individual corral asignments and will fall back on the default settings.</p>
 							<input class="button" type="submit" name="action[reset]" value="Reset All Widgets to Default" onclick="return confirm('Are you Really sure you want to Reset widget settings on all pages?');" />
