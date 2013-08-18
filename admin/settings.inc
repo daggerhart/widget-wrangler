@@ -17,24 +17,11 @@ function ww_settings_save($post)
 {
 	// handle exclude from search
 	$_POST['settings']['exclude_from_search'] = (isset($_POST['settings']['exclude_from_search']) && $_POST['settings']['exclude_from_search'] == "on") ? 1 : 0;
+  $_POST['settings']['disable_autosave'] = (isset($_POST['settings']['disable_autosave']) && $_POST['settings']['disable_autosave'] == "on") ? 1 : 0;
   $settings = serialize($_POST['settings']);
   
   // save to wordpress options
   update_option("ww_settings", $settings);
-}
-
-/*
- * Default settings
- */
-function ww_settings_set_default()
-{
-  $settings["capabilities"] = "simple";
-  $settings["post_types"]['page'] = "page";
-  $settings["post_types"]['post'] = "post";
-	$settings["exclude_from_search"] = 1;
-	$settings["disable_autosave"] = 1;
-	
-  update_option("ww_settings", serialize($settings));
 }
 
 /*
@@ -51,6 +38,7 @@ function ww_settings_form() {
 	$simple_checked = (isset($settings['capabilities']) && $settings['capabilities'] == 'simple') ? "checked" : ""; 
 	$adv_checked    = (isset($settings['capabilities']) && $settings['capabilities'] == 'advanced') ? "checked" : ""; 
 	$exclude_from_search_checked = (isset($settings['exclude_from_search']) && $settings['exclude_from_search'] == 1) ? "checked='checked'" : "";
+	$disable_autosave_checked = (isset($settings['disable_autosave']) && $settings['disable_autosave'] == 1) ? "checked='checked'" : "";
 	
 	// Get all extra post types
 	$args = array('public'   => true, '_builtin' => false); 
@@ -158,6 +146,27 @@ function ww_settings_form() {
 							<input class="button" type="submit" name="action[reset]" value="Reset All Widgets to Default" onclick="return confirm('Are you Really sure you want to Reset widget settings on all pages?');" />
 						</p>
 					</div>
+					<?php
+						global $wpdb;
+						$total_widgets = $wpdb->get_var("SELECT count(post_id) FROM ".$wpdb->prefix."ww_widget_data");
+						$are_clones = $wpdb->get_var("SELECT count(post_id) FROM ".$wpdb->prefix."ww_widget_data WHERE `type` = 'clone'");
+						$are_standard = $total_widgets - $are_clones;
+						$all_corrals = ww_get_all_corrals();
+						$total_pages =  $wpdb->get_var("SELECT count(post_id) FROM ".$wpdb->prefix."ww_post_widgets");
+						$pages_with_presets = $wpdb->get_var("SELECT count(post_id) FROM ".$wpdb->prefix."ww_post_widgets WHERE `preset_id` != 0");
+						$pages_no_preset = $total_pages - $pages_with_presets;
+					?>
+					<h4 class="ww-settings-title">Details</h4>
+					<div>
+						<div>Total Widgets: <?php print $total_widgets;?></div>
+						<div>Clones: <?php print $are_clones;?></div>
+						<div>Standard: <?php print $are_standard;?></div>
+						<div>Corrals: <?php print count($all_corrals);?></div>
+						<div>Total Posts wrangled: <?php print $total_pages; ?></div>
+						<div>Posts with presets: <?php print $pages_with_presets; ?></div>
+						<div>Posts wrangling own widgets: <?php print $pages_no_preset; ?></div>
+					</div>
+					<pre>Settings <?php print_r($settings); ?></pre>
 				</div>
 			</div>
 			<div class="ww-clear-gone">&nbsp;</div>

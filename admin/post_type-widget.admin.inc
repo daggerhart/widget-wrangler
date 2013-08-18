@@ -111,6 +111,12 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
    */ 
   function wp_insert_post($post_id, $post = null)
   {
+		// don't track revisions independently
+		if ( wp_is_post_revision( $post_id ) ) {
+			return $post_id;
+		}
+		
+		// only on our post_type
     if ($post->post_type == "widget")
     {
       global $wpdb;
@@ -156,7 +162,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
 			$widget_data['preview-corral-id'] = (isset($_POST['ww-data']['preview-corral-id'])) ? $_POST['ww-data']['preview-corral-id'] : 0;
 			
 			// unset the php value if empty
-      if(isset($widget_data['logic']) && $widget_data['logic']['php'] == ''){
+      if(isset($widget_data['logic']) && isset($widget_data['logic']['php']) && $widget_data['logic']['php'] == ''){
         unset($widget_data['logic']['php']);
       }
       $data = serialize($widget_data);

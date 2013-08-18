@@ -221,8 +221,11 @@ function ww_clone_page_handler()
  * for whatever.
  */
 function ww_debug_page(){
+	global $wpdb;
+	//$all_widgets = ww_get_all_widgets();
+
 	
-	print theme('ww_admin_page', array('title'=>'mytitle', 'content'=>'contentsdada'));
+	//print theme('ww_admin_page', $a);
 }
 // */
 
