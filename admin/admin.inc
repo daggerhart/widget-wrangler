@@ -1,4 +1,41 @@
 <?php
+
+
+// example template hook
+function ww_admin_templates($templates)
+{
+  // template applied by files
+  $templates['ww_admin_page'] = array(
+    // string of single template suggestion
+    // or array of multiple template suggestions
+    'files' => 'admin-page.php',
+
+    // location of the default template if nothing is found
+    'default_path' => dirname(__FILE__).'/templates',
+
+    // optional arguments to be passed to the themeing function
+    'arguments' => array(
+        // must be key => value pairs
+        'title' => '',
+        'content' => '',
+    ),
+  );
+	
+  // template applied by files
+  $templates['ww_sortable_widgets'] = array(
+    // optional arguments to be passed to the themeing function
+    'arguments' => array(
+        // must be key => value pairs
+        'active_widgets' => array(),
+    ),
+  );
+  return $templates;
+}
+//ww_create_sortable_widgets( $active_widgets)
+
+// hook your function into the wordpress filter
+add_filter('tw_templates', 'ww_admin_templates');
+
 /*
  * Widget Wrangler Admin Panel and related functions
  */
@@ -43,11 +80,11 @@ function ww_display_admin_panel()
 function ww_presets_page_handler()
 {
   include_once WW_PLUGIN_DIR.'/admin/preset.inc';
-	$actions = array("create", "update");
+	$actions = array("create", "update", "delete");
   
 	if (isset($_POST['action'])){
 		$action = array_pop(array_keys($_POST['action']));
-		
+
 		if (in_array($action, $actions)) {
 			switch ($action)
 			{
@@ -71,10 +108,16 @@ function ww_presets_page_handler()
     // send to the new preset
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-presets&preset_id='.$preset_id);
   }
-  else {
-    // presets edit form
-    ww_preset_form();
-  }
+  
+	$preset_id = (isset($_GET['preset_id']) && !empty($_GET['preset_id'])) ? $_GET['preset_id'] : 1;
+	$this_preset = ww_get_preset($preset_id);
+		
+	// presets edit form
+	$args = array(
+		'title' => 'Edit Widget Preset <em>'. $this_preset->data['name'] .'</em>',
+		'content' => ww_preset_form(),
+	);
+	print theme('ww_admin_page', $args);
 }
 
 /*
@@ -109,8 +152,13 @@ function ww_corrals_page_handler()
 		
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-corrals');
   }
-  // show corrals page
-  ww_corral_form();
+	
+	// show corrals page
+	$args = array(
+		'title' => 'Widget Corrals',
+		'content' => ww_corral_form(),
+	);
+	print theme('ww_admin_page', $args);
 }
 
 /*
@@ -135,10 +183,13 @@ function ww_settings_page_handler()
 		}
     wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=ww-settings');
   }
-  else{
-    // settings form
-    ww_settings_form();
-  }
+
+	// settings form
+	$args = array(
+		'title' => 'Widget Wrangler Settings',
+		'content' => ww_settings_form(),
+	);
+	print theme('ww_admin_page', $args);
 }
 
 /*
@@ -158,17 +209,23 @@ function ww_clone_page_handler()
         break;
     }
   }
-  else{
-    // show clone page
-    ww_clone_form();
-  }
+	// show clone page
+	$args = array(
+		'title' => 'Copy a Wordpress Widget',
+		'content' => ww_clone_form(),
+	);
+	print theme('ww_admin_page', $args);
 }
 
 /*
  * for whatever.
  */
-function ww_debug_page(){}
+function ww_debug_page(){
+	
+	print theme('ww_admin_page', array('title'=>'mytitle', 'content'=>'contentsdada'));
+}
 // */
+
 
 /*==================================== JS & CSS */
 /*

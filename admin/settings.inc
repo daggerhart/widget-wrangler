@@ -76,94 +76,93 @@ function ww_settings_form() {
 		}
 	}
 	*/
+	ob_start();
   ?>
-    <div class='wrap'>
-      <h2>Widget Wrangler Settings</h2>
-      <form action="edit.php?post_type=widget&page=ww-settings&noheader=true" method="post">
-				<div id="ww-page-top">
-					<input class="button button-primary button-large" type="submit" value="Save Settings" name="action[save]" />	
+		<form action="edit.php?post_type=widget&page=ww-settings&noheader=true" method="post">
+			<div id="ww-page-top">
+				<input class="button button-primary button-large" type="submit" value="Save Settings" name="action[save]" />	
+			</div>
+			
+			<div id="ww-admin-tabs">
+				<ul id="ww-settings-list" class="ww-admin-tab-list">
+					<li class="ww-admin-tab-list-title">Settings</li>
+					<li><a href="#ww-settings-general"><span>General</span></a></li>
+					<li><a href="#ww-settings-advanced"><span>Advanced</span></a></li>
+					<li><a href="#ww-settings-tools"><span>Tools</span></a></li>
+				</ul>	
+			
+				<div id="ww-settings-general" class="ww-admin-tab">
+					<h4 class="ww-settings-title">Exclude from search</h4>
+					<p class="ww-checkboxes">
+						<label class="ww-checkbox">
+							<input name="settings[exclude_from_search]" type="checkbox" <?php print $exclude_from_search_checked; ?> /> -  If checked, widgets will excluded from search results.
+						</label>
+						<div class="ww-clear-gone">&nbsp;</div>
+					</p>
+				
+					<h4 class="ww-settings-title">Disable Autosave</h4>
+					<p class="ww-checkboxes">
+						<label class="ww-checkbox">
+							<input name="settings[disable_autosave]" type="checkbox" <?php print $disable_autosave_checked; ?> /> -  If checked, widget posts will not be autosaved during editing. 
+						</label>
+						<div class="ww-clear-gone">&nbsp;</div>
+					</p>
+				
+					<h4 class="ww-settings-title">Post types</h4>
+					<p>
+						Select each post type you would like to be able to control their own widgets with Widget Wrangler.
+					</p>
+					<div class="ww-checkboxes">
+						<?php
+							// loop through post types
+							foreach ($post_types as $post_type )
+							{
+								$post_type_checked = (isset($settings['post_types'][$post_type])) ? 'checked="checked"' : '';
+								?>
+								<label class="ww-checkbox"><input type="checkbox" name="settings[post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
+								<?php
+							}
+						?>
+						<div class="ww-clear-gone">&nbsp;</div>
+					</div>					
 				</div>
 				
-				<div id="ww-admin-tabs">
-					<ul id="ww-settings-list" class="ww-admin-tab-list">
-						<li class="ww-admin-tab-list-title">Settings</li>
-						<li><a href="#ww-settings-general"><span>General</span></a></li>
-						<li><a href="#ww-settings-advanced"><span>Advanced</span></a></li>
-						<li><a href="#ww-settings-tools"><span>Tools</span></a></li>
-					</ul>	
-				
-					<div id="ww-settings-general" class="ww-admin-tab">
-						<h4 class="ww-settings-title">Exclude from search</h4>
-						<p class="ww-checkboxes">
-							<label class="ww-checkbox">
-								<input name="settings[exclude_from_search]" type="checkbox" <?php print $exclude_from_search_checked; ?> /> -  If checked, widgets will excluded from search results.
+				<div id="ww-settings-advanced" class="ww-admin-tab">
+					<h3 class="ww-settings-title">Capabilities </h3>
+					<div class="ww-settings-field">
+						<p> 
+							<label>
+								<input name="settings[capabilities]" type="radio" value="simple" <?php print $simple_checked; ?> />
+								<strong>Simple</strong>:  Widgets can be Created and Edited by anyone who can edit Posts.  Anyone who can edit a Page can change the Widgets displayed on that Page.
 							</label>
-							<div class="ww-clear-gone">&nbsp;</div>
 						</p>
-					
-						<h4 class="ww-settings-title">Disable Autosave</h4>
-						<p class="ww-checkboxes">
-							<label class="ww-checkbox">
-								<input name="settings[disable_autosave]" type="checkbox" <?php print $disable_autosave_checked; ?> /> -  If checked, widget posts will not be autosaved during editing. 
-							</label>
-							<div class="ww-clear-gone">&nbsp;</div>
-						</p>
-					
-						<h4 class="ww-settings-title">Post types</h4>
+						<hr />
 						<p>
-							Select each post type you would like to be able to control their own widgets with Widget Wrangler.
+							<label>
+								<input name="settings[capabilities]" type="radio" value="advanced" <?php print $adv_checked; ?> />
+								<strong>Advanced</strong>:  Change the capability_type for this post_type.
+							</label>
+							This is primarily for incorporating third party permission systems. <br />
+							A simple use of this setting would be to change the Capability Type to 'page'.  This would make it so that only users who can create and edit pages may create and edit widgets.
 						</p>
-						<div class="ww-checkboxes">
-							<?php
-								// loop through post types
-								foreach ($post_types as $post_type )
-								{
-									$post_type_checked = (isset($settings['post_types'][$post_type])) ? 'checked="checked"' : '';
-									?>
-									<label class="ww-checkbox"><input type="checkbox" name="settings[post_types][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $post_type_checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
-									<?php
-								}
-							?>
-							<div class="ww-clear-gone">&nbsp;</div>
-						</div>					
-					</div>
-					
-					<div id="ww-settings-advanced" class="ww-admin-tab">
-						<h3 class="ww-settings-title">Capabilities </h3>
-						<div class="ww-settings-field">
-							<p> 
-								<label>
-									<input name="settings[capabilities]" type="radio" value="simple" <?php print $simple_checked; ?> />
-									<strong>Simple</strong>:  Widgets can be Created and Edited by anyone who can edit Posts.  Anyone who can edit a Page can change the Widgets displayed on that Page.
-								</label>
-							</p>
-							<hr />
-							<p>
-								<label>
-									<input name="settings[capabilities]" type="radio" value="advanced" <?php print $adv_checked; ?> />
-									<strong>Advanced</strong>:  Change the capability_type for this post_type.
-								</label>
-								This is primarily for incorporating third party permission systems. <br />
-								A simple use of this setting would be to change the Capability Type to 'page'.  This would make it so that only users who can create and edit pages may create and edit widgets.
-							</p>
-							<p>If unsure what this does, select "Simple" and leave the below field blank.</p>
-							<label><input name="settings[advanced]" type="text" size="20" value="<?php print (isset($settings['advanced'])) ? $settings['advanced'] : ""; ?>"/> Capability Type</label> 
-							<br />
-						</div>
-					</div>
-					
-					<div id="ww-settings-tools" class="ww-admin-tab">
-						<h3 class="ww-settings-title">Mass Reset</h3>
-						<div class="ww-settings-field">
-							<p>
-								<span style="color: red;">WARNING!</span>  If you click this button, all pages will lose their individual corral asignments and will fall back on the default settings.</p>
-								<input class="button" type="submit" name="action[reset]" value="Reset All Widgets to Default" onclick="return confirm('Are you Really sure you want to Reset widget settings on all pages?');" />
-							</p>
-						</div>
+						<p>If unsure what this does, select "Simple" and leave the below field blank.</p>
+						<label><input name="settings[advanced]" type="text" size="20" value="<?php print (isset($settings['advanced'])) ? $settings['advanced'] : ""; ?>"/> Capability Type</label> 
+						<br />
 					</div>
 				</div>
-				<div class="ww-clear-gone">&nbsp;</div>
-			</form>
-    </div>
+				
+				<div id="ww-settings-tools" class="ww-admin-tab">
+					<h3 class="ww-settings-title">Mass Reset</h3>
+					<div class="ww-settings-field">
+						<p>
+							<span style="color: red;">WARNING!</span>  If you click this button, all pages will lose their individual corral asignments and will fall back on the default settings.</p>
+							<input class="button" type="submit" name="action[reset]" value="Reset All Widgets to Default" onclick="return confirm('Are you Really sure you want to Reset widget settings on all pages?');" />
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="ww-clear-gone">&nbsp;</div>
+		</form>
 	<?php
+	return ob_get_clean();
 }

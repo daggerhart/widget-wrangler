@@ -36,7 +36,7 @@ function ww_delete_preset(){
 function ww_update_preset(){
   global $wpdb;
   $table = $wpdb->prefix."ww_presets";
-  
+
   if (isset($_POST['preset-id']) && isset($_POST['preset-type']) && isset($_POST['data']) && isset($_POST['ww-widgets'])) 
 	{
 		$preset_id = $_POST['preset-id'];
@@ -90,7 +90,6 @@ function ww_update_preset(){
  */
 function ww_create_preset()
 {
-  //print_r($_POST);exit();
   
   global $wpdb;
   $table = $wpdb->prefix."ww_presets";
@@ -146,7 +145,7 @@ function ww_preset_form() {
 	
 	// add additional corrals to output
 	if (is_array($all_widgets) && count($all_corrals) > 0 && count($all_widgets) > 0){
-		$sortable_widgets = ww_create_sortable_widgets($all_widgets, $preset_widgets, $all_corrals);
+		$sortable_widgets = theme('ww_sortable_widgets', array('active_widgets' => $preset_widgets));
 	}
 	
 	// sort each corral
@@ -155,141 +154,142 @@ function ww_preset_form() {
 			ksort($sortable_widgets['active'][$corral]);  
 		}
 	}
+	
+	ob_start();
 	?>
-		<div class="wrap">
-			<h2>Edit Widget Preset <em><?php print $preset_data['name']; ?></em></h2>
-			<div id="ww-page-top">
-				<input class='button button-primary button-large' name='action[save]' type='submit' value='Save Preset' />
+	<form action='edit.php?post_type=widget&page=ww-presets&action=update&noheader=true' method='post' name='widget-wrangler-form'>				
+		<div id="ww-page-top">
+			<input class='button button-primary button-large' name='action[update]' type='submit' value='Save Preset' />
+			
+			<?php if($preset_type != 'default'){ ?>
+				<input class='button' name='action[delete]' type='submit' value='Delete' />
+			<?php } ?>
+			
+			<input value='true' type='hidden' name='widget-wrangler-edit' />
+			<input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
+		</div>
+	
+		<div id="presets-wrap">	
+			<div id="presets-links">
+				<ul class="ww-admin-tab-list">
+					<li class="ww-admin-tab-list-title">Presets</li>
+					<?php
+						// show all presets
+						if(is_array($all_presets)){
+							foreach($all_presets as $preset)
+							{
+								$classes = ($preset_id == $preset->id) ? 'active' : '';
+								?>
+								<li class="<?php print $classes; ?>">
+									<a href="edit.php?post_type=widget&page=ww-presets&preset_id=<?php print $preset->id; ?>"><?php print $preset->data['name']; ?><?php print ($preset->type != 'default') ? ' ('.$preset->type.')' : ''; ?></a>
+								</li>
+								<?php
+							}
+						}
+					?>
+				</ul>
 				
-				<?php if($preset_type != 'default'){ ?>
-					<input class='button' name='action[delete]' type='submit' value='Delete' />
-				<?php } ?>
-				
-				<input value='true' type='hidden' name='widget-wrangler-edit' />
-				<input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
+				<div id="presets-add-new">
+					<select name="create[type]">
+						<option value="standard">Standard</option>
+						<option value="term">Term (Cats & Tags)</option>
+					</select>
+					<br />
+					<input type="submit" name="action[create]" class="button" value="Create New Preset" />
+				</div>
 			</div>
-			<form action='edit.php?post_type=widget&page=ww-presets&action=update&noheader=true' method='post' name='widget-wrangler-form'>				
-				<div id="presets-wrap">	
-					<div id="presets-links">
-						<ul class="ww-admin-tab-list">
-							<li class="ww-admin-tab-list-title">Presets</li>
-							<?php
-								// show all presets
-								if(is_array($all_presets)){
-									foreach($all_presets as $preset)
-									{
-										$classes = ($preset_id == $preset->id) ? 'active' : '';
-										?>
-										<li class="<?php print $classes; ?>">
-											<a href="edit.php?post_type=widget&page=ww-presets&preset_id=<?php print $preset->id; ?>"><?php print $preset->data['name']; ?><?php print ($preset->type != 'default') ? ' ('.$preset->type.')' : ''; ?></a>
-										</li>
-										<?php
-									}
-								}
-							?>
-						</ul>
-						
-						<div id="presets-add-new">
-							<select name="create[type]">
-								<option value="standard">Standard</option>
-								<option value="term">Term (Cats & Tags)</option>
-							</select>
-							<br />
-							<input type="submit" name="action[create]" class="button" value="Create New Preset" />
+		
+			<div  class="ww-admin-tab">					
+					<div id="preset-data">
+						<div id="preset-name">
+							<div class="detail">
+								<label>Name:</label>
+									<?php
+										// can't change the names of defaults
+										if($preset_type == 'default')
+										{
+											print $preset_data['name'];
+											?>
+												<input type="hidden" name="data[name]" value="<?php print $preset_data['name']; ?>" />
+											<?php
+										}
+										else
+										{ ?>
+												<input size="40" type="text" name="data[name]" value="<?php print $preset_data['name']; ?>" />
+											<?php
+										}
+									?>
+							</div>
+							<div class="detail">
+								<label>Type:</label> <?php print $preset_type; ?>
+							</div>
+							<input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
+							<input type="hidden" name="preset-type" value="<?php print $preset_type; ?>" />          
 						</div>
 					</div>
-				
-					<div  class="ww-admin-tab">					
-							<div id="preset-data">
-								<div id="preset-name">
-									<div class="detail">
-										<label>Name:</label>
-											<?php
-												// can't change the names of defaults
-												if($preset_type == 'default')
-												{
-													print $preset_data['name'];
-													?>
-														<input type="hidden" name="data[name]" value="<?php print $preset_data['name']; ?>" />
-													<?php
-												}
-												else
-												{ ?>
-														<input size="40" type="text" name="data[name]" value="<?php print $preset_data['name']; ?>" />
-													<?php
-												}
-											?>
-									</div>
-									<div class="detail">
-										<label>Type:</label> <?php print $preset_type; ?>
-									</div>
-									<input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
-									<input type="hidden" name="preset-type" value="<?php print $preset_type; ?>" />          
+					<?php
+						// categories
+						if($preset_type == 'term')
+						{ ?>
+							<div id="preset-terms">
+								<div class="description">
+									<em>If you select a category or tag for multiple widget presets, results will conflict.</em>
 								</div>
-							</div>
-							<?php
-								// categories
-								if($preset_type == 'term')
-								{ ?>
-									<div id="preset-terms">
-										<div class="description">
-											<em>If you select a category or tag for multiple widget presets, results will conflict.</em>
-										</div>
-										<?php
-											// categories
-											$category_ids = get_all_category_ids();
-											?>
-												<div id="preset-categories">
-													<p><strong>Select which category pages to display these widgets on.</strong></p>
-													<div class="preset-checkboxes">
+								<?php
+									// categories
+									$category_ids = get_all_category_ids();
+									?>
+										<div id="preset-categories">
+											<p><strong>Select which category pages to display these widgets on.</strong></p>
+											<div class="preset-checkboxes">
+												<?php
+													// List all categories as checkboxes
+													foreach($category_ids as $cat_id)
+													{
+														$cat_name = get_cat_name($cat_id);
+														$cat_checked = (isset($preset_data['categories'][$cat_id])) ? 'checked="checked"' : '';
+														?>
+														<label class="ww-preset-checkbox"><input type="checkbox" name="data[categories][<?php print $cat_id; ?>]" value="<?php print $cat_name; ?>" <?php print $cat_checked; ?> /><?php print $cat_name; ?></label> 
 														<?php
-															// List all categories as checkboxes
-															foreach($category_ids as $cat_id)
-															{
-																$cat_name = get_cat_name($cat_id);
-																$cat_checked = (isset($preset_data['categories'][$cat_id])) ? 'checked="checked"' : '';
-																?>
-																<label class="ww-preset-checkbox"><input type="checkbox" name="data[categories][<?php print $cat_id; ?>]" value="<?php print $cat_name; ?>" <?php print $cat_checked; ?> /><?php print $cat_name; ?></label> 
-																<?php
-															}
-														?>                
-													</div>
-												</div>
-											<?php
-			
-											// tags
-											$tags = get_tags(array('hide_empty' => false));
-											?>
-												<div id="preset-tags">
-													<p><strong>Select which tag pages to display these widgets on.</strong></p>
-													<div class="preset-checkboxes">
-														<?php
-															// List all categories as checkboxes
-															foreach($tags as $tag)
-															{
-																$tag_checked = (isset($preset_data['categories'][$tag->term_id])) ? 'checked="checked"' : '';
-																?>
-																<label class="ww-preset-checkbox"><input type="checkbox" name="data[categories][<?php print $tag->term_id; ?>]" value="<?php print $tag->name; ?>" <?php print $tag_checked; ?> /><?php print $tag->name; ?></label> 
-																<?php
-															}
-														?>                
-													</div>
-												</div>
+													}
+												?>                
+											</div>
 										</div>
 									<?php
-								}
-							?>
-							
-							<div id="preset-widgets">
-								<?php
-									// themes draggable widgets
-									print ww_theme_sortable_widgets($sortable_widgets);
-								?>
-							</div>
+	
+									// tags
+									$tags = get_tags(array('hide_empty' => false));
+									?>
+										<div id="preset-tags">
+											<p><strong>Select which tag pages to display these widgets on.</strong></p>
+											<div class="preset-checkboxes">
+												<?php
+													// List all categories as checkboxes
+													foreach($tags as $tag)
+													{
+														$tag_checked = (isset($preset_data['categories'][$tag->term_id])) ? 'checked="checked"' : '';
+														?>
+														<label class="ww-preset-checkbox"><input type="checkbox" name="data[categories][<?php print $tag->term_id; ?>]" value="<?php print $tag->name; ?>" <?php print $tag_checked; ?> /><?php print $tag->name; ?></label> 
+														<?php
+													}
+												?>                
+											</div>
+										</div>
+								</div>
+							<?php
+						}
+					?>
+					
+					<div id="preset-widgets">
+						<?php
+							// themes draggable widgets
+							print ww_theme_sortable_widgets($sortable_widgets);
+						?>
 					</div>
-				</div>
-				<div class="ww-clear-gone">&nbsp;</div>
-			</form>
+			</div>
 		</div>
+		<div class="ww-clear-gone">&nbsp;</div>
+	</form>
 	<?php
+	return ob_get_clean();
 }

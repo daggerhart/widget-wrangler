@@ -30,6 +30,11 @@ if (!defined('WW_PLUGIN_DIR'))
 
 if (!defined('WW_PLUGIN_URL'))
     define('WW_PLUGIN_URL', WP_PLUGIN_URL . '/' . WW_PLUGIN_NAME);
+
+// template wrangler
+if(!function_exists('theme')){
+  include_once WW_PLUGIN_DIR.'/template-wrangler.inc';
+}
 		
 // common functions for front and back ends
 include_once WW_PLUGIN_DIR.'/common.inc';
@@ -94,7 +99,7 @@ function ww_menu() {
   $corrals 	= add_submenu_page( 'edit.php?post_type=widget', 'Corrals (Sidebars)', 'Corrals (Sidebars)', 'manage_options', 'ww-corrals',  'ww_corrals_page_handler' );
   $presets  = add_submenu_page( 'edit.php?post_type=widget', 'Widget Presets', 'Widget Presets', 'manage_options', 'ww-presets',  'ww_presets_page_handler' );
   $settings = add_submenu_page( 'edit.php?post_type=widget', 'Settings',       'Settings',       'manage_options', 'ww-settings', 'ww_settings_page_handler');
-  //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
+  $debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
 }
 add_action( 'admin_menu', 'ww_menu');
 

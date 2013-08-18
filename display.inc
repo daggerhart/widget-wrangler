@@ -1,6 +1,40 @@
 <?php
 
 
+// example template hook
+function ww_display_templates($templates)
+{
+  // template applied by files
+  $templates['ww_widget'] = array(
+    // string of single template suggestion
+    // or array of multiple template suggestions
+    'files' => array(
+        // use argument keys as replacable patterns with the argument's value
+        // order is important as the order here is the order inwhich templates are searched for
+        'widget-[widget_type]-[widget_id].php',
+        'widget-[widget_id].php',
+        'widget-[widget_type].php',
+        // a default fall back template name
+        'widget.php'
+    ),
+
+    // location of the default template if nothing is found
+    'default_path' => dirname(__FILE__).'/templates',
+
+    // optional arguments to be passed to the themeing function
+    'arguments' => array(
+        // must be key => value pairs
+				'widget' => NULL,
+        'widget_id' => 0,
+        'widget_type' => 'standard',
+    ),
+  );
+
+  return $templates;
+}
+// hook your function into the wordpress filter
+add_filter('tw_templates', 'ww_display_templates');
+
 /*
  * Output a corral
  *
@@ -177,23 +211,20 @@ function ww_theme_single_widget($widget)
  */ 
 function ww_template_widget($widget)
 {
-  ob_start();
-  
-  // look for template in theme folder w/ widget ID first
-  if (file_exists(TEMPLATEPATH . "/widget-".$widget->ID.".php")){
-    include TEMPLATEPATH . "/widget-".$widget->ID.".php";
-  }
-  // fallback to standard widget template in theme
-  else if (file_exists(TEMPLATEPATH . "/widget.php")){
-    include TEMPLATEPATH . "/widget.php";
-  }
-  // fallback on default template
-  else{
-    include WW_PLUGIN_DIR. '/templates/widget.php';
-  }
-  $templated = ob_get_clean();
-  
-  return $templated;
+	// clone creation seems to happen early
+	if (!isset($widget->widget_type)){
+		$ww_widget = ww_get_single_widget($widget->ID);
+		$widget->widget_type = $ww_widget->widget_type;
+		$widget->widget_data = $ww_widget->widget_data;
+	}
+	
+	$args = array(
+		'widget' => $widget,
+		'widget_id' => $widget->ID,
+		'widget_type' => $widget->widget_type,
+	);
+
+	return theme('ww_widget', $args);
 }
 
 /*

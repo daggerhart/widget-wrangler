@@ -3,75 +3,31 @@
 /*
  * Theme the output for editing widgets on a page
  */
-function ww_theme_sortable_widgets($panel_array)
+function ww_theme_sortable_widgets($v)
 {
-	// start output
-	$output = "";
-  $corrals = ww_get_all_corrals();
-	
-  // loop through corrals and add active widgets to list
-  if (is_array($corrals)){
-    foreach($corrals as $slug => $corral)
-		{
-      // open the list
-      $output.= "<h4>".$corral."</h4>
-									<ul name='".$slug."' id='ww-corral-".$slug."-items' class='inner ww-sortable' width='100%'>";
-
-      if (isset($panel_array['active']) && isset($panel_array['active'][$slug]) && is_array($panel_array['active'][$slug])) {
-        // loop through corral array and add items to list
-        foreach($panel_array['active'][$slug] as $item){
-          $output.= $item;
-        }
-				//hide the 'no widgets' list item when widgets are present
-        $style = "style='display: none;'";
-      }
-      else {
-        $style = '';
-      }
-      // close the list
-      $output.= "	<li class='ww-no-widgets' ".$style.">No Widgets in this corral.</li>
-								 </ul>";
-    }
-  }
-
-  // disabled list
-  $output.= "<h4>Disabled</h4>
-							<ul name='disabled' id='ww-disabled-items' class='inner ww-sortable' width='100%'>";
-
-  // loop through and add disabled widgets to list
-  if (isset($panel_array['disabled']) && is_array($panel_array['disabled'])){
-    foreach ($panel_array['disabled'] as $disabled){
-      $output.= $disabled;
-    }
-    $style = "style='display: none;'";
-  }
-  else{
-    $style = '';
-  }
-  // close disabled list
-  $output.= "	<li class='ww-no-widgets' ".$style.">No disabled Widgets</li>
-						 </ul>";
-
-  return "<div id='ww-sortable-corrals'>$output</div>";
+	return $v;
 }
 
 /*
  * Put all widgets into a list for output
  */
-function ww_create_sortable_widgets($widgets, $ref_array, $corrals)
+function theme_ww_sortable_widgets($active_widgets)
 {
-  $i = 0;
-  foreach($widgets as $widget)
+	$all_widgets = ww_get_all_widgets();
+	$all_corrals = ww_get_all_corrals();
+  
+	$i = 0;
+  foreach($all_widgets as $widget)
   {
     $temp = array();
-    $keys = ww_array_searchRecursive($widget->ID, $ref_array);
+    $keys = ww_array_searchRecursive($widget->ID, $active_widgets);
     // fix widgets with no title
     if ($widget->post_title == ""){
       $widget->post_title = "(no title) - Widget ID: ".$widget->ID;
     }
 
     // look for appropriate corral, default to disabled
-    if ($keys[0] == '' || (!array_key_exists($keys[0], $corrals))){
+    if ($keys[0] == '' || (!array_key_exists($keys[0], $all_corrals))){
       $keys[0] = "disabled";
     }
 
@@ -79,15 +35,15 @@ function ww_create_sortable_widgets($widgets, $ref_array, $corrals)
     $corral_slug = $keys[0];
 
     // get weight
-    if (isset($keys[1]) && isset($ref_array[$corral_slug][$keys[1]]['weight'])) {
-      $weight = $ref_array[$corral_slug][$keys[1]]['weight'];
+    if (isset($keys[1]) && isset($active_widgets[$corral_slug][$keys[1]]['weight'])) {
+      $weight = $active_widgets[$corral_slug][$keys[1]]['weight'];
     } else {
       $weight = count($temp); // 'next' row
     }
 
     // build select box
     $corrals_options = "<option value='disabled'>Disabled</option>";
-    foreach($corrals as $slug => $corral){
+    foreach($all_corrals as $slug => $corral){
       ($slug == $corral_slug) ? $selected = "selected='selected'" : $selected = '';
       $corrals_options.= "<option name='".$slug."' value='".$slug."' ".$selected.">".$corral."</option>";
     }
@@ -105,22 +61,65 @@ function ww_create_sortable_widgets($widgets, $ref_array, $corrals)
 
     // place into output array
     if ($corral_slug == 'disabled'){
-      $output['disabled'][] = $temp[$weight];
+      $corrals_array['disabled'][] = $temp[$weight];
     }
     else{
-      $output['active'][$corral_slug][$weight] = $temp[$weight];
+      $corrals_array['active'][$corral_slug][$weight] = $temp[$weight];
     }
 
     $i++;
   }
 	
 	// sort the corrals' widgets
-	if (isset($output['active'])){
-		foreach($output['active'] as $corral => $widgets){
-			if ($output['active'][$corral]){
-				ksort($output['active'][$corral]);
+	if (isset($corrals_array['active'])){
+		foreach($corrals_array['active'] as $corral => $all_widgets){
+			if ($corrals_array['active'][$corral]){
+				ksort($corrals_array['active'][$corral]);
 			}
 		}
 	}
-  return $output;
+	
+		// start output
+	$themed = "";
+	
+  // loop through corrals and add active widgets to list
+	foreach($all_corrals as $slug => $corral)
+	{
+		// open the list
+		$themed.= "<h4 class='ww-sortable-widgets-corral-title'>".$corral."</h4>
+								<ul name='".$slug."' id='ww-corral-".$slug."-items' class='inner ww-sortable' width='100%'>";
+		$style = '';
+		if (isset($corrals_array['active']) && isset($corrals_array['active'][$slug]) && is_array($corrals_array['active'][$slug])) {
+			// loop through corral array and add items to list
+			foreach($corrals_array['active'][$slug] as $item){
+				$themed.= $item;
+			}
+			//hide the 'no widgets' list item when widgets are present
+			$style = "style='display: none;'";
+		}
+		
+		// close the list
+		$themed.= "	<li class='ww-no-widgets' ".$style.">No widgets in this corral.</li>
+							 </ul>";
+	}
+
+  // disabled list
+  $themed.= "<h4 class='ww-sortable-widgets-corral-title'>Disabled</h4>
+							<ul name='disabled' id='ww-disabled-items' class='inner ww-sortable' width='100%'>";
+
+  // loop through and add disabled widgets to list
+  $style = '';
+  if (isset($corrals_array['disabled']) && is_array($corrals_array['disabled'])){
+    foreach ($corrals_array['disabled'] as $disabled){
+      $themed.= $disabled;
+    }
+    $style = "style='display: none;'";
+  }
+	
+  // close disabled list
+  $themed.= "	<li class='ww-no-widgets' ".$style.">No disabled widgets</li>
+						 </ul>";
+
+  return "<div id='ww-sortable-corrals'>$themed</div>";
+	
 }

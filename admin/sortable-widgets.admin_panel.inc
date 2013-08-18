@@ -31,8 +31,8 @@ function ww_widget_post_form($post){
     $all_widgets = ww_get_all_widgets(); 
     $all_presets = ww_get_all_presets();
     $corrals = ww_get_all_corrals();
-    $output = array();
-    $active_array = array();
+    
+    $active_widgets = array();
     $post_preset = NULL;
 		$post_preset_message = "";
 		
@@ -42,10 +42,10 @@ function ww_widget_post_form($post){
     {
 			if (isset($post_widgets->preset_id) && $post_widgets->preset_id != 0){
 				$post_preset = ww_get_preset($post_widgets->preset_id);
-				$active_array = $post_preset->widgets;
+				$active_widgets = $post_preset->widgets;
 			}
       else {
-				$active_array = $post_widgets->widgets;
+				$active_widgets = $post_widgets->widgets;
 				$post_preset_message = "Presets are Disabled. This page is wrangling widgets on its own.";
 			}
     }
@@ -54,7 +54,7 @@ function ww_widget_post_form($post){
     {
       $post_preset = ww_get_preset(1);
 			$post_preset_id_old = "new_post"; // help with saving new posts
-      $active_array = $post_preset->widgets;
+      $active_widgets = $post_preset->widgets;
     }
 
 
@@ -64,11 +64,6 @@ function ww_widget_post_form($post){
 				$post_preset_id_old = $post_preset->id;
 			}
 		}
-		
-    // merge the widget arrays into the output array
-    if (count($all_widgets) > 0){
-      $output = array_merge(ww_create_sortable_widgets($all_widgets, $active_array, $corrals), $output);
-    }
 
 		// build top and bottom of output array
     ?><div id='widget-wrangler-form' class='new-admin-panel'>
@@ -114,7 +109,7 @@ function ww_widget_post_form($post){
 					</div>
 					<input value='true' type='hidden' name='widget-wrangler-edit' />
 					<input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
-					<?php print ww_theme_sortable_widgets($output); ?>
+					<?php print theme('ww_sortable_widgets', array('active_widgets' => $active_widgets)); ?>
 				</div><!-- .outer -->
        </div>
     <?php

@@ -60,13 +60,13 @@ class Widget_Wrangler_Corral_Widget extends WP_Widget {
    */
   function form( $instance )
   {
-		$exists = 	isset($corrals[$instance['corral']]) ? true : false;
+		$corrals = ww_get_all_corrals();
+    $exists = 	isset($corrals[$instance['corral']]) ? true : false;
 		//$wp_widget_title = ($exists) ? __('Widget Wrangler - Corral', 'widgetwranglercorral') : __('WW Corral - '.$title, 'widgetwranglercorral');
 		$input_title =  ($exists) ? $corrals[$instance['corral']] : "!Error!";
     // Set up some default widget settings. 
     $defaults = array( 'title' => __('Widget Wrangler - Corral', 'widgetwranglercorral'), 'corral' => '' );
     $instance = wp_parse_args( (array) $instance, $defaults );
-    $corrals = ww_get_all_corrals();
     ?>
     <?php // Widget Title: Hidden Input ?>
     <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $input_title; ?>" style="width:100%;" />

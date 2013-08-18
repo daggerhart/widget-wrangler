@@ -30,15 +30,14 @@ WidgetWrangler.refresh_all = function() {
 	// Auto change sort order when drag and drop
 	var sortable_lists = jQuery("ul.ww-sortable");
 	jQuery("ul.ww-sortable").sortable({
+		items: '> li:not(.ww-no-widgets)',
 		connectWith: '.ww-sortable',
 		cancel: 'select,input',
 		update: function(event,ui){
 			var active_widgets = jQuery(this).children(".ww-item");
 			var corral_name = jQuery(this).attr("name");
-			//console.log(active_widgets);
 			 jQuery.each(active_widgets, function(i){
 					jQuery(this).children("select").val(corral_name);
-					//console.log((i+1)+" - "+jQuery(this).attr("id"));
 			});
 			WidgetWrangler.toggle_no_widgets();
 			WidgetWrangler.update_widget_weights();
@@ -53,19 +52,14 @@ WidgetWrangler.refresh_all = function() {
 			var select_val = jQuery(this).val();
 			var select_name = jQuery(this).attr("name");
 			
-			//console.log(select_val);
-			//console.log(select_name);
 			if ( select_val != 'disabled')
 			{
-				//console.log(jQuery(this).val());
-				//console.log(jQuery(this));
 				jQuery(this).parent('.ww-item').clone()
 					.addClass('nojs').prependTo("#ww-corral-"+select_val+"-items").removeClass("disabled");
 				jQuery(this).parent('.ww-item').remove();
 				jQuery("#ww-corral-"+select_val+"-items select[name='"+select_name+"']").val(select_val);
 				
 				var this_list = jQuery("#ww-corral-"+select_val+"-items").children(".ww-item");
-				//console.log(this_list);
 			}
 			else
 			{
@@ -81,7 +75,6 @@ WidgetWrangler.refresh_all = function() {
 }
 
 WidgetWrangler.disable = function() {
-	console.log('dis');
 	var selects = jQuery("#ww-sortable-corrals select, #ww-sortable-corrals input[type='text']");
 	jQuery.each(selects, function(i, element){
 		jQuery(element).attr('disabled','disabled');

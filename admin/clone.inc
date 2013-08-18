@@ -41,9 +41,9 @@ function ww_clone_form() {
 	global $wp_widget_factory;
 	$total_widgets = count($wp_widget_factory->widgets);
 	$half = round($total_widgets/2);
+	
+	ob_start();
 	?>
-	<div class='wrap'>
-		<h2>Copy a Wordpress Widget</h2>
 		<p>Here you can copy an existing Wordpress widget into the Widget Wrangler system.</p>
 		
 		<ul class='ww-clone-widgets'>
@@ -91,6 +91,6 @@ function ww_clone_form() {
 				}
 			?>
 		</ul>
-	</div>
 	<?php
+	return ob_get_clean();
 }

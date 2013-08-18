@@ -107,9 +107,8 @@ function ww_corral_sort()
  */
 function ww_corral_form(){
 	$corrals = ww_get_all_corrals();
+	ob_start();
 	?>
-	<div class='wrap'>
-		<h2>Widget Corrals</h2>
 		<p>
 			A <strong>Corral</strong> is an arbitrary group of widgets. Wordpress and Widget Wrangler 1.x call them "sidebars", but they are ultimately not limited by that terminology.
 		</p>
@@ -201,6 +200,6 @@ function ww_corral_form(){
 				</div>
 			</div>
 		</form>
-	</div>
 	<?php
+	return ob_get_clean();
 }
