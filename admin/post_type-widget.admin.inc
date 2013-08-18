@@ -529,6 +529,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
 					<ul>
 						<li>If there is code present, it must return true to display the widget.</li>
 						<li>Do not use php tags. (eg. &lt;?php , ?&gt;)</li>
+						<li>Example:  <code>return is_front_page();</code> would only display this widget on the front page.</li>
 					</ul>
 				</div>
 				<div class="logic-php-textarea">
