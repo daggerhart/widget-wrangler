@@ -62,29 +62,49 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
         break;
     }
   }
-	
-	/*
-	 * clean up widget data on delete
-	 */
-  function delete_post($post_id)
+
+  /*
+   * Add meta box to widget posts
+   */
+  // Custom meta boxes for the edit widget screen
+  function admin_init() 
   {
-    if (is_numeric($post_id)){
-			global $wpdb;
-			$table = $wpdb->prefix."ww_widget_data";
+		// add meta boxes
+    if (isset($_GET['post'])){
+      $post_id = $_GET['post'];
+    }
+    else if (isset($_POST['post_ID'])){
+      $post_id = $_POST['post_ID'];
+    }
+		
+		if (isset($post_id) && get_post_type($post_id) == "widget")
+		{
+			add_action( 'admin_enqueue_scripts', 'ww_post_type_widget_js');
+	
+			// get widget data
+			$widget = ww_get_widget_data($post_id);
 			
-			// see if this is a widget
-			$widget_data = $wpdb->get_row($wpdb->prepare("SELECT post_id,type FROM ".$table." WHERE post_id = %d", $post_id));
-			
-			if (isset($widget_data)){
-				$where = array(
-					'post_id' => $widget_data->post_id,
-					'type' => $widget_data->type,
-				);
-				
-				$wpdb->delete($table, $where);
+			if(isset($widget->type) && $widget->type == "clone") {
+				// Clone Class
+				add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
+				// Clone Instance
+				add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
 			}
+			else if (!isset($widget->type) || $widget->type == 'standard') {
+				// Rewrite output box
+				add_meta_box("ww-parse", "Advanced", array(&$this, "meta_parse"), "widget", "normal", "high");
+			}
+			
+			// Widget type
+			add_meta_box("ww-type", "Widget Details", array(&$this, "meta_widget_details"), "widget", "side", "high");
+	
+			// Widget Preview
+			add_meta_box("ww-widget-preview", "Widget Preview", array(&$this, "meta_widget_preview"), "widget", "side", "default");
+			
+			// Widget Display Logic
+			add_meta_box("ww-display-logic", "Display Logic", array(&$this, "meta_display_logic"), "widget", "normal", "default");
 		}
-	}
+  }
 	
   /*
    * When a post is inserted or updated
@@ -96,7 +116,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       global $wpdb;
 			$table = $wpdb->prefix."ww_widget_data";
       $type = (isset($_POST['ww-type'])) ? $_POST['ww-type'] : "standard";
-      
+			
       // problems with php and html adding slashes
       if(isset($_POST['ww-data']['standard']['custom-output'])){
         $_POST['ww-data']['standard']['custom-output'] = trim(stripcslashes($_POST['ww-data']['standard']['custom-output']));
@@ -130,8 +150,12 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
 				$widget_data = $_POST['ww-data'][$type];
         $widget_data['logic'] = $_POST['ww-data']['logic'];
       }
+      // enabled/disabled
+			$widget_data['logic']['enabled'] = (isset($widget_data['logic']['enabled'])) ? 1 : 0;
       
-      // unset the php value if empty
+			$widget_data['preview-corral-id'] = (isset($_POST['ww-data']['preview-corral-id'])) ? $_POST['ww-data']['preview-corral-id'] : 0;
+			
+			// unset the php value if empty
       if(isset($widget_data['logic']) && $widget_data['logic']['php'] == ''){
         unset($widget_data['logic']['php']);
       }
@@ -150,50 +174,100 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       }
     }
   }
-  /*
-   * Add meta box to widget posts
-   */
-  // Custom meta boxes for the edit widget screen
-  function admin_init() 
+
+	/*
+	 * clean up widget data on delete
+	 */
+  function delete_post($post_id)
   {
-		// add meta boxes
-    if (isset($_GET['post'])){
-      $post_id = $_GET['post'];
-    }
-    else if (isset($_POST['post_ID'])){
-      $post_id = $_POST['post_ID'];
-    }
-		
-		if (isset($post_id) && get_post_type($post_id) == "widget")
-		{
-			add_action( 'admin_enqueue_scripts', 'ww_post_type_widget_js');
-	
-			// get widget data
-			$widget = ww_get_widget_data($post_id);
+    if (is_numeric($post_id)){
+			global $wpdb;
+			$table = $wpdb->prefix."ww_widget_data";
 			
-			if(isset($widget->type) && $widget->type == "clone") {
-				// Clone Class
-				add_meta_box("ww-clone-class", "Clone Widget", array(&$this, "meta_clone_widget"), "widget", "side", "high");  
-				// Clone Instance
-				add_meta_box("ww-clone-instance", "Clone Instance", array(&$this, "meta_clone_instance"), "widget", "normal", "high");  
+			// see if this is a widget
+			$widget_data = $wpdb->get_row($wpdb->prepare("SELECT post_id,type FROM ".$table." WHERE post_id = %d", $post_id));
+			
+			if (isset($widget_data)){
+				$where = array(
+					'post_id' => $widget_data->post_id,
+					'type' => $widget_data->type,
+				);
+				
+				$wpdb->delete($table, $where);
 			}
-			else if (!isset($widget->type) || $widget->type == 'standard') {
-				// Rewrite output box
-				add_meta_box("ww-parse", "Options", array(&$this, "meta_parse"), "widget", "normal", "high");
-			}
-			
-			// Widget type
-			add_meta_box("ww-type", "Widget Details", array(&$this, "meta_widget_details"), "widget", "side", "high");
-	
-			// Widget Preview
-			add_meta_box("ww-widget-preview", "Widget Preview", array(&$this, "meta_widget_preview"), "widget", "side", "default");
-			
-			// Widget Display Logic
-			add_meta_box("ww-display-logic", "Display Logic", array(&$this, "meta_display_logic"), "widget", "normal", "default");
 		}
+	}
+	
+  /*
+	 * Clone Widget
+	 */ 
+  function meta_clone_widget()
+  {
+    global $wp_widget_factory;
+    $data = $this->data;
+    $clone_class = $data['clone-class'];
+    
+    // hidden value if set
+    if($clone_class) {
+      ?>
+        <h4><?php print $wp_widget_factory->widgets[$clone_class]->name; ?></h4>
+        <input type="hidden" name="ww-data[clone][clone-class]" value="<?php print $clone_class; ?>" />
+      <?php
+    }
+    // select box if not set
+    else {
+      ?>
+        <select name="ww-data[clone][clone-class]">
+          <?php
+            foreach ($wp_widget_factory->widgets as $class_name => $widget)
+            {
+              $this_widget_selected = ($clone_class == $class_name) ? 'selected="selected"':'';
+              ?>
+              <option value="<?php print $class_name; ?>" <?php print $this_widget_selected; ?>><?php print $widget->name; ?></option>
+              <?php
+            }
+          ?>
+        </select>
+      <?php
+    }
   }
   
-  // Widget Type
+  /*
+	 * Clone Instance
+	 */ 
+  function meta_clone_instance()
+  {
+    // get widget factory and post data
+    global $wp_widget_factory;
+
+    $data = $this->data;
+    $clone_class = $data['clone-class'];
+    
+    if($clone_class)
+    {
+      $instance = unserialize($data['clone-instance']);
+
+      // create instance form
+      ob_start();
+        eval('$w = new '.$clone_class.'(); $w->form($instance);');
+        $instance_form = ob_get_clean();
+        
+      $hide_title_checked = (isset($data['hide_title'])) ? 'checked="checked"' : '';
+      ?>
+        <label>
+          <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> - Hide the Widget's title on display
+        </label>
+        <div class="ww-clone-form">
+          <?php print $instance_form; ?>
+        </div>
+        <input type="hidden" name="ww-data[clone][clone-instance]" value="Placeholder" />
+      <?php
+    }
+  }
+	
+  /*
+	 * Widget Type
+	 */ 
   function meta_widget_details()
   {
     $widget_types = ww_all_widget_types();
@@ -215,18 +289,17 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
             <?php
           }
         ?>
-        <div>
-          <h4>Widget Type:</h4>
-          <?php print $widget_types[$this->type]; ?>
-        </div>
+        <p>
+          <strong>Widget Type:</strong> <?php print $widget_types[$this->type]; ?>
+        </p>
         <?php
           // widget shortcode
           if($this->post_id)
           { ?>
-            <div>
-              <h4>Widget Shortcode:</h4>
+            <strong>Widget Shortcode:</strong>
+            <p>
               [ww_widget  id=<?php print $this->post_id; ?>]
-            </div>
+            </p>
             <?php
           }
         ?>
@@ -236,18 +309,154 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       </div>
     <?php
   }
+
+    
+  /*
+	 * Preview box
+	 */ 
+  function meta_widget_preview()
+  {
+    if ($this->post_id)
+    {
+      // query widgets break edit page
+      if(isset($this->data['clone-class']) && $this->data['clone-class'] == "Query_Wrangler_Widget") {
+        print "Query Widgets cannot be previewed";
+      }
+      else {
+        $widget = ww_get_single_widget($this->post_id);
+				$all_corrals = ww_get_all_corrals();
+        ?>
+					<div id="ww-preview">
+						<label><strong>Preview Corral Context:</strong></label> 
+						<select id="ww-preview-corral" name="ww-data[preview-corral-id]" class="widefat" style="width:100%;">
+              <option value='0'>- No Corral -</option>
+							<?php
+								foreach($all_corrals as $id => $name)
+								{
+									$selected = (isset($widget->widget_data['preview-corral-id']) && $id == $widget->widget_data['preview-corral-id']) ? 'selected="selected"': "";
+									?>
+									<option <?php print $selected; ?> value="<?php print $id; ?>"><?php print $name; ?></option>
+									<?php
+								}
+							?>
+						</select>
+						<p><em>The above setting only affects the preview on this page, it does not set the corral for this widget in any way.</em>
+						<p><em>This preview does not include your theme's CSS stylesheet.</em></p>
+						
+						<label><strong>Preview</strong></label> 
+            <div id="ww-preview-widget"><?php print ww_theme_single_widget($widget); ?></div>
+          </div>
+        <?php
+      }
+    }
+  }
   
-  // Display logic
+  /*
+	 * Options / Advanced
+	 */ 
+  function meta_parse()
+  {
+    $data = $this->data;
+    
+    // default to checked upon creation
+    $rewrite_output_checked = (isset($data['rewrite-output'])) ? 'checked="checked"' : '';
+    $adv_template_checked   = (isset($data['adv-template'])) ? 'checked="checked"' : '';
+    $filter_content_checked = (isset($data['filter-content']) || (($_GET['action'] == null) && ($_GET['post_type'] == 'widget'))) ? 'checked="checked"' : '';
+    $data_custom_output     = (isset($data['custom-output'])) ? htmlentities($data['custom-output']) : "";
+    ?>
+      <div id="ww-template">
+        <div>
+          <div class="ww-options-group">
+						<label class="ww-checkbox"><input type="checkbox" name="ww-data[standard][filter-content]" <?php print $filter_content_checked; ?> /> - Apply Content filters to this Widget's Content.</label>
+						
+						<div class="ww-options-group-title">
+							<label class="ww-checkbox"><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> - Rewrite the output of this widget</label>
+						</div>
+						
+						<div class="ww-options-group-content ww-options-hidden">
+							<h4>Rewrite Output</h4>
+							<label class="ww-checkbox ww-adv-template"><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> - Template the rewritten output.</label>
+							<textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print $data_custom_output; ?></textarea>
+						</div>
+          </div> <!-- ww-options-group -->
+        </div>
+				<?php
+					$this->meta_advanced_help();
+				?>
+      </div>
+    <?php
+  }
+	
+	/*
+	 * Advanced Help
+	 */
+	function meta_advanced_help()
+	{
+		$widget = ww_get_single_widget($this->post_id);
+		$args = array(
+			'widget' => $widget,
+			'widget_id' => $widget->ID,
+			'widget_type' => $widget->widget_type,
+			'corral_id' => (isset($widget->widget_data) && isset($widget->widget_data['preview-corral-id'])) ? $widget->widget_data['preview-corral-id'] : 0,
+			'tw_action'  => 'find_only',
+		);
+		$a = theme('ww_widget', $args);
+		
+		$suggestions = "";
+		if (isset($a['suggestions'])){
+			foreach($a['suggestions'] as $i => $suggestion) {
+				// we can't detect corral here
+				$suggestion = str_replace("corral_0", "corral_[corral_id]", $suggestion);
+				$class = ($suggestion == $a['found_suggestion']) ? "ww-template-suggestion found" : "ww-template-suggestion";
+				$suggestions.= "<li class='$class'>".$suggestion."</li>";
+			}
+		}
+			?>
+			<div id="ww-advanced-help">
+				<div class="ww-advanced-help-title"><h4>Advanced Help</h4></div>
+				<div class="ww-advanced-help-description">
+					<h4>In the Advanced Parsing area you can:</h4>
+					<ul>
+						<li>Use PHP tags ( &lt;?php and ?&gt; are required )</li>
+						<li>Use {{title}} or $widget->post_title to insert the widget's title</li>
+						<li>Use {{content}} or $widget->post_content to insert the widget's content</li>
+						<li>Access the $widget object for more widget data (see provided template for examples)</li>
+						<li>Access the $post object for data concerning the page being displayed (see provided template for examples)</li>
+					</ul>
+					<h4>Templating Advanced Parsed Widgets</h4>
+					<ul>
+						<li>To template an advanced parsed widget you must return an associative array with a title and content string.</li>
+						<li>Example: &lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</li>
+					</ul>
+					<h4>Template Suggestions</h4>
+					<p class="description">Corral specific templates will not be detected here unless you set the "Preview Corral Context" in the preview pane.</p>
+					<ul><?php print $suggestions; ?></ul>
+					<?php
+						if (isset($a['found_path']) && $a['found_path'])
+						{ ?>
+								<h4>Found template location</h4>
+								<div class='ww-found-template-location'><?php print str_replace(ABSPATH, "/", $a['found_path']); ?></div>
+							<?php
+						}
+					?>
+				</div>
+			</div>
+		<?php
+	}
+	
+  /*
+	 * Display logic
+	 */ 
   function meta_display_logic()
   {
     $data = $this->data;
+		$display_logic_enabled = (isset($data['logic']['enabled']) && $data['logic']['enabled'] == 1) ? 'checked="checked"' : '';
     ?>
-    <p><em>
-      The Widget's display logic lets you choose which Wordpress pages the widget is allowed to be displayed on.
-      <br/>
-      If nothing is selected, the widget will display in all cases.
-      </em>
-    </p>
+    <p><em>The Widget's display logic lets you choose which Wordpress pages the widget is allowed to be displayed on.</em></p>
+		<p>
+			<label class="ww-checkbox"><input type="checkbox" name="ww-data[logic][enabled]" <?php print $display_logic_enabled; ?> /> - <strong>Enable</strong></label>
+			<em>If display logic is not enabled, the widget will display in all cases.</em>
+		</p>
     <div id="logic-tabs">
       <ul id="logic-tabs-list"  class="ww-admin-tab-list">
         <li><a href="#tab-post-types"><span>Post Types</span></a></li>
@@ -282,6 +491,32 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
 					?>
 				</div>
 			</div>
+			<?php
+        /*
+         * Conditional tags
+         */
+				/*/ on hold
+        $conditionals = array('category','tag','home','front_page','single','author','search','404');
+      ?>
+			<div id="tab-conditional-tags" class="ww-admin-tab">
+				<div class="description">
+					<strong>Select which conditions should make this widget display.</strong>
+				</div>
+				<div class="ww-checkboxes">
+					<?php
+						// loop through post types
+						foreach ($conditionals as $conditional )
+						{
+							$conditional_checked = (isset($data['logic']['conditionals'][$conditional])) ? 'checked="checked"' : '';
+							?>
+							<label class="ww-checkbox"><input type="checkbox" name="ww-data[logic][conditionals][<?php print $conditional; ?>]" value="<?php print $conditional; ?>" <?php print $conditional_checked; ?> /> - <?php print ucfirst($conditional); ?> </label>
+							<?php
+						}
+					?>
+				</div>
+			</div>
+			<?php //*/ ?>
+        
       <?php
         /*
          * Custom php
@@ -304,139 +539,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
       <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>
     </div>
     <?php
-  }
-  
-  // Clone Widget
-  function meta_clone_widget()
-  {
-    global $wp_widget_factory;
-    $data = $this->data;
-    $clone_class = $data['clone-class'];
-    
-    // hidden value if set
-    if($clone_class) {
-      ?>
-        <h4><?php print $wp_widget_factory->widgets[$clone_class]->name; ?></h4>
-        <input type="hidden" name="ww-data[clone][clone-class]" value="<?php print $clone_class; ?>" />
-      <?php
-    }
-    // select box if not set
-    else {
-      ?>
-        <select name="ww-data[clone][clone-class]">
-          <?php
-            foreach ($wp_widget_factory->widgets as $class_name => $widget)
-            {
-              $this_widget_selected = ($clone_class == $class_name) ? 'selected="selected"':'';
-              ?>
-              <option value="<?php print $class_name; ?>" <?php print $this_widget_selected; ?>><?php print $widget->name; ?></option>
-              <?php
-            }
-          ?>
-        </select>
-      <?php
-    }
-  }
-  
-  // Clone Instance
-  function meta_clone_instance()
-  {
-    // get widget factory and post data
-    global $wp_widget_factory;
-
-    $data = $this->data;
-    $clone_class = $data['clone-class'];
-    
-    if($clone_class)
-    {
-      $instance = unserialize($data['clone-instance']);
-
-      // create instance form
-      ob_start();
-        eval('$w = new '.$clone_class.'(); $w->form($instance);');
-        $instance_form = ob_get_clean();
-        
-      $hide_title_checked = (isset($data['hide_title'])) ? 'checked="checked"' : '';
-      ?>
-        <label>
-          <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> - Hide the Widget's title on display
-        </label>
-        <div class="ww-clone-form">
-          <?php print $instance_form; ?>
-        </div>
-        <input type="hidden" name="ww-data[clone][clone-instance]" value="Placeholder" />
-      <?php
-    }
-  }
-    
-  // Admin preview box
-  function meta_widget_preview()
-  {
-    if ($this->post_id)
-    {
-      // query widgets break edit page
-      if(isset($this->data['clone-class']) && $this->data['clone-class'] == "Query_Wrangler_Widget") {
-        print "Query Widgets cannot be previewed";
-      }
-      else {
-        $widget = ww_get_single_widget($this->post_id);
-        ?>
-          <div id="ww-preview">
-            <p><em>This preview does not include your theme's CSS stylesheet.</em></p>
-            <?php print ww_theme_single_widget($widget); ?>
-          </div>
-        <?php
-      }   
-    }
-  }
-  
-  // Admin post meta contents
-  function meta_parse()
-  {
-    $data = $this->data;
-    
-    // default to checked upon creation
-    $rewrite_output_checked = (isset($data['rewrite-output'])) ? 'checked="checked"' : '';
-    $adv_template_checked   = (isset($data['adv-template'])) ? 'checked="checked"' : '';
-    $filter_content_checked = (isset($data['filter-content']) || (($_GET['action'] == null) && ($_GET['post_type'] == 'widget'))) ? 'checked="checked"' : '';
-    $data_custom_output     = (isset($data['custom-output'])) ? htmlentities($data['custom-output']) : "";
-    ?>
-      <div id="ww-template">
-        <div>
-          <label><input type="checkbox" name="ww-data[standard][filter-content]" <?php print $filter_content_checked; ?> /> - Apply Content filters to this Widget's Content.</label>
-        </div>
-        <div>
-          <h4>Rewrite Output</h4>
-          <div class="ww-options-group">
-            <div class="ww-options-group-title">
-              <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[standard][rewrite-output]" <?php print $rewrite_output_checked; ?> /> - Rewrite the output of this widget</label>
-            </div>
-            <div class="ww-options-group-content ww-options-hidden">
-              <div id="ww-advanced-template">
-                <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> - Template the Advanced Parsing Area</label>
-              </div>
-              <textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print $data_custom_output; ?></textarea>
-              <div class="adv-parse-description">
-                <h5>In the Advanced Parsing area you can:</h5>
-                <ul>
-                  <li>Use PHP tags ( &lt;?php and ?&gt; are required )</li>
-                  <li>Use {{title}} or $widget->post_title to insert the widget's title</li>
-                  <li>Use {{content}} or $widget->post_content to insert the widget's content</li>
-                  <li>Access the $widget object for more widget data (see provided template for examples)</li>
-                  <li>Access the $post object for data concerning the page being displayed (see provided template for examples)</li>
-                </ul>
-                <h5>Templating Advanced Parsed Widgets</h5>
-                <ul>
-                  <li>To template an advanced parsed widget you must return an associative array with a title and content string.</li>
-                  <li>Example: &lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</li>
-                </ul>
-              </div>
-            </div>
-          </div> <!-- ww-options-group -->
-        </div>
-      </div>
-    <?php
-  }
+	}
 }
 // end widget class
  

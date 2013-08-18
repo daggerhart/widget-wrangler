@@ -12,7 +12,8 @@
  * $widget->post_content
  * $widget->post_name
  * $widget->ID
- *
+ * $widget->in_corral - if this widget is being displayed inside of a corral
+ * $widget->corral - corral details if in_corral
  */
 ?>
 <div id="widget-<?php print $widget->ID; ?>" class="widget">

@@ -11,11 +11,13 @@ function ww_display_templates($templates)
     'files' => array(
         // use argument keys as replacable patterns with the argument's value
         // order is important as the order here is the order inwhich templates are searched for
-        'widget-[widget_type]-[widget_id].php',
+				'widget-corral_[corral_id]-[widget_type]-[widget_id].php',
+				'widget-[widget_type]-[widget_id].php',
         'widget-[widget_id].php',
+        'widget-corral_[corral_id]-[widget_type].php',
         'widget-[widget_type].php',
-        // a default fall back template name
-        'widget.php'
+        'widget-corral_[corral_id].php',
+				'widget.php'
     ),
 
     // location of the default template if nothing is found
@@ -26,10 +28,22 @@ function ww_display_templates($templates)
         // must be key => value pairs
 				'widget' => NULL,
         'widget_id' => 0,
+				'corral_id' => 0,
         'widget_type' => 'standard',
     ),
   );
-
+	
+  $templates['ww_corral'] = array(
+    'files' => array(
+			'corral-[corral_id].php',
+			'corral.php'
+    ),
+    'default_path' => dirname(__FILE__).'/templates',
+    'arguments' => array(
+				'corral_id' => 0,
+    ),
+  );
+	
   return $templates;
 }
 // hook your function into the wordpress filter
@@ -38,15 +52,19 @@ add_filter('tw_templates', 'ww_display_templates');
 /*
  * Output a corral
  *
- * @param string $corral_slug The slug for the corral to be displayed
+ * @param string $corral_id The slug for the corral to be displayed
  */
-function ww_dynamic_corral($corral_slug = 'default')
+function ww_dynamic_corral($corral_id)
 {
 	global $ww_page_widgets;
-  
+	$all_corrals = ww_get_all_corrals();
+  // corral must exist
+	if (!isset($all_corrals[$corral_id])){
+		return;
+	}
+	
   // if still no widgets, fall back to defaults
-  if (!is_array($ww_page_widgets))
-  {
+  if (!is_array($ww_page_widgets)) {
     // preset 1 is the default widgets
     if($preset = ww_get_preset(1)){
       $ww_page_widgets = $preset->widgets;
@@ -56,22 +74,26 @@ function ww_dynamic_corral($corral_slug = 'default')
       return;
     }
   }
-  
+	  
   // handle widgets
-  if (isset($ww_page_widgets[$corral_slug]) && is_array($ww_page_widgets[$corral_slug]))
+  if (isset($ww_page_widgets[$corral_id]) && is_array($ww_page_widgets[$corral_id]))
   {
     // custom sorting with callback
-    usort($ww_page_widgets[$corral_slug],'ww_cmp');
-    $sorted_widgets = array_reverse($ww_page_widgets[$corral_slug]);
+    usort($ww_page_widgets[$corral_id],'ww_cmp');
+    $sorted_widgets = array_reverse($ww_page_widgets[$corral_id]);
     
     $i = 0;
-    $total = count($ww_page_widgets[$corral_slug]);
+    $total = count($ww_page_widgets[$corral_id]);
     $output = array();
     while($i < $total)
     {
       // make sure we have a widget
-      if($widget = ww_get_single_widget($ww_page_widgets[$corral_slug][$i]['id']))
+      if($widget = ww_get_single_widget($ww_page_widgets[$corral_id][$i]['id']))
       {
+				$widget->in_corral = true;
+				$widget->corral['id'] = $corral_id;
+				$widget->corral['name'] = $all_corrals[$corral_id];
+				
         // check the widget's display logic
         if(ww_widget_display_logic($widget))
         {
@@ -83,7 +105,14 @@ function ww_dynamic_corral($corral_slug = 'default')
     }
     // output the widgets if not empty
 		if (count($output)){
-			print implode("", $output);
+			$corral['id'] = $corral_id;
+			$corral['name'] = $all_corrals[$corral_id];
+			
+			$args = array(
+				'corral' => $corral,
+				'widgets' => $output,
+			);
+			print theme('ww_corral', $args);
 		}
   }
 }
@@ -92,6 +121,13 @@ function ww_dynamic_corral($corral_slug = 'default')
  */
 function ww_widget_display_logic($widget)
 {
+	// if display logic is not enabled, return early
+	if (!isset($widget->widget_data['logic']['enabled']) ||
+			(isset($widget->widget_data['logic']['enabled']) && $widget->widget_data['logic']['enabled'] == 0))
+	{
+		return true;
+	}
+	
   // default to false
   $final_show = false;
   
@@ -104,8 +140,8 @@ function ww_widget_display_logic($widget)
 		$logic = $widget->widget_data['logic'];
     
 		// check conditionals
-    /* feature on hold for reconsideration
-    if(is_array($logic['conditionals']))
+		/*/ on hold
+    if(isset($logic['conditionals']) && is_array($logic['conditionals']))
     {
       $conditional_show = false;
 
@@ -114,9 +150,13 @@ function ww_widget_display_logic($widget)
         // check WP conditional tag
         if($function()){
           $conditional_show = true;
+					break;
         }
       }
     }
+		else {
+			$conditional_show = true;
+		}
     // */
     
     // check post_types
@@ -129,10 +169,13 @@ function ww_widget_display_logic($widget)
         $post_type_show = true;
       }
     }
+		else {
+			$post_type_show = true;
+		}
     
     // check php
 		$php_show = false;
-    if(isset($logic['php']))
+    if(isset($logic['php']) && !empty($logic['php']))
     {      
       // execute the php and get returned value
       $returned_value = eval($logic['php']);
@@ -140,10 +183,13 @@ function ww_widget_display_logic($widget)
         $php_show = $returned_value;
       }
     }
+		else {
+			$php_show = true;
+		}
     
-    // if any are true, show the widget
-    //if($conditional_show || $post_type_show || $php_show)
-    if($post_type_show || $php_show)
+    // if all are true, show the widget
+    if($conditional_show && $post_type_show && $php_show)
+    //if($post_type_show && $php_show)
     {
       $final_show = true;
     }
@@ -171,6 +217,8 @@ function ww_widget_display_logic($widget)
  */
 function ww_theme_single_widget($widget)
 {
+	$widget->in_corral = (isset($widget->in_corral) && $widget->in_corral) ? $widget->in_corral: false;
+	
   // widget type determines templating
   switch($widget->widget_type)
   { 
@@ -217,11 +265,13 @@ function ww_template_widget($widget)
 		$widget->widget_type = $ww_widget->widget_type;
 		$widget->widget_data = $ww_widget->widget_data;
 	}
+	$corral_id = (isset($widget->in_corral) && isset($widget->corral['id']) && $widget->in_corral == true) ? $widget->corral['id'] : 0;
 	
 	$args = array(
 		'widget' => $widget,
 		'widget_id' => $widget->ID,
 		'widget_type' => $widget->widget_type,
+		'corral_id' => $corral_id,
 	);
 
 	return theme('ww_widget', $args);

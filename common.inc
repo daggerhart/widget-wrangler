@@ -64,13 +64,14 @@ function ww_find_page_widgets() {
 					}
 				}
 				else {
-					// widget wrnagler enabled for type, server default widgets
+					// widget wrangler enabled for type, server default widgets
 					$widgets_array = ww_get_preset(1)->widgets;
 				}
 			}
       break;
     
     case 'home':
+    case 'front_page':
       // see if this is the Posts (blog) page
       if(get_option('show_on_front') == 'posts'){
         // posts page is preset 2
@@ -279,6 +280,9 @@ function ww_get_page_op()
   else if (is_home()){
     $op = 'home';
   }
+	else if (is_front_page()){
+		$op = 'front_page';
+	}
   else if (is_single()){
     // single is not pages
     $op = 'single';

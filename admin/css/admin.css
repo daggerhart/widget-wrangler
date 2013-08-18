@@ -64,6 +64,7 @@ hr.ww-hr {
 	display: block;
 	font-size: 1em;
 	line-height: 2em;
+	padding-left: 1px;
 }
 .ww-checkbox input {
 	margin-top: -1px;
@@ -226,28 +227,6 @@ label.ww-preset-checkbox input {
 #all-widgets td.name { font-size: 16px;}
 #all-widgets td.edit { text-align: center;}
 
-#ww-advanced-field {
-  padding: 0px 0px 12px;
-}
-#ww-advanced-template {
-  padding: 4px 0px;
-}
-#ww-advanced-template .ww-adv-template-description{
-  padding: 8px 16px;
-  font-style: italic;
-}
-.adv-parse-description {
-  color: #444;
-  padding-left: 12px;
-}
-.adv-parse-description ul  { }
-.adv-parse-description ul li {
-  list-style: disc;
-  list-style-type: disc;
-  list-style-position: inside;
-  font: normal 11px Arial;
-  color: #555;
-}
 
 #ww_admin_meta_box h3.hndle {
   line-height: 18px;
@@ -263,7 +242,7 @@ label.ww-preset-checkbox input {
   border-radius: 4px;
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
-  padding: 3px 0px 2px;
+  padding: 4px;
 }
 .ww-widget-postid span {
   display: block;
@@ -271,9 +250,74 @@ label.ww-preset-checkbox input {
   line-height: 30px;
   border-top: 1px solid #bbb;
   background: #fff;
-  padding: 0px 6px;
+  padding: 4px 6px;
 }
-
+.ww-template-suggestions {
+}
+.ww-template-suggestion {
+	font-family: monospace;
+}
+.ww-template-suggestion.found {
+	font-weight: bold;
+}
+.ww-found-template-location {
+	font: normal 11px monospace;
+}
+#ww-advanced-field {
+  padding: 0px 0px 12px;
+}
+#ww-advanced-template {
+  padding: 4px 0px;
+}
+#ww-advanced-template .ww-adv-template-description{
+  padding: 8px 16px;
+  font-style: italic;
+}
+#ww-advanced-help {
+	margin: 16px 0px 12px 1px;
+}
+.ww-advanced-help-title {
+	border: 1px solid #bbb;
+  background: linear-gradient(to top, #FBFBFB, #FFFFFF) repeat scroll 0 0 #FFFFFF;
+	padding: 6px 12px;
+}
+.ww-advanced-help-title h4 {
+	margin: 0px;
+}
+.ww-advanced-help-description {
+	border: 1px solid #bbb;
+	background: #fff;
+	padding-bottom: 12px;
+  padding-left: 12px;
+  color: #444;
+}
+.ww-advanced-help-description h4 {
+	margin: 16px 0 6px 0;
+	border-bottom: 1px solid #bbb;
+}
+.ww-advanced-help-description ul  {
+	padding: 4px 4px 4px 24px;	
+}
+.ww-advanced-help-description ul li {
+  list-style: disc;
+  list-style-type: disc;
+  list-style-position: outside;
+  font: normal 11px Arial;
+  color: #555;
+}
+.ww-options-group h4 {
+  padding: 6px 12px 6px 0px;
+	margin: 0px;
+}
+.ww-adv-template.ww-checkbox {
+	border-bottom: 1px solid #bbb;
+	margin-bottom: 12px;
+}
+#ww-preview-widget {
+	margin-top: 12px;
+	border-top: 1px solid #999;
+	padding: 12px 4px;
+}
 /******************************************************
  * Clones
  *****************************************************/
@@ -422,6 +466,9 @@ h4.ww-settings-title {
  *****************************************************/
 #logic-tabs .description {
 	padding: 12px 2% 6px;
+}
+#logic-tabs-list {
+	font-size: 94%;
 }
 .description ul li {
   list-style: disc;

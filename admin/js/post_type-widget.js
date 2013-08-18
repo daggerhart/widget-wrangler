@@ -11,7 +11,10 @@ function ww_field_options_toggle(element) {
 }
 
 jQuery(document).ready(function(){
-  // Field Options
+  
+	/*
+	 * option groups
+	 */
   jQuery('.ww-options-group-title input[type=checkbox]').click(function(){
     ww_field_options_toggle(jQuery(this));
   });
@@ -25,13 +28,15 @@ jQuery(document).ready(function(){
   
   // ui tabs for display logic
   jQuery('#logic-tabs').tabs();
-});
 
-jQuery(document).ready(function(){
+	/*
+	 * enabled advanced
+	 */
   // open and close widget menu
   jQuery('.widget-action').click(function(){
     jQuery(this).parent('div').parent('div').next('.widget-inside').slideToggle();
   });
+	
   // handle advanced parsing template description/option
   if(jQuery('#ww-adv-parse-toggle').is(':checked')){
     jQuery('#ww-advanced-template').show();
@@ -41,4 +46,12 @@ jQuery(document).ready(function(){
   jQuery('#ww-adv-parse-toggle').click(function(){
     jQuery('#ww-advanced-template').toggle();
   });
+	
+	/*
+	 * advanced help
+	 */
+	jQuery('.ww-advanced-help-description').hide();
+	jQuery('.ww-advanced-help-title').click(function(){
+		jQuery(this).siblings('.ww-advanced-help-description').slideToggle();
+	});
 });
