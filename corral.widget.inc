@@ -83,9 +83,9 @@ class Widget_Wrangler_Corral_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'corral' ); ?>"><strong><?php _e('Corral:', 'corral'); ?></strong></label> 
 			<select id="<?php echo $this->get_field_id( 'corral' ); ?>" name="<?php echo $this->get_field_name( 'corral' ); ?>" class="widefat" style="width:100%;">
 			 <?php
-				 foreach($corrals as $slug => $name){
+				 foreach($corrals as $id => $corral){
 					 ?>
-					 <option <?php if ($instance['corral'] == $slug){ print 'selected="selected"'; }?> value="<?php print $slug; ?>"><?php print $name; ?></option>
+					 <option <?php if ($instance['corral'] == $id){ print 'selected="selected"'; }?> value="<?php print $id; ?>"><?php print $corral['name']; ?></option>
 					 <?php
 				 }
 			 ?>

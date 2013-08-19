@@ -50,6 +50,29 @@ function ww_display_templates($templates)
 add_filter('tw_templates', 'ww_display_templates');
 
 /*
+ * Compatibility with previous version
+ */
+function ww_dynamic_sidebar($sidebar_slug = 'default'){
+	$all_corrals = ww_get_all_corrals();
+	
+	// find the corral for this old sidebar slug
+	$found_corral = false;
+	$found_corral_id = 0;
+	foreach ($all_corrals as $id => $corral){
+		if ($corral['slug'] == $sidebar_slug) {
+			$found_corral_id = $id;
+			$found_corral = true;
+			break;
+		}
+	}
+	
+	// pass to new function
+	if ($found_corral){
+		ww_dynamic_corral($found_corral_id);
+	}
+}
+
+/*
  * Output a corral
  *
  * @param string $corral_id The slug for the corral to be displayed
@@ -105,8 +128,7 @@ function ww_dynamic_corral($corral_id)
     }
     // output the widgets if not empty
 		if (count($output)){
-			$corral['id'] = $corral_id;
-			$corral['name'] = $all_corrals[$corral_id];
+			$corral = $all_corrals[$corral_id];
 			
 			$args = array(
 				'corral' => $corral,

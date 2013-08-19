@@ -43,9 +43,9 @@ function theme_ww_sortable_widgets($active_widgets)
 
     // build select box
     $corrals_options = "<option value='disabled'>Disabled</option>";
-    foreach($all_corrals as $slug => $corral){
-      ($slug == $corral_slug) ? $selected = "selected='selected'" : $selected = '';
-      $corrals_options.= "<option name='".$slug."' value='".$slug."' ".$selected.">".$corral."</option>";
+    foreach($all_corrals as $id => $corral){
+      ($id == $corral_slug) ? $selected = "selected='selected'" : $selected = '';
+      $corrals_options.= "<option name='".$id."' value='".$id."' ".$selected.">".$corral['name']."</option>";
     }
 
     // add item to our temp array
@@ -86,7 +86,7 @@ function theme_ww_sortable_widgets($active_widgets)
 	foreach($all_corrals as $corral_id => $corral)
 	{
 		// open the list
-		$themed.= "<h4 class='ww-sortable-widgets-corral-title'>".$corral." <sup>id: ".$corral_id."</sup></h4>
+		$themed.= "<h4 class='ww-sortable-widgets-corral-title'>".$corral['name']." <sup>id: ".$corral_id."</sup></h4>
 								<ul name='".$corral_id."' id='ww-corral-".$corral_id."-items' class='inner ww-sortable' width='100%'>";
 		$style = '';
 		if (isset($corrals_array['active']) && isset($corrals_array['active'][$corral_id]) && is_array($corrals_array['active'][$corral_id])) {
