@@ -8,8 +8,9 @@
 function ww_corral_insert()
 {
   // just in case
-  $new_corral_name = strip_tags($_POST['ww-new-corral']);
-	$new_corral_slug = ww_make_slug($new_corral);
+	$new_corral = array();
+  $new_corral['name'] = strip_tags($_POST['ww-new-corral']);
+	$new_corral['slug'] = ww_make_slug($new_corral['name']);
   $corrals = ww_get_all_corrals();
 
 	// no corrals, make this #1
@@ -23,11 +24,8 @@ function ww_corral_insert()
 			$next = ($i > $next) ? $i : $next;
 		}
 		$corral_id = ($next+1);
-		$corrals[$corral_id] = array(
-			'id' => $corral_id,
-			'slug' => $new_corral_slug,
-			'name' => $new_corral_name,
-		);
+		$new_corral['id'] = $corral_id;
+		$corrals[$corral_id] = $new_corral;
   }
 	
   $corrals_str = serialize($corrals);
@@ -42,17 +40,15 @@ function ww_corral_insert()
  */
 function ww_corral_delete()
 {
-  if (isset($_POST['ww-delete-slug'])) {
-		$old_id = $_POST['ww-delete-slug'];
-		
-		if ($corrals_string = get_option('ww_corrals'))
-		{
-			$corrals_array = unserialize($corrals_string);
-			unset($corrals_array[$old_id]);
-			$new_option = serialize($corrals_array);
-			update_option('ww_corrals', $new_option);
-		}
+	$delete_id = array_pop(array_keys($_POST['action']['delete']));
+	$all_corrals = ww_get_all_corrals();
+
+	if (isset($all_corrals[$delete_id])) {
+		unset($all_corrals[$delete_id]);
+		$new_corrals = serialize($all_corrals);
+		update_option('ww_corrals', $new_corrals);
 	}
+
 }
 /*
  * Update/Edit a corral
@@ -62,17 +58,16 @@ function ww_corral_delete()
 function ww_corral_update()
 {
 	$id = array_pop(array_keys($_POST['action']['update']));
-	if (isset($_POST['ww-update-corral-name'][$id])) {
+	if (isset($_POST['ww-update-corral-name'][$id]) && isset($_POST['ww-update-corral-slug'][$id])) {
 		$update_name = strip_tags($_POST['ww-update-corral-name'][$id]);
-	
-		// make sure corral exists
-		if ($corrals = ww_get_all_corrals()){
-			if (isset($corrals[$id])) {
-				$corrals[$id] = $update_name;
-				// serialize
-				$corrals_str = serialize($corrals);
-				update_option('ww_corrals', $corrals_str);
-			}
+		$update_slug = ww_make_slug($_POST['ww-update-corral-slug'][$id]);
+		$corrals = ww_get_all_corrals();
+		if (isset($corrals[$id])) {
+			$corrals[$id]['name'] = $update_name;
+			$corrals[$id]['slug'] = $update_slug;
+			// serialize
+			$corrals_str = serialize($corrals);
+			update_option('ww_corrals', $corrals_str);
 		}
 	}
 }
@@ -153,6 +148,9 @@ function ww_corral_form(){
 													</p>
 													<p>
 														<label><strong>Name: </strong></label><input class='ww-text' name='ww-update-corral-name[<?php print $id; ?>]' type='text' value='<?php print $corral['name']; ?>' />
+													</p>
+													<p>
+														<label><strong>Slug: </strong></label><input class='ww-text' name='ww-update-corral-slug[<?php print $id; ?>]' type='text' value='<?php print $corral['slug']; ?>' />
 													</p>
 												</div>
 												<hr class="ww-hr" />					

@@ -167,6 +167,7 @@ function ww_settings_form() {
 						<div>Posts wrangling own widgets: <?php print $pages_no_preset; ?></div>
 					</div>
 					<pre>Settings <?php print_r($settings); ?></pre>
+					<pre>Corrals <?php print_r($all_corrals); ?></pre>
 				</div>
 			</div>
 			<div class="ww-clear-gone">&nbsp;</div>
