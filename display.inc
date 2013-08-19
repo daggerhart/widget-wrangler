@@ -79,7 +79,7 @@ function ww_dynamic_sidebar($sidebar_slug = 'default'){
  */
 function ww_dynamic_corral($corral_id)
 {
-	global $ww_page_widgets;
+	global $ww_page;
 	$all_corrals = ww_get_all_corrals();
   // corral must exist
 	if (!isset($all_corrals[$corral_id])){
@@ -87,10 +87,10 @@ function ww_dynamic_corral($corral_id)
 	}
 	
   // if still no widgets, fall back to defaults
-  if (!is_array($ww_page_widgets)) {
+  if (!is_array($ww_page['widgets'])) {
     // preset 1 is the default widgets
     if($preset = ww_get_preset(1)){
-      $ww_page_widgets = $preset->widgets;
+      $ww_page['widgets'] = $preset->widgets;
     }
     // no widgets in post and no defaults
     else {
@@ -99,19 +99,19 @@ function ww_dynamic_corral($corral_id)
   }
 	  
   // handle widgets
-  if (isset($ww_page_widgets[$corral_id]) && is_array($ww_page_widgets[$corral_id]))
+  if (isset($ww_page['widgets'][$corral_id]) && is_array($ww_page['widgets'][$corral_id]))
   {
     // custom sorting with callback
-    usort($ww_page_widgets[$corral_id],'ww_cmp');
-    $sorted_widgets = array_reverse($ww_page_widgets[$corral_id]);
+    usort($ww_page['widgets'][$corral_id],'ww_cmp');
+    $sorted_widgets = array_reverse($ww_page['widgets'][$corral_id]);
     
     $i = 0;
-    $total = count($ww_page_widgets[$corral_id]);
+    $total = count($ww_page['widgets'][$corral_id]);
     $output = array();
     while($i < $total)
     {
       // make sure we have a widget
-      if($widget = ww_get_single_widget($ww_page_widgets[$corral_id][$i]['id']))
+      if($widget = ww_get_single_widget($ww_page['widgets'][$corral_id][$i]['id']))
       {
 				$widget->in_corral = true;
 				$widget->corral['id'] = $corral_id;

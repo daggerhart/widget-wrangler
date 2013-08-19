@@ -52,7 +52,7 @@ include_once WW_PLUGIN_DIR.'/post_type-widget.widget.inc';
 include_once WW_PLUGIN_DIR.'/corral.widget.inc';
 
 $ww = NULL;
-$ww_page_widgets = NULL;
+$ww_page = NULL;
 
 /*
  * Initialize the post type
@@ -157,3 +157,21 @@ function ww_plugin_activation(){
 	update_option('ww_version', WW_VERSION);
 }
 register_activation_hook(__FILE__, 'ww_plugin_activation');
+
+
+
+function wwtest(){
+    global $wp_admin_bar;
+    if ( !is_super_admin() || !is_admin_bar_showing() )
+        return;
+		print'<pre>'.print_r($wp_admin_bar,1).'</pre>';
+		
+    /*
+		$wp_admin_bar->add_menu( array(
+        'id'   => $id,
+        'meta' => array(),
+        'title' => $name,
+        'href' => $href ) );
+        */
+}
+add_action( 'admin_bar_menu', "wwtest" );

@@ -4,8 +4,9 @@
  * Make the loaded page's widgets into a global property
  */ 
 function ww_set_page_widgets() {
-	global $ww_page_widgets;
-	$ww_page_widgets = ww_find_page_widgets();
+	global $ww_page;
+
+	$ww_page['widgets'] = ww_find_page_widgets();
 }
 add_action( 'wp', 'ww_set_page_widgets');
 
@@ -17,7 +18,7 @@ function ww_find_page_widgets() {
 	global $post;
   $presets = ww_get_all_presets();
 	$settings = ww_get_settings();
-  $op = ww_get_page_op();
+	$op = ww_get_page_op();
 	
   switch ($op)
   {
@@ -273,6 +274,23 @@ function ww_get_all_corrals()
   return $corrals_array;
 }
 
+/*
+ * http://docs.appthemes.com/tutorials/wordpress-check-user-role-function/
+ * recommended by codex: http://codex.wordpress.org/Function_Reference/current_user_can
+ */
+function ww_check_user_role( $role, $user_id = null ) {
+	if ( is_numeric( $user_id ) ){
+		$user = get_userdata( $user_id );
+	}
+	else{
+		$user = wp_get_current_user();
+	}
+
+	if ( empty( $user ) ){
+		return false;
+	}
+  return in_array( $role, (array) $user->roles );
+}
 
 /* ==================================== HELPER FUNCTIONS ===== */
 // http://codex.wordpress.org/Conditional_Tags
