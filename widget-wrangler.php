@@ -74,9 +74,9 @@ add_action( 'init', 'Widget_Wrangler_Init');
  * Admin initialize
  */
 function ww_admin_init() {
-	
   // include admin panel and helper functions such as sortable widgets
 	include_once WW_PLUGIN_DIR.'/admin/admin.inc';
+	include_once WW_PLUGIN_DIR.'/admin/clone.inc';
 	include_once WW_PLUGIN_DIR.'/admin/settings.inc';
 	include_once WW_PLUGIN_DIR.'/admin/sortable-widgets.inc';
   include_once WW_PLUGIN_DIR.'/admin/sortable-widgets.admin_panel.inc';
@@ -115,6 +115,21 @@ function ww_single_widget_shortcode($atts) {
   return ww_theme_single_widget(ww_get_single_widget($id));
 }
 add_shortcode('ww_widget','ww_single_widget_shortcode');
+
+/*
+ * Shortcode support for all widgets
+ *
+ * @param array $atts Attributes within the executed shortcode.  'id' => corral id
+ * @return string HTML for a single themed corral
+ */
+function ww_single_corral_shortcode($atts) {
+  $short_array = shortcode_atts(array('id' => ''), $atts);
+  extract($short_array);
+	ob_start();
+		ww_dynamic_corral($id);
+  return ob_get_clean();
+}
+add_shortcode('ww_corral','ww_single_corral_shortcode');
 
 /*
  * Make sure to show our plugin on the admin screen

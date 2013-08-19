@@ -86,6 +86,7 @@ hr.ww-hr {
 #ww-corrals-edit h4 {
   margin: 0px;
   padding: 7px 12px;
+	cursor: default;
 }
 #ww-corral-page .description {
   width: 350px;
@@ -122,7 +123,9 @@ hr.ww-hr {
 .ww-delete-corral {
 	float: right;
 }
-
+.ww-corral-item label {
+	cursor: default;
+}
 /******************************************************
  * Presets
  *****************************************************/

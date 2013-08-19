@@ -17,10 +17,10 @@
  */
 ?>
 <div id="widget-<?php print $widget->ID; ?>" class="widget">
-  <?php if($widget->post_title) { ?>
+  <?php if (isset($widget->post_title)) { ?>
     <h3><?php print $widget->post_title;?></h3>
   <?php } ?>
-  <?php if($widget->post_content) { ?>  
+  <?php if (isset($widget->post_content)) { ?>  
     <div class="content">
       <?php print $widget->post_content; ?>
     </div>

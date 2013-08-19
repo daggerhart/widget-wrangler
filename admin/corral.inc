@@ -15,7 +15,7 @@ function ww_corral_insert()
 
 	// no corrals, make this #1
 	if(!count($corrals)){
-		$corrals[1] = $new_corral;
+		$corral_id = 1;
 	}
 	else {
 		// add new corral safely, start at 2 and get highest number
@@ -24,10 +24,10 @@ function ww_corral_insert()
 			$next = ($i > $next) ? $i : $next;
 		}
 		$corral_id = ($next+1);
-		$new_corral['id'] = $corral_id;
-		$corrals[$corral_id] = $new_corral;
   }
 	
+	$new_corral['id'] = $corral_id;
+	$corrals[$corral_id] = $new_corral;
   $corrals_str = serialize($corrals);
   // save
   update_option('ww_corrals', $corrals_str);
@@ -144,7 +144,10 @@ function ww_corral_form(){
 											<div class='widget-inside'>
 												<div>
 													<p>
-														<label><strong>Corral id: </strong></label><?php print $id; ?>
+														<label><strong>Id: </strong></label><?php print $id; ?>
+													</p>
+													<p>
+														<label><strong>Shortcode: </strong></label><code>[ww_corral id=<?php print $id; ?>]</code>
 													</p>
 													<p>
 														<label><strong>Name: </strong></label><input class='ww-text' name='ww-update-corral-name[<?php print $id; ?>]' type='text' value='<?php print $corral['name']; ?>' />

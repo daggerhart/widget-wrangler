@@ -6,8 +6,8 @@
  *  all of the admin only methods have been moved to the Widget_Wranger_Admin class.
  */
 class Widget_Wrangler {
-  var $data = array();
-  var $type;
+  var $widget_data = array();
+  var $widget_type;
   var $post_id;
 	
   /*
@@ -34,9 +34,9 @@ class Widget_Wrangler {
 			$this->post_id = $pid;
 			
 			// get widget data
-			if ($widget = ww_get_widget_data($this->post_id)) {
-				$this->type = $widget->type;
-				$this->data = $widget->data;
+			if ($widget = ww_get_single_widget($this->post_id)) {
+				$this->widget_type = $widget->widget_type;
+				$this->widget_data = $widget->widget_data;
 			}
 			// handle editing page for all widgets
 			$supports = array(
@@ -45,7 +45,7 @@ class Widget_Wrangler {
 			);
 			
 			// Clones do not need an editor
-			if($this->type == 'standard'){
+			if($this->widget_type == 'standard'){
 				$supports[] = 'editor';
 			}
     }

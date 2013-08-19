@@ -1,6 +1,8 @@
 <?php
 
-// gonna make widgets global
+/*
+ * Make the loaded page's widgets into a global property
+ */ 
 function ww_set_page_widgets() {
 	global $ww_page_widgets;
 	$ww_page_widgets = ww_find_page_widgets();
@@ -8,7 +10,7 @@ function ww_set_page_widgets() {
 add_action( 'wp', 'ww_set_page_widgets');
 
 /*
- *
+ * Get which widgets belong on the current page/route loaded
  */
 function ww_find_page_widgets() {
   // get the post and corrals
@@ -100,8 +102,7 @@ function ww_find_page_widgets() {
  *
  * @return settings array
  */
-function ww_get_settings()
-{
+function ww_get_settings(){
   if ($settings = get_option("ww_settings")){
     $settings = unserialize($settings);
   }
@@ -113,12 +114,10 @@ function ww_get_settings()
   return $settings;
 }
 
-
 /*
  * Default settings
  */
-function ww_settings_set_default()
-{
+function ww_settings_set_default(){
   $settings["capabilities"] = "simple";
   $settings["post_types"]['page'] = "page";
   $settings["post_types"]['post'] = "post";
@@ -146,18 +145,6 @@ function ww_get_post_widgets($post_id){
   return false;
 }
 
-/*
- * Get data for a single widget
- *
- * @param int $post_id The WP post ID for the WW widget
- */
-function ww_get_widget_data($post_id){
-  global $wpdb;
-  $sql = "SELECT type,data FROM ".$wpdb->prefix."ww_widget_data WHERE post_id = %d";
-  $widget = $wpdb->get_row($wpdb->prepare($sql,$post_id));
-	$widget->data = unserialize($widget->data);
-	return $widget;
-}
 
 /*
  * Returns all published widgets
@@ -167,26 +154,30 @@ function ww_get_widget_data($post_id){
 function ww_get_all_widgets()
 {
   global $wpdb;
+	$widget_data_table = $wpdb->prefix."ww_widget_data";
+	$posts_table = $wpdb->prefix."posts";
   $query = "SELECT
-              ID,post_name,post_title,post_content
+              posts.ID, posts.post_name, posts.post_title, posts.post_content,
+              data.type as widget_type, data.data as widget_data
             FROM
-              ".$wpdb->prefix."posts
+              ".$posts_table." as posts
+              LEFT JOIN ".$widget_data_table." as data on data.post_id = posts.ID
             WHERE
-              post_type = 'widget' AND
-              post_status = 'publish'";
+              posts.post_type = 'widget' AND
+              posts.post_status = 'publish'";
   $results = $wpdb->get_results($query);
 
 	$widgets = array();
 	foreach ($results as $i => $widget)
   {
+		$widget->widget_data = (isset($widget->widget_data)) ? unserialize($widget->widget_data) : array();
+		$widget->widget_type = (isset($widget->widget_type)) ? $widget->widget_type : "standard";
 		$widgets[$widget->ID] = $widget;
-    $widgets[$widget->ID]->adv_enabled = get_post_meta($widget->ID,'ww-adv-enabled',TRUE);
-    $widgets[$widget->ID]->parse       = get_post_meta($widget->ID,'ww-parse', TRUE);
-    $widgets[$widget->ID]->wpautop     = get_post_meta($widget->ID,'ww-wpautop', TRUE);
   }
 	unset($results);
   return $widgets;
 }
+
 /*
  * Retrieve and return a single widget by its ID
  *
@@ -206,16 +197,21 @@ function ww_get_single_widget($post_id){
             WHERE
               posts.post_type = 'widget' AND
               posts.post_status = 'publish' AND
-              posts.ID = %d";
+              posts.ID = %d
+						LIMIT 1";
   $widget = $wpdb->get_row($wpdb->prepare($query, $post_id));
 
-  // unserialize widget data and clone instance
-  $widget->widget_data = unserialize($widget->widget_data);
-  if($widget->widget_type == 'clone'){
-    $widget->widget_data['clone-instance'] = unserialize($widget->widget_data['clone-instance']);
-  }
-
-  return $widget;
+	if ($widget){
+		// unserialize widget data and clone instance
+		$widget->widget_data = (isset($widget->widget_data)) ? unserialize($widget->widget_data) : array();
+		
+		if($widget->widget_type == 'clone'){
+			$widget->widget_data['clone-instance'] = isset($widget->widget_data['clone-instance']) ? unserialize($widget->widget_data['clone-instance']) : array();
+		}
+	
+		return $widget;
+	}
+	return false;
 }
 
 /* ================================= presets */
@@ -256,8 +252,9 @@ function ww_get_preset($preset_id){
   if (isset($results->data) && is_string($results->data)){
     $results->data = unserialize($results->data);
     $results->widgets = unserialize($results->widgets);
+		return $results;
   }
-  return $results;
+	return false;
 }
 /* ================================= corrals */
 /*

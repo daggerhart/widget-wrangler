@@ -7,8 +7,9 @@ function ww_clone_insert($posted)
   global $wpdb, $wp_widget_factory, $user_ID;
 
   $clone_class = $_POST['ww-data']['clone']['clone-class'];
+	$instance = ww_make_clone_instance($_POST);
   
-  // prep new widget info for saving
+	// prep new widget info for saving
   $new_widget = array();
   $new_widget['post_author'] = $user_ID; // for now
   $new_widget['post_title'] = (isset($instance['title'])) ? $instance['title'] : "Copy of ".$clone_class;
@@ -27,11 +28,31 @@ function ww_clone_insert($posted)
   
   // widget data
   $_POST['ww-type'] = 'clone';
-  
+
+	//print '<pre>';print_r($posted);print '</pre>';exit;
+	
   // insert new widget into db
   $new_post_id = wp_insert_post($new_widget);
   
   return $new_post_id;
+}
+
+/*
+ * Read the clone instance data from WW Copy widget form
+ */
+function ww_make_clone_instance($posted){
+	global $wp_widget_factory;
+	$clone_class = $posted['ww-data']['clone']['clone-class'];
+	$option_name = str_replace("_", "-", $wp_widget_factory->widgets[$clone_class]->option_name);
+	$instance = array();
+	
+	// loop through instance values and create an instance array
+	foreach($posted[$option_name] as $i => $settings){
+		foreach($settings as $key => $value){
+			$instance[$key] = $value;
+		}
+	}
+	return $instance;
 }
 
 /*
@@ -52,7 +73,7 @@ function ww_clone_form() {
 				foreach ($wp_widget_factory->widgets as $class_name => $widget)
 				{
 					// skip potential recursion
-					if($class_name != "Widget_Wrangler_Sidebar_Widget")
+					if($class_name != "Widget_Wrangler_Corral_Widget")
 					{
 						$posted_array_key = "widget-".$widget->id_base;
 						

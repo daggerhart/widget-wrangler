@@ -254,6 +254,12 @@ function ww_theme_single_widget($widget)
     
     case 'standard':
     default:
+	    // escape $ in post content & title, adjust in case they have added own slashes
+			$widget->post_content = str_replace('\$', '$', $widget->post_content);
+			$widget->post_content = str_replace('$', '\$', $widget->post_content);
+			$widget->post_title = str_replace('\$', '$', $widget->post_title);
+			$widget->post_title = str_replace('$', '\$', $widget->post_title);
+			
       // maybe they don't want auto p ?
       if (isset($widget->widget_data['filter-content']) && $widget->widget_data['filter-content'] == "on"){
         $widget->post_content = apply_filters('the_content', $widget->post_content);
