@@ -11,7 +11,7 @@ function ww_field_options_toggle(element) {
 }
 
 jQuery(document).ready(function(){
-  
+	
 	/*
 	 * option groups
 	 */

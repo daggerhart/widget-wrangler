@@ -369,7 +369,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
 						<div class="ww-options-group-content ww-options-hidden">
 							<h4>Rewrite Output</h4>
 							<label class="ww-checkbox ww-adv-template"><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[standard][adv-template]" <?php print $adv_template_checked; ?> /> - Template the rewritten output.</label>
-							<textarea name="ww-data[standard][custom-output]" cols="40" rows="16" style="width: 100%;"><?php print $data_custom_output; ?></textarea>
+							<div class="ww-textarea-meta"><textarea name="ww-data[standard][custom-output]" cols="40" rows="16" class="php-advanced-textarea"><?php print $data_custom_output; ?></textarea></div>
 						</div>
           </div> <!-- ww-options-group -->
         </div>
@@ -537,7 +537,7 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
 				</div>
 				<div class="logic-php-textarea">
 					<strong>PHP code:</strong><br/>
-					<textarea name="ww-data[logic][php]" cols="40" rows="16" style="width: 100%;"><?php print $data_logic_php; ?></textarea>
+					<textarea name="ww-data[logic][php]" cols="40" rows="16" class="php-advanced-textarea"><?php print $data_logic_php; ?></textarea>
 				</div>
 			</div>
       <div class="ww-clear-gone"><!-- ie hack -->&nbps;</div>

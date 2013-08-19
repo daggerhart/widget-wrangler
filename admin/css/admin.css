@@ -69,7 +69,13 @@ hr.ww-hr {
 .ww-checkbox input {
 	margin-top: -1px;
 }
-
+.ww-textarea-meta {
+	position: relative;
+}
+.ww-textarea-meta,
+.ww-textarea-meta textarea {
+	font-family: monospace;
+}
 /******************************************************
  * Corrals
  *****************************************************/
@@ -320,6 +326,9 @@ label.ww-preset-checkbox input {
 	margin-top: 12px;
 	border-top: 1px solid #999;
 	padding: 12px 4px;
+}
+.php-advanced-textarea {
+	width: 100%;
 }
 /******************************************************
  * Clones
