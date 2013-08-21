@@ -5,7 +5,7 @@
  *
  *  all of the admin only methods have been moved to the Widget_Wranger_Admin class.
  */
-class Widget_Wrangler {
+class WidgetWrangler_Widget {
   var $widget_data = array();
   var $widget_type;
   var $post_id;
@@ -13,7 +13,7 @@ class Widget_Wrangler {
   /*
    * Constructor, build the new post type
    */
-  function Widget_Wrangler()
+  function WidgetWrangler_Widget()
   {
 		// Editing specific widget
 		if (isset($_GET['post'])){
@@ -85,6 +85,7 @@ class Widget_Wrangler {
     register_post_type('widget', array(
       'labels' =>$labels,
       'public' => true,
+			//'publicly_queryable' => true,?
       'exclude_from_search' => (isset($settings['exclude_from_search']) && $settings['exclude_from_search'] == 0) ? false : true, 
       'show_in_menu' => true,
       'show_ui' => true, // UI in admin panel

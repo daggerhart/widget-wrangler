@@ -1,6 +1,7 @@
 
+WidgetWrangler.sortable = {};
 
-WidgetWrangler.toggle_no_widgets = function(){
+WidgetWrangler.sortable.toggle_no_widgets = function(){
 	var lists = jQuery("ul.ww-sortable");
 	jQuery.each(lists, function(){
 		var num_items = jQuery(this).children('.ww-item');
@@ -16,7 +17,7 @@ WidgetWrangler.toggle_no_widgets = function(){
 	});
 }
 
-WidgetWrangler.update_widget_weights = function(){
+WidgetWrangler.sortable.update_widget_weights = function(){
 	var lists = jQuery("ul.ww-sortable");
 	jQuery.each(lists, function(){
 		var this_list = jQuery(this).children(".ww-item");
@@ -26,7 +27,7 @@ WidgetWrangler.update_widget_weights = function(){
 	});
 }
 
-WidgetWrangler.refresh_all = function() {
+WidgetWrangler.sortable.refresh_all = function() {
 	// Auto change sort order when drag and drop
 	var sortable_lists = jQuery("ul.ww-sortable");
 	jQuery("ul.ww-sortable").sortable({
@@ -39,8 +40,8 @@ WidgetWrangler.refresh_all = function() {
 			 jQuery.each(active_widgets, function(i){
 					jQuery(this).children("select").val(corral_name);
 			});
-			WidgetWrangler.toggle_no_widgets();
-			WidgetWrangler.update_widget_weights();
+			WidgetWrangler.sortable.toggle_no_widgets();
+			WidgetWrangler.sortable.update_widget_weights();
 		}
 	}).disableSelection();
 	
@@ -67,14 +68,14 @@ WidgetWrangler.refresh_all = function() {
 				jQuery(this).parent('.ww-item').remove();
 				jQuery("#ww-disabled-items select[name='"+select_name+"']").val(select_val);
 			}
-			WidgetWrangler.update_widget_weights();
-			WidgetWrangler.toggle_no_widgets();
-			WidgetWrangler.refresh_all();
+			WidgetWrangler.sortable.update_widget_weights();
+			WidgetWrangler.sortable.toggle_no_widgets();
+			WidgetWrangler.sortable.refresh_all();
 		});
 	});
 }
 
-WidgetWrangler.disable = function() {
+WidgetWrangler.sortable.disable = function() {
 	var selects = jQuery("#ww-sortable-corrals select, #ww-sortable-corrals input[type='text']");
 	jQuery.each(selects, function(i, element){
 		jQuery(element).attr('disabled','disabled');
@@ -88,10 +89,10 @@ jQuery(document).ready(function(){
   }
 	
   if (!WidgetWrangler_disable) {
-		WidgetWrangler.refresh_all();
+		WidgetWrangler.sortable.refresh_all();
 	}
 	else {
-		WidgetWrangler.disable();
+		WidgetWrangler.sortable.disable();
 	}
 	
 	// fix some form input issues

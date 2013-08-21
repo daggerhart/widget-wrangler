@@ -53,21 +53,10 @@ add_filter('tw_templates', 'ww_display_templates');
  * Compatibility with previous version
  */
 function ww_dynamic_sidebar($sidebar_slug = 'default'){
-	$all_corrals = ww_get_all_corrals();
-	
-	// find the corral for this old sidebar slug
-	$found_corral = false;
-	$found_corral_id = 0;
-	foreach ($all_corrals as $id => $corral){
-		if ($corral['slug'] == $sidebar_slug) {
-			$found_corral_id = $id;
-			$found_corral = true;
-			break;
-		}
-	}
-	
+	$found_corral_id = ww_get_corral_id_by_slug($sidebar_slug);
+
 	// pass to new function
-	if ($found_corral){
+	if ($found_corral_id){
 		ww_dynamic_corral($found_corral_id);
 	}
 }

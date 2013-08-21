@@ -38,6 +38,7 @@ if(!function_exists('theme')){
 		
 // common functions for front and back ends
 include_once WW_PLUGIN_DIR.'/common.inc';
+include_once WW_PLUGIN_DIR.'/hooks.inc';
 
 // functions that control display logic of widgets and output
 include_once WW_PLUGIN_DIR.'/display.inc';
@@ -57,18 +58,31 @@ $ww_page = NULL;
 /*
  * Initialize the post type
  */
-function Widget_Wrangler_Init() {
+function widget_wrangler_init() {
   global $ww;
+	
 	// admin has way more code.  only load it when necessary
 	if (is_admin()){
 		include_once WW_PLUGIN_DIR.'/admin/post_type-widget.admin.inc';
-		$ww = new Widget_Wrangler_Admin();
+		$ww = new WidgetWrangler_WidgetAdmin();
 	}
 	else {
-		$ww = new Widget_Wrangler();
+		$ww = new WidgetWrangler_Widget();
+	}
+
+}
+add_action( 'init', 'widget_wrangler_init');
+
+/*
+ * have to conditionally load a widget earlier than init
+ */
+function ww_plugins_loaded(){
+	$settings = ww_get_settings();
+	if (isset($settings['sidebar_widget']) && $settings['sidebar_widget'] == 1){
+		include_once WW_PLUGIN_DIR.'/sidebar.widget.inc';
 	}
 }
-add_action( 'init', 'Widget_Wrangler_Init');
+add_action( 'plugins_loaded', 'ww_plugins_loaded');
 
 /*
  * Admin initialize
@@ -157,21 +171,3 @@ function ww_plugin_activation(){
 	update_option('ww_version', WW_VERSION);
 }
 register_activation_hook(__FILE__, 'ww_plugin_activation');
-
-
-
-function wwtest(){
-    global $wp_admin_bar;
-    if ( !is_super_admin() || !is_admin_bar_showing() )
-        return;
-		print'<pre>'.print_r($wp_admin_bar,1).'</pre>';
-		
-    /*
-		$wp_admin_bar->add_menu( array(
-        'id'   => $id,
-        'meta' => array(),
-        'title' => $name,
-        'href' => $href ) );
-        */
-}
-add_action( 'admin_bar_menu', "wwtest" );

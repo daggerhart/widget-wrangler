@@ -41,14 +41,32 @@ add_filter('tw_templates', 'ww_admin_templates');
  */
 function ww_display_admin_panel()
 {
+	global $ww_page;
+
+	// gather info for admin meta data
   $settings = ww_get_settings();
-	$ww_pages = array(
+	$ww_admin_pages = array(
     'ww-debug',
     'ww-clone',
     'ww-corrals',
     'ww-presets',
 		'ww-settings',
 	);
+	if (isset($_GET['post'])){
+		$post_id = $_GET['post'];
+	}
+	else if (isset($_POST['post_ID'])){
+		$post_id = $_POST['post_ID'];
+	}
+	
+	// record some info for easy use later
+	$ww_page['admin'] = array(
+		'is_post_edit' => ((isset($post_id) && in_array(get_post_type($post_id), $settings['post_types'])) || (isset($_GET['post_type']) && in_array($_GET['post_type'], $settings['post_types']))),
+		'is_widget_edit' => ((isset($post_id) && get_post_type($post_id) == "widget") || (isset($_GET['post_type']) && $_GET['post_type'] == "widget")),
+		'is_admin_page' => (isset($_GET['page']) && (in_array($_GET['page'], $ww_admin_pages))),
+		'post_id' => (isset($post_id)) ? $post_id : 0,
+	);
+	
 	
   // add admin css
   add_action( 'admin_head', 'ww_admin_css');
@@ -63,7 +81,7 @@ function ww_display_admin_panel()
 	}
   
 	// ww internal admin pages
-	if (isset($_GET['page']) && (in_array($_GET['page'], $ww_pages))) {
+	if ($ww_page['admin']['is_admin_page']) {
 		add_action( 'admin_enqueue_scripts', 'ww_admin_js');
 		add_action( 'admin_enqueue_scripts', 'ww_post_type_widget_js');
 		add_action( 'admin_enqueue_scripts', 'ww_sortable_widgets_js');
@@ -71,7 +89,18 @@ function ww_display_admin_panel()
 			add_action( 'admin_enqueue_scripts', 'ww_dequeue_autosave' );
 		}
 	}
+
+	// shortcode listbox tinymce button
+	if ($ww_page['admin']['is_post_edit'] &&
+			isset($settings['enable_shortcode_tinymce']) &&
+			$settings['enable_shortcode_tinymce'] == 1)
+	{
+			include_once WW_PLUGIN_DIR.'/admin/shortcode.tinymce.inc';
+			$ww_shortcode_tinymce = new WidgetWrangler_ShortcodeTinymce();
+			add_action('admin_head', array($ww_shortcode_tinymce, 'addWidgetListbox'));
+	}
 }
+
 
 /* ================================ Page handling */
 /*
@@ -252,7 +281,8 @@ function ww_sortable_widgets_js(){
                   array('jquery-ui-core', 'jquery-ui-sortable'),
                   false,
                   true);
-	wp_localize_script( 'ww-sortable-widgets-js', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = {};') );	
+	$data = ww_json_data();
+	wp_localize_script( 'ww-sortable-widgets-js', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.$data.';') );	
 }
 
 /*
@@ -266,6 +296,13 @@ function ww_post_type_widget_js(){
                     true);
 }
 
+function ww_json_data() {
+	$WidgetWrangler = array();
+	$WidgetWrangler['data'] = array(
+		'allWidgets' => array_values(ww_get_all_widgets()),
+	);
+	return json_encode($WidgetWrangler);
+}
 /*
  * Probably don't want to autosave widgets
  */

@@ -16,42 +16,14 @@ add_action( 'wp', 'ww_set_page_widgets');
 function ww_find_page_widgets() {
   // get the post and corrals
 	global $post;
+	$widgets_array = array();
   $presets = ww_get_all_presets();
+  $preset_types = ww_get_all_preset_types();
 	$settings = ww_get_settings();
 	$op = ww_get_page_op();
 	
-  switch ($op)
-  {
-    // tags and categories are controlled the same way
-    case 'tag':
-    case 'category':
-      global $wpdb;
-      // get first category
-      if($op == 'category') {
-        $category = array_pop(get_the_category());  
-      }
-      else if ($op == 'tag'){
-        $category = array_pop(get_the_tags());
-      }
-      
-      // get the preset
-      $presets_table = $wpdb->prefix.'ww_presets';
-      $relation_table = $wpdb->prefix.'ww_preset_term_relationships';
-      
-      // look for presets for this category
-      $sql = "SELECT r.preset_id, s.widgets
-              FROM ".$relation_table." as r
-              LEFT JOIN ".$presets_table." as s ON r.preset_id = s.id
-              WHERE r.term_id = %d
-              LIMIT 1";
-      $row = $wpdb->get_row($wpdb->prepare($sql,$category->term_id));
-      
-      // make the array
-      if(isset($row->preset_id)){
-        $widgets_array = $row->widgets;
-      }
-      break;
-    
+	// give single-page widgets a chance first
+  switch ($op) {
     case 'single':
     case 'page':
 			if (isset($settings['post_types'][$post->post_type])){
@@ -61,39 +33,22 @@ function ww_find_page_widgets() {
 					if (!isset($post_widgets->preset_id) || $post_widgets->preset_id == 0){
 						$widgets_array = $post_widgets->widgets;
 					}
-					else {
-						// preset
-						$widgets_array = ww_get_preset($post_widgets->preset_id)->widgets;
-					}
-				}
-				else {
-					// widget wrangler enabled for type, server default widgets
-					$widgets_array = ww_get_preset(1)->widgets;
 				}
 			}
       break;
-    
-    case 'home':
-    case 'front_page':
-      // see if this is the Posts (blog) page
-      if(get_option('show_on_front') == 'posts'){
-        // posts page is preset 2
-        $widgets_array = ww_get_preset(2)->widgets;
-      }
-      break;
-
-    case 'search':
-      // search page is default preset 3
-      $widgets_array = ww_get_preset(3)->widgets;
-      break;
-    
-    case '404':
-      // 404 page is default preset 4
-      $widgets_array = ww_get_preset(4)->widgets;
-      break;
   }
 	
-	if (isset($widgets_array)){
+	// then let presets handle what's left
+	foreach ($preset_types as $type => $preset_type){
+		if (isset($preset_type['execution_ops']) && in_array($op, $preset_type['execution_ops'])){
+			if (isset($preset_type['execution_callback']) && function_exists($preset_type['execution_callback'])){
+				$preset_type['execution_callback']($op, $widgets_array);
+			}
+		}
+	}
+	
+	// return if found results	
+	if (count($widgets_array)){
 		return $widgets_array;
 	}
 }
@@ -124,6 +79,7 @@ function ww_settings_set_default(){
   $settings["post_types"]['post'] = "post";
 	$settings["exclude_from_search"] = 1;
 	$settings["disable_autosave"] = 1;
+	$settings["enable_shortcode_tinymce"] = 1;
 	
   update_option("ww_settings", serialize($settings));
 }
@@ -263,8 +219,7 @@ function ww_get_preset($preset_id){
  *
  * @return array of corrals
  */
-function ww_get_all_corrals()
-{
+function ww_get_all_corrals(){
   if ($corrals_string = get_option('ww_corrals')){
     $corrals_array = unserialize($corrals_string);
   }
@@ -272,6 +227,30 @@ function ww_get_all_corrals()
     $corrals_array = array();
   }
   return $corrals_array;
+}
+
+/*
+ * Compat with old sidebars
+ */
+function ww_get_corral_id_by_slug($slug){
+	$all_corrals = ww_get_all_corrals();
+	
+	// find the corral for this old sidebar slug
+	$found_corral = false;
+	$found_corral_id = 0;
+	foreach ($all_corrals as $id => $corral){
+		if ($corral['slug'] == $slug) {
+			$found_corral_id = $id;
+			$found_corral = true;
+			break;
+		}
+	}
+	
+	// pass to new function
+	if ($found_corral){
+		return $found_corral_id;
+	}
+	return false;
 }
 
 /*

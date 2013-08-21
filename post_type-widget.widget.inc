@@ -11,7 +11,7 @@ add_action( 'widgets_init', 'ww_widget_widgets' );
  * @since 0.1
  */
 function ww_widget_widgets() {
-  register_widget( 'Widget_Wrangler_Widget_Widget' );
+  register_widget( 'WidgetWrangler_Widget_Widget' );
 }
 /**
  * Widget Wrangler Widget Widget class.
@@ -20,11 +20,11 @@ function ww_widget_widgets() {
  *
  * @since 0.1
  */
-class Widget_Wrangler_Widget_Widget extends WP_Widget {
+class WidgetWrangler_Widget_Widget extends WP_Widget {
   /**
    * Widget setup.
    */
-  function Widget_Wrangler_Widget_Widget()
+  function WidgetWrangler_Widget_Widget()
   {
     // Widget settings. 
     $widget_ops = array( 'classname' => 'widget-wrangler-widget', 'description' => __('A single Widget Wrangler Widget', 'widget') );

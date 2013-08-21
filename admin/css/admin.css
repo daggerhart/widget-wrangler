@@ -2,6 +2,11 @@
 /****************************************************
  * Common
  ****************************************************/
+#content_WWList_text {
+	font-size: 11px;
+	line-height: 22px;
+	width: 75px;
+}
 #ww-page-top {
 	text-align: right;
 	margin-bottom: 16px;

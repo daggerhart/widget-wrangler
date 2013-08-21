@@ -11,7 +11,7 @@ add_action( 'widgets_init', 'ww_corral_widgets' );
  * @since 0.1
  */
 function ww_corral_widgets() {
-  register_widget( 'Widget_Wrangler_Corral_Widget' );
+  register_widget( 'WidgetWrangler_Corral_Widget' );
 }
 /**
  * Widget Wrangler Corral Widget class.
@@ -20,11 +20,11 @@ function ww_corral_widgets() {
  *
  * @since 0.1
  */
-class Widget_Wrangler_Corral_Widget extends WP_Widget {
+class WidgetWrangler_Corral_Widget extends WP_Widget {
   /**
    * Widget setup.
    */
-  function Widget_Wrangler_Corral_Widget()
+  function WidgetWrangler_Corral_Widget()
   {
     // Widget settings. 
     $widget_ops = array( 'classname' => 'widget-wrangler-corral', 'description' => __('A single Widget Wrangler Corral', 'corral') );
@@ -63,7 +63,7 @@ class Widget_Wrangler_Corral_Widget extends WP_Widget {
 		$corrals = ww_get_all_corrals();
     $exists = 	isset($corrals[$instance['corral']]) ? true : false;
 		//$wp_widget_title = ($exists) ? __('Widget Wrangler - Corral', 'widgetwranglercorral') : __('WW Corral - '.$title, 'widgetwranglercorral');
-		$input_title =  ($exists) ? $corrals[$instance['corral']] : "!Error!";
+		$input_title =  ($exists) ? $corrals[$instance['corral']]['name'] : "!Error!";
     // Set up some default widget settings. 
     $defaults = array( 'title' => __('Widget Wrangler - Corral', 'widgetwranglercorral'), 'corral' => '' );
     $instance = wp_parse_args( (array) $instance, $defaults );

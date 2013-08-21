@@ -3,12 +3,12 @@
 /*
  * Widget Wrangler custom_post_type class for widget post type
  */
-class Widget_Wrangler_Admin extends Widget_Wrangler {
+class WidgetWrangler_WidgetAdmin extends WidgetWrangler_Widget {
 
   /*
    * Constructor, build the new post type
    */
-  function Widget_Wrangler_Admin(){
+  function WidgetWrangler_WidgetAdmin(){
 		parent::__construct();
     add_filter("manage_edit-widget_columns", array(&$this, "edit_columns"));
     add_action("manage_posts_custom_column", array(&$this, "custom_columns"));
@@ -69,20 +69,15 @@ class Widget_Wrangler_Admin extends Widget_Wrangler {
   // Custom meta boxes for the edit widget screen
   function admin_init() 
   {
-		// add meta boxes
-    if (isset($_GET['post'])){
-      $post_id = $_GET['post'];
-    }
-    else if (isset($_POST['post_ID'])){
-      $post_id = $_POST['post_ID'];
-    }
+		global $ww_page;
 		
-		if ((isset($post_id) && get_post_type($post_id) == "widget") || (isset($_GET['post_type']) && $_GET['post_type'] == "widget"))
+		if ($ww_page['admin']['is_widget_edit'])
 		{
+			$post_id = $ww_page['admin']['post_id'];
 			add_action( 'admin_enqueue_scripts', 'ww_post_type_widget_js');
 	
 			// get widget data, default to empty object
-			$widget = isset($post_id) ? ww_get_single_widget($post_id) : new stdClass();
+			$widget = ($post_id) ? ww_get_single_widget($post_id) : new stdClass();
 			
 			if(isset($widget->widget_type) && $widget->widget_type == "clone") {
 				// Clone Instance
