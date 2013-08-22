@@ -90,7 +90,7 @@ function ww_get_post_widgets($post_id){
   if($results = $wpdb->get_row($wpdb->prepare($sql, $post_id))){
     $results->widgets = unserialize($results->widgets);
     return $results;
-  } 
+  }
   return false;
 }
 

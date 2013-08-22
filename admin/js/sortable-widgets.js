@@ -82,18 +82,33 @@ WidgetWrangler.sortable.disable = function() {
 	});
 }
 
-jQuery(document).ready(function(){
-	// handle disabling from outside of object definition
-	if (typeof WidgetWrangler_disable === 'undefined') {
-    WidgetWrangler_disable = false;
-  }
+WidgetWrangler.sortable.enable = function() {
+	var selects = jQuery("#ww-sortable-corrals select, #ww-sortable-corrals input[type='text']");
+	jQuery.each(selects, function(i, element){
+		jQuery(element).removeAttr('disabled');
+	});
+	WidgetWrangler.sortable.refresh_all();	
+}
+
+WidgetWrangler.sortable.init = function() {
+	var preset_id = jQuery('select#ww_post_preset').val();
 	
-  if (!WidgetWrangler_disable) {
-		WidgetWrangler.sortable.refresh_all();
+	// handle disabling from outside of object definition
+	if (typeof preset_id === 'undefined') {
+    preset_id = 0;
+  }
+
+  if (preset_id == 0) {
+		WidgetWrangler.sortable.enable(); 
 	}
 	else {
 		WidgetWrangler.sortable.disable();
 	}
+}
+
+jQuery(document).ready(function(){
+
+	WidgetWrangler.sortable.init();
 	
 	// fix some form input issues
 	// http://stackoverflow.com/questions/13898027/jquery-ui-sortable-cant-type-in-input-fields-with-cancel-method

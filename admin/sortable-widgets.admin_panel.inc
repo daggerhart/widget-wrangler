@@ -13,69 +13,81 @@
 /*
  * admin_panel form for single page/post
  */
-function ww_widget_post_form($post){
+function ww_widget_post_form($post, $ajax = NULL){
 	// get post_id
-  if (isset($post->ID)) {
+  if (isset($ajax['post_id']) && !isset($ajax['preset_id'])){
+		$post_id = $ajax['post_id'];
+	}
+	else if (isset($post->ID)) {
 		$post_id = $post->ID;
 	}
 	else if (isset($_GET['post'])){
 		$post_id = $_GET['post'];
 	}
 	
-  if (isset($post_id) && is_numeric($post_id))
-  {
-		// add our js
-		ww_sortable_widgets_js();
+	// add our js
+	ww_sortable_widgets_js();
 
-    // get some data to work with
-    $all_widgets = ww_get_all_widgets(); 
-    $all_presets = ww_get_all_presets();
-    $corrals = ww_get_all_corrals();
-    
-    $active_widgets = array();
-    $post_preset = NULL;
-		$post_preset_message = "";
+	// get some data to work with
+	$all_widgets = ww_get_all_widgets(); 
+	$all_presets = ww_get_all_presets();
+	$corrals = ww_get_all_corrals();
+	
+	$active_widgets = array();
+	$post_preset = NULL;
+	$post_preset_message = "";
 		
+  if (isset($post_id) && is_numeric($post_id)){
     // get post meta for this post
     // array of chosen widgets
-    if ($post_widgets = ww_get_post_widgets($post_id))
-    {
-			if (isset($post_widgets->preset_id) && $post_widgets->preset_id != 0){
+		if ($post_widgets = ww_get_post_widgets($post_id))
+		{
+			if (isset($post_widgets->preset_id) && $post_widgets->preset_id != 0 && !isset($ajax['post_id'])){
 				$post_preset = ww_get_preset($post_widgets->preset_id);
 				$active_widgets = $post_preset->widgets;
 			}
       else {
 				$active_widgets = $post_widgets->widgets;
-				$post_preset_message = "Presets are Disabled. This page is wrangling widgets on its own.";
 			}
     }
-    // new page/post, pull default widgets 
-    else
-    {
-      $post_preset = ww_get_preset(1);
-			$post_preset_id_old = "new_post"; // help with saving new posts
-      $active_widgets = $post_preset->widgets;
-    }
-
-
-		if (isset($post_preset)){
-			$post_preset_message = "This page is currently using the <a href='edit.php?post_type=widget&page=ww-presets&preset_id=".$post_preset->id."'>".$post_preset->data['name']."</a>  Widgets.";
-			if (!isset($post_preset_id_old)) {
-				$post_preset_id_old = $post_preset->id;
-			}
+		// ajax new post_id not in ww records
+		else if (isset($ajax['post_id']) && !isset($ajax['preset_id'])) {
+			$preset_id = 0;
+			$active_widgets = ww_get_preset(1)->widgets;
 		}
-
-		// build top and bottom of output array
-    ?><div id='widget-wrangler-form' class='new-admin-panel'>
+    // new page/post, pull default widgets 
+    else if (is_null($ajax)) {
+      $post_preset = ww_get_preset(1);
+			$active_widgets = $post_preset->widgets;
+    }
+  }
+	// ajax
+	else if (isset($ajax['preset_id']) && $ajax['preset_id'] > 0){
+			$post_preset = ww_get_preset($ajax['preset_id']);
+			$active_widgets = $post_preset->widgets;
+			$post_id = $ajax['post_id'];
+	}
+	// nothing to do
+  else {
+    print "There was a problem loading widgets for this page.";
+		return;
+  }
+	
+	// preset message
+	if (isset($post_preset)){
+		$post_preset_message = "This page is currently using the <a href='edit.php?post_type=widget&page=ww-presets&preset_id=".$post_preset->id."'>".$post_preset->data['name']."</a>  Widgets.";
+	}
+	else {
+		$post_preset_message = "Presets are Disabled. This page is wrangling widgets on its own.";
+	}
+	
+	// build top and bottom of output array
+	?><div id='widget-wrangler-form' class='new-admin-panel'>
+			<div class='outer'>
 				<?php
 					// if this post isn't wrangling widgets, disable the sorting
-					if (isset($post_preset_id_old) && $post_preset_id_old != 0)
+					if (isset($post_preset) && $post_preset->id != 0)
 					{ ?>
-						<script type="text/javascript">
-							/* <![CDATA[ */
-							WidgetWrangler_disable = true;
-							/* ]]> */
-						</script>
 						<style type="text/css">
 							.ww-sortable .ww-corral-sort-item,
 							.ww-sortable .ww-item {
@@ -84,40 +96,34 @@ function ww_widget_post_form($post){
 						</style>
 						<?php
 					}
-				?>
-				<div class='outer'>
-					<div id='ww-post-preset'>
-						<span><?php print $post_preset_message; ?></span>
-						<div class='ww-presets'>
-							Widget Preset:
-							<select id='ww_post_preset' name='ww-post-preset-id-new'>
-                <option value='0'>- No Preset -</option>
-								<?php
-							    // create options
-									foreach($all_presets as $preset)
-									{
-										$selected = (!is_null($post_preset) && $preset->id == $post_preset->id) ? "selected='selected'" : '';
-										?>
-										<option value='<?php print $preset->id; ?>' <?php print $selected;?>><?php print $preset->data['name']; ?></option>
-										<?php
-									}
-								?>
-							</select>
-							<input value='<?php print $post_preset_id_old; ?>' type='hidden' name='ww-post-preset-id-old' />
-							<br /><span class='description'>Select the Widget Preset you would like to control widgets on this page.  When using a preset, you will not be able to rearrange the widgets below.  To allow this page to control it's own widgets, select '- No Preset -'.</span>
-						</div>
+				?>					
+				<div id='ww-post-preset'>
+					<span><?php print $post_preset_message; ?></span>
+					<div class='ww-presets'>
+						Widget Preset:
+						<select id='ww_post_preset' name='ww-post-preset-id-new'>
+							<option value='0'>- No Preset -</option>
+							<?php
+								// create options
+								foreach($all_presets as $preset)
+								{
+									$selected = (!is_null($post_preset) && $preset->id == $post_preset->id) ? "selected='selected'" : '';
+									?>
+									<option value='<?php print $preset->id; ?>' <?php print $selected;?>><?php print $preset->data['name']; ?></option>
+									<?php
+								}
+							?>
+						</select>
+						<input value="<?php print $post_id; ?>" type="hidden" id="ww_ajax_post_id" />
+						<br /><span class='description'>Select the Widget Preset you would like to control widgets on this page.  When using a preset, you will not be able to rearrange the widgets below.  To allow this page to control it's own widgets, select '- No Preset -'.</span>
 					</div>
-					<input value='true' type='hidden' name='widget-wrangler-edit' />
-					<input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
-					<?php print theme('ww_sortable_widgets', array('active_widgets' => $active_widgets)); ?>
-				</div><!-- .outer -->
-       </div>
-    <?php
-  }
-  else
-  {
-    print "You must save this page before adjusting widgets.";
-  }
+				</div>
+				<input value='true' type='hidden' name='widget-wrangler-edit' />
+				<input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
+				<?php print theme('ww_sortable_widgets', array('active_widgets' => $active_widgets)); ?>
+			</div><!-- .outer -->		
+		 </div>
+	<?php
 }
 
 /*
@@ -159,27 +165,37 @@ function ww_save_post($post_id)
   }
 
   // Check permissions to save widgets
-  if (isset($_POST['post_type']) && in_array($_POST['post_type'], $settings['post_types']) && !current_user_can('edit_page', $post_id)){
+  if (!current_user_can('edit_page', $post_id)){
 		return $post_id;
   }
-
-	// OK, we're authenticated: we need to find and save the data
+	
+	// default values set to null for future use
+	$current_preset_id = NULL;
+	$new_post_widgets = NULL;
+	
+	// preset id submitted by user
 	$preset_id_new = (isset($_POST['ww-post-preset-id-new'])) ? (int)$_POST['ww-post-preset-id-new'] : 0;
-	$preset_id_old = (isset($_POST['ww-post-preset-id-old'])) ? (int)$_POST['ww-post-preset-id-old'] : 0;
-	$this_post_widgets = NULL;
-		
-	// we only save widgets when the preset has not been changed. this prevents overwriting a
-	// post's widgets everytime a user changes the preset
-	if ($preset_id_new == $preset_id_old){
-		$this_post_widgets = ww_serialize_widgets($_POST['ww-widgets']);
-	}
-	// first time saving widgets, leave it blank if preset is chosen
-	else if ($preset_id_old == "new_post" && $preset_id_new > 0){
-		$this_post_widgets = array();
+	
+	// OK, we're authenticated: we need to find and save the data
+	if ($current_page_widgets = ww_get_post_widgets($post_id)){
+		// no longer null because we found widgets in ww_post_widgets for this post_id
+		$current_preset_id = $current_page_widgets->preset_id;
 	}
 	
+		
+	// we only save widgets when the preset has not been changed.
+	// this prevents overwriting a post's widgets everytime a user changes the preset
+	if ($preset_id_new == $current_preset_id || $preset_id_new == 0){
+		$new_post_widgets = ww_serialize_widgets($_POST['ww-widgets']);
+	}
+	// first time saving widgets, leave widgets blank if preset is chosen
+	else if (is_null($current_preset_id) && $preset_id_new > 0){
+		$new_post_widgets = array();
+	}
+	// else, $new_post_widgets remains null
+	
 	//save what we have
-	ww_update_post_widgets( $post_id, $preset_id_new, $this_post_widgets);
+	ww_update_post_widgets( $post_id, $preset_id_new, $new_post_widgets);
 }
 
 /*

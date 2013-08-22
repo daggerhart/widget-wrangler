@@ -4,36 +4,21 @@
 // example template hook
 function ww_admin_templates($templates)
 {
-  // template applied by files
   $templates['ww_admin_page'] = array(
-    // string of single template suggestion
-    // or array of multiple template suggestions
     'files' => 'admin-page.php',
-
-    // location of the default template if nothing is found
     'default_path' => dirname(__FILE__).'/templates',
-
-    // optional arguments to be passed to the themeing function
     'arguments' => array(
-        // must be key => value pairs
         'title' => '',
         'content' => '',
     ),
   );
-	
-  // template applied by files
   $templates['ww_sortable_widgets'] = array(
-    // optional arguments to be passed to the themeing function
     'arguments' => array(
-        // must be key => value pairs
-        'active_widgets' => array(),
+      'active_widgets' => array(),
     ),
   );
   return $templates;
 }
-//ww_create_sortable_widgets( $active_widgets)
-
-// hook your function into the wordpress filter
 add_filter('tw_templates', 'ww_admin_templates');
 
 /*
@@ -61,11 +46,15 @@ function ww_display_admin_panel()
 	
 	// record some info for easy use later
 	$ww_page['admin'] = array(
-		'is_post_edit' => ((isset($post_id) && in_array(get_post_type($post_id), $settings['post_types'])) || (isset($_GET['post_type']) && in_array($_GET['post_type'], $settings['post_types']))),
-		'is_widget_edit' => ((isset($post_id) && get_post_type($post_id) == "widget") || (isset($_GET['post_type']) && $_GET['post_type'] == "widget")),
+		'post_id' => (isset($post_id)) ? $post_id : NULL,
+		'post_id_is_type_allowed' => (isset($post_id) && in_array(get_post_type($post_id), $settings['post_types'])),
+		'post_type_is_type_allowed' => (isset($_GET['post_type']) && in_array($_GET['post_type'], $settings['post_types'])),
 		'is_admin_page' => (isset($_GET['page']) && (in_array($_GET['page'], $ww_admin_pages))),
-		'post_id' => (isset($post_id)) ? $post_id : 0,
+		'is_widget_edit' => ((isset($post_id) && get_post_type($post_id) == "widget") || (isset($_GET['post_type']) && $_GET['post_type'] == "widget")),
 	);
+	$ww_page['admin']['is_post_edit'] = ($ww_page['admin']['post_id_is_type_allowed'] || $ww_page['admin']['post_type_is_type_allowed']);
+	//$ww_page['admin']['is_post_edit'] = ((isset($post_id) && in_array(get_post_type($post_id), $settings['post_types'])) || (isset($_GET['post_type']) && in_array($_GET['post_type'], $settings['post_types'])));
+	
 	
 	
   // add admin css
@@ -90,17 +79,49 @@ function ww_display_admin_panel()
 		}
 	}
 
-	// shortcode listbox tinymce button
-	if ($ww_page['admin']['is_post_edit'] &&
-			isset($settings['enable_shortcode_tinymce']) &&
-			$settings['enable_shortcode_tinymce'] == 1)
-	{
+	if ($ww_page['admin']['is_post_edit']) {
+		// shortcode listbox tinymce button
+		if (isset($settings['enable_shortcode_tinymce']) &&
+				$settings['enable_shortcode_tinymce'] == 1)
+		{
 			include_once WW_PLUGIN_DIR.'/admin/shortcode.tinymce.inc';
 			$ww_shortcode_tinymce = new WidgetWrangler_ShortcodeTinymce();
 			add_action('admin_head', array($ww_shortcode_tinymce, 'addWidgetListbox'));
+		}
 	}
+	
+	// admin ajax
+	add_action( 'wp_ajax_nopriv_ww_form_ajax', 'ww_form_ajax' );
+	add_action( 'wp_ajax_ww_form_ajax', 'ww_form_ajax' );
 }
 
+/*
+ * Ajax form templates
+ */
+function ww_form_ajax() {
+	if (isset($_POST['op'])){
+		switch ($_POST['op']){
+			case 'replace_edit_page_widgets':
+				
+				// legit post ids only
+				if (isset($_POST['post_id']) && is_numeric($_POST['post_id']) && $_POST['post_id'] > 0)
+				{
+					$ajax['post_id'] = $_POST['post_id'];
+					
+					if (isset($_POST['preset_id']) && is_numeric($_POST['preset_id']) && $_POST['preset_id'] > 0){
+						$ajax['preset_id'] = $_POST['preset_id'];
+					}
+
+					ob_start();
+						ww_widget_post_form(NULL, $ajax);
+					$output = ob_get_clean();
+
+					print $output;
+				}
+				break;
+		}
+	}
+}
 
 /* ================================ Page handling */
 /*
@@ -281,6 +302,11 @@ function ww_sortable_widgets_js(){
                   array('jquery-ui-core', 'jquery-ui-sortable'),
                   false,
                   true);
+  wp_enqueue_script('ww-post-ajax-js',
+                  plugins_url('/js/ajax.js', WW_PLUGIN_DIR.'/admin/js' ),
+                  array('jquery-ui-core', 'jquery-ui-sortable'),
+                  false,
+                  true);
 	$data = ww_json_data();
 	wp_localize_script( 'ww-sortable-widgets-js', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.$data.';') );	
 }
@@ -299,6 +325,7 @@ function ww_post_type_widget_js(){
 function ww_json_data() {
 	$WidgetWrangler = array();
 	$WidgetWrangler['data'] = array(
+		'ajaxURL' => admin_url( 'admin-ajax.php' ),
 		'allWidgets' => array_values(ww_get_all_widgets()),
 	);
 	return json_encode($WidgetWrangler);

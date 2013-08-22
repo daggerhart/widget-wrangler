@@ -8,7 +8,6 @@ jQuery(document).ready(function(){
 			return (ask) ? true : false;
 	});
 	
-	
 	jQuery('#ww-corrals-sort-list').sortable({
 		update: function(event,ui){
 			var all_corrals = jQuery('#ww-corrals-sort-list').children('.ww-corral-sort-item');
