@@ -14,7 +14,7 @@ function ww_corral_widgets() {
   register_widget( 'WidgetWrangler_Corral_Widget' );
 }
 /**
- * Widget Wrangler Corral Widget class.
+ * Widget Wrangler Sidebar Widget class.
  * This class handles everything that needs to be handled with the widget:
  * the settings, form, display, and update.  Nice!
  *
@@ -27,27 +27,31 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
   function WidgetWrangler_Corral_Widget()
   {
     // Widget settings. 
-    $widget_ops = array( 'classname' => 'widget-wrangler-corral', 'description' => __('A single Widget Wrangler Corral', 'corral') );
-    
+    $widget_ops = array( 'classname' => 'widget-wrangler-sidebar', 'description' => __('A single Widget Wrangler Corral', 'corral') );
     // Widget control settings. 
-    $control_ops = array( 'id_base' => 'widget-wrangler-corral' );
+    $control_ops = array( 'id_base' => 'widget-wrangler-sidebar' );
     
-    // Create the widget. 
-    $this->WP_Widget( 'widget-wrangler-corral', __('Widget Wrangler - Corral', 'widgetwranglercorral'), $widget_ops, $control_ops );
+    // Create the widget.  keep "widget-wrangler-sidebar" for backwards compat. 
+    $this->WP_Widget( 'widget-wrangler-sidebar', __('Widget Wrangler - Corral', 'widgetwranglercorral'), $widget_ops, $control_ops );
   }
   /**
    * How to display the widget on the screen.
    */
   function widget( $args, $instance )
   {
-    extract( $args );
+		// 1.x backwards compat
+		if (isset($instance['sidebar']) && !isset($instance['corral'])){
+			$instance['corral'] = ww_get_corral_id_by_slug($instance['sidebar']);
+		}
+    
+		extract( $args );
     ww_dynamic_corral($instance['corral']);
   }
 	/**
 	 * Update the widget settings.
 	 */
 	function update( $new_instance, $old_instance )
- {
+  {
     $instance = $old_instance; 
     $instance['title'] = $new_instance['title'];
     $instance['corral'] = $new_instance['corral'];
@@ -60,12 +64,30 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
    */
   function form( $instance )
   {
+		// 1.x backwards compat
+		if (isset($instance['sidebar']) && !isset($instance['corral'])){
+			$instance['corral'] = ww_get_corral_id_by_slug($instance['sidebar']);
+		}
+		
 		$corrals = ww_get_all_corrals();
-    $exists = 	isset($corrals[$instance['corral']]) ? true : false;
-		//$wp_widget_title = ($exists) ? __('Widget Wrangler - Corral', 'widgetwranglercorral') : __('WW Corral - '.$title, 'widgetwranglercorral');
-		$input_title =  ($exists) ? $corrals[$instance['corral']]['name'] : "!Error!";
+    $new = (count($instance)) ? false : true;
+		$exists = 	(isset($instance['corral']) && isset($corrals[$instance['corral']])) ? true : false;
+			
+		$input_title = "!Error!";
+		if ($new) {
+			$input_title = "New";
+		}
+		else if ($exists) {
+			$input_title = $corrals[$instance['corral']]['name'];
+		}
+		
+		
+		
     // Set up some default widget settings. 
-    $defaults = array( 'title' => __('Widget Wrangler - Corral', 'widgetwranglercorral'), 'corral' => '' );
+    $defaults = array(
+			'title' => __('Widget Wrangler - Corral', 'widgetwranglercorral'),
+			'corral' => ''
+		);
     $instance = wp_parse_args( (array) $instance, $defaults );
     ?>
     <?php // Widget Title: Hidden Input ?>
@@ -74,7 +96,7 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
     <?php // Corral: Select Box ?>
     <p>
 			<?php
-				if (!$exists)
+				if (!$exists && !$new)
 				{ ?>
 					<p class="ww-error"><strong>!Error!</strong>: The previously selected corral does not exist. Please choose another and save.</p>
 					<?php

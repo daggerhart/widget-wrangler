@@ -35,12 +35,17 @@ if (!defined('WW_PLUGIN_URL'))
 if(!function_exists('theme')){
   include_once WW_PLUGIN_DIR.'/template-wrangler.inc';
 }
-		
+
+// widget post type
+$ww = NULL;
+// details about the current widgets loaded
+$ww_page = NULL;
+
 // common functions for front and back ends
 include_once WW_PLUGIN_DIR.'/common.inc';
 include_once WW_PLUGIN_DIR.'/hooks.inc';
 
-// functions that control display logic of widgets and output
+// functions that control display of widgets
 include_once WW_PLUGIN_DIR.'/display.inc';
 
 // add the widget post type class and initiate it
@@ -52,8 +57,25 @@ include_once WW_PLUGIN_DIR.'/post_type-widget.widget.inc';
 // the corrals widget allows the use of corrals within normal WP sidebars
 include_once WW_PLUGIN_DIR.'/corral.widget.inc';
 
-$ww = NULL;
-$ww_page = NULL;
+/*
+ * Make the loaded page's widgets into a global property
+ */ 
+function ww_set_page_widgets() {
+	global $ww_page;
+	//print '<pre>';
+	$ww_page['widgets'] = ww_find_page_widgets();
+	
+	//global $wp_query;
+	//print_r($ww_page);
+	//print_r($wp_query);print '</pre>';
+}
+add_action( 'wp', 'ww_set_page_widgets');
+
+/*
+ * have to conditionally load a widget earlier than init
+ */
+//function ww_plugins_loaded(){}
+//add_action( 'plugins_loaded', 'ww_plugins_loaded');
 
 /*
  * Initialize the post type
@@ -72,17 +94,6 @@ function widget_wrangler_init() {
 
 }
 add_action( 'init', 'widget_wrangler_init');
-
-/*
- * have to conditionally load a widget earlier than init
- */
-function ww_plugins_loaded(){
-	$settings = ww_get_settings();
-	if (isset($settings['sidebar_widget']) && $settings['sidebar_widget'] == 1){
-		include_once WW_PLUGIN_DIR.'/sidebar.widget.inc';
-	}
-}
-add_action( 'plugins_loaded', 'ww_plugins_loaded');
 
 /*
  * Admin initialize
@@ -116,34 +127,6 @@ function ww_menu() {
   //$debug    = add_submenu_page( 'edit.php?post_type=widget', 'Debug Widgets',  'Debug',          'manage_options', 'ww-debug',    'ww_debug_page');
 }
 add_action( 'admin_menu', 'ww_menu');
-
-/*
- * Shortcode support for all widgets
- *
- * @param array $atts Attributes within the executed shortcode.  'id' => widget->ID
- * @return string HTML for a single themed widget
- */
-function ww_single_widget_shortcode($atts) {
-  $short_array = shortcode_atts(array('id' => ''), $atts);
-  extract($short_array);
-  return ww_theme_single_widget(ww_get_single_widget($id));
-}
-add_shortcode('ww_widget','ww_single_widget_shortcode');
-
-/*
- * Shortcode support for all widgets
- *
- * @param array $atts Attributes within the executed shortcode.  'id' => corral id
- * @return string HTML for a single themed corral
- */
-function ww_single_corral_shortcode($atts) {
-  $short_array = shortcode_atts(array('id' => ''), $atts);
-  extract($short_array);
-	ob_start();
-		ww_dynamic_corral($id);
-  return ob_get_clean();
-}
-add_shortcode('ww_corral','ww_single_corral_shortcode');
 
 /*
  * Make sure to show our plugin on the admin screen

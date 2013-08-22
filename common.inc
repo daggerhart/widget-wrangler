@@ -1,16 +1,6 @@
 <?php
 
 /*
- * Make the loaded page's widgets into a global property
- */ 
-function ww_set_page_widgets() {
-	global $ww_page;
-
-	$ww_page['widgets'] = ww_find_page_widgets();
-}
-add_action( 'wp', 'ww_set_page_widgets');
-
-/*
  * Get which widgets belong on the current page/route loaded
  */
 function ww_find_page_widgets() {
@@ -21,6 +11,8 @@ function ww_find_page_widgets() {
   $preset_types = ww_get_all_preset_types();
 	$settings = ww_get_settings();
 	$op = ww_get_page_op();
+	
+	//print $op;
 	
 	// give single-page widgets a chance first
   switch ($op) {
@@ -270,6 +262,36 @@ function ww_check_user_role( $role, $user_id = null ) {
 	}
   return in_array( $role, (array) $user->roles );
 }
+
+
+/*
+ * Shortcode support for all widgets
+ *
+ * @param array $atts Attributes within the executed shortcode.  'id' => widget->ID
+ * @return string HTML for a single themed widget
+ */
+function ww_single_widget_shortcode($atts) {
+  $short_array = shortcode_atts(array('id' => ''), $atts);
+  extract($short_array);
+  return ww_theme_single_widget(ww_get_single_widget($id));
+}
+add_shortcode('ww_widget','ww_single_widget_shortcode');
+
+/*
+ * Shortcode support for all widgets
+ *
+ * @param array $atts Attributes within the executed shortcode.  'id' => corral id
+ * @return string HTML for a single themed corral
+ */
+function ww_single_corral_shortcode($atts) {
+  $short_array = shortcode_atts(array('id' => ''), $atts);
+  extract($short_array);
+	ob_start();
+		ww_dynamic_corral($id);
+  return ob_get_clean();
+}
+add_shortcode('ww_corral','ww_single_corral_shortcode');
+
 
 /* ==================================== HELPER FUNCTIONS ===== */
 // http://codex.wordpress.org/Conditional_Tags

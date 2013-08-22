@@ -19,8 +19,7 @@ function ww_settings_save($post)
 	$_POST['settings']['exclude_from_search'] = (isset($_POST['settings']['exclude_from_search']) && $_POST['settings']['exclude_from_search'] == "on") ? 1 : 0;
   $_POST['settings']['disable_autosave'] = (isset($_POST['settings']['disable_autosave']) && $_POST['settings']['disable_autosave'] == "on") ? 1 : 0;
   $_POST['settings']['enable_shortcode_tinymce'] = (isset($_POST['settings']['enable_shortcode_tinymce']) && $_POST['settings']['enable_shortcode_tinymce'] == "on") ? 1 : 0;
-  $_POST['settings']['sidebar_widget'] = (isset($_POST['settings']['sidebar_widget']) && $_POST['settings']['sidebar_widget'] == "on") ? 1 : 0;
-  
+	//$_POST['settings']['NEWSETTING'] = (isset($_POST['settings']['NEWSETTING']) && $_POST['settings']['NEWSETTING'] == "on") ? 1 : 0;
 	
 	$settings = serialize($_POST['settings']);
   
@@ -44,7 +43,7 @@ function ww_settings_form() {
 	$exclude_from_search_checked = (isset($settings['exclude_from_search']) && $settings['exclude_from_search'] == 1) ? "checked='checked'" : "";
 	$disable_autosave_checked = (isset($settings['disable_autosave']) && $settings['disable_autosave'] == 1) ? "checked='checked'" : "";
 	$enable_shortcode_tinymce_checked = (isset($settings['enable_shortcode_tinymce']) && $settings['enable_shortcode_tinymce'] == 1) ? "checked='checked'" : "";
-	$sidebar_widget_checked = (isset($settings['sidebar_widget']) && $settings['sidebar_widget'] == 1) ? "checked='checked'" : "";
+	//$new_setting_checked = (isset($settings['new_setting']) && $settings['new_setting'] == 1) ? "checked='checked'" : "";
 	
 	// Get all extra post types
 	$args = array('public'   => true, '_builtin' => false); 
@@ -55,21 +54,6 @@ function ww_settings_form() {
 	unset($post_types['widget']);
 	ksort($post_types);
 	
-	/*  Access control TODO
-	global $wp_roles;
-	if($settings['capabilities'] == 'roles') {
-		$role_checked =  "checked";
-		foreach($settings['roles'] as $role => $value)
-		{
-			if ($value == "on")
-			{
-				// make a variable as the role name and st it to a value
-				$var = $role."_checked";
-				$$var = "checked";
-			}
-		}
-	}
-	*/
 	ob_start();
   ?>
 		<form action="edit.php?post_type=widget&page=ww-settings&noheader=true" method="post">
@@ -151,14 +135,6 @@ function ww_settings_form() {
 						<label><input name="settings[advanced]" type="text" size="20" value="<?php print (isset($settings['advanced'])) ? $settings['advanced'] : ""; ?>"/> Capability Type</label> 
 						<br />
 					</div>
-					
-					<h4 class="ww-settings-title">WW 1.x Sidebar Widget</h4>
-					<p class="ww-checkboxes">
-						<label class="ww-checkbox">
-							<input name="settings[sidebar_widget]" type="checkbox" <?php print $sidebar_widget_checked; ?> /> -  If checked, the WW Sidebar Widget class will be loaded.  This is checked by default if you upgraded from Widget Wrangler 1.4.x, but only necessary if still using "WW Sidebar" wordpress widgets in your wordpress sidebars.  Once you have replaced all "WW Sidebar" widgets with "Widget Wrangler - Corral" widgets, you are safe to disable this. 
-						</label>
-						<div class="ww-clear-gone">&nbsp;</div>
-					</p>
 										
 				</div>
 				
