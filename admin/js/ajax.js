@@ -6,7 +6,10 @@ WidgetWrangler.ajax = {
 	
 	replace_edit_page_widgets: function() {
 	  // show throbber
-		//jQuery('#query-preview-controls').removeClass('query-preview-inactive').addClass('query-preview-active');
+		jQuery('.ajax-working').show();
+		
+		// store original message
+		var original_message = jQuery('#ww-post-preset-message').html();
 		
 		// prepare post data
 		var post_data_form = {
@@ -24,23 +27,27 @@ WidgetWrangler.ajax = {
 			data: post_data_form,
 			//dataType: 'json',
 			success: function(data){
+				// replace panel contents with new widgets
 				jQuery('#widget-wrangler-form').parent().html(data);
+				
+				// restore original messages
+				jQuery('#ww-post-preset-message').html(original_message);
+				WidgetWrangler.sortable.message();
+				
 				// disable the wrangler for presets, enable for no preset
 				WidgetWrangler.is_disabled = (post_data_form.preset_id) ? true : false;
+				
 				// re init
 				WidgetWrangler.sortable.init();
 			},
-			error: function(s,m) {
-				
-			}
+			error: function(s,m) {}
 		});
-		
-		// handle enabled vs disabled 
-
-		
-		// hide throbber
-		//jQuery('#query-preview-controls').removeClass('query-preview-active').addClass('query-preview-inactive');
+	},
+	
+	changes_message: function(){
+		jQuery('#ww-post-edit-message').show();
 	}
+	
 };
 
 jQuery(document).ready(function(){

@@ -27,12 +27,13 @@ function ww_check_version(){
 
 function ww_upgrade_1x_to_2x(){
   global $wpdb;
-
+	include_once WW_PLUGIN_DIR.'/admin/install.inc';
+	
   // create new tables
   ww_post_widgets_table();
   ww_widget_data_table();
   ww_presets_table();
-  ww_widget_preset_term_relationships_table();
+  ww_preset_term_relationships_table();
   ww_default_presets();
   
   $posts_table = $wpdb->prefix.'posts';
@@ -44,7 +45,9 @@ function ww_upgrade_1x_to_2x(){
   $preset_terms_table   = $wpdb->prefix.'ww_preset_term_relationship';
 
 
-  // get all widgets and convert their meta fields to the new ones
+  /*
+	 * Get all widgets and convert their meta fields to the new ones
+	 */ 
   $sql = 'SELECT ID, post_type FROM '.$posts_table.' WHERE post_type = "widget"';
   $rows = $wpdb->get_results($sql);
   foreach($rows as $row){
@@ -79,49 +82,45 @@ function ww_upgrade_1x_to_2x(){
     $data = array();
     $data['rewrite-output'] = $ww_adv_enabled->meta_value;
     $data['filter-content'] = $ww_wpautop->meta_value;
-    $data['adv-template'] = $ww_adv_template->meta_value;
-    $data['custom-output'] = $ww_parse->meta_value;
+    $data['adv-template'] 	= $ww_adv_template->meta_value;
+    $data['custom-output'] 	= $ww_parse->meta_value;
 
     $insert_data = array(
       'post_id' => $row->ID,
       'type' => 'standard',
-      'data' => serialize($new_data),
+      'data' => serialize($data),
     );
 
-    $wpdb->insert($widget_data_table, $insert_data, array('%d', '%s', '#s'));
-
-    // @TODO: test for success
-    if (1){
+    // test for success
+    if ($wpdb->insert($widget_data_table, $insert_data, array('%d', '%s', '%s'))){
       // delete old postmeta data
       $delete = 'DELETE FROM '.$postmeta_table.'
                   WHERE post_id = '.$row->ID.'
                   AND meta_key IN("ww-adv-enabled","ww-wpautop","ww-adv-template","ww-parse")';
-      $wpdb->query($delete);
+      //$wpdb->query($delete);
     }
   }
 
   // get the default widgets and update the preset
   if($default_widgets = get_option('ww_default_widgets')) {
-    $default_data = array(
-      'widgets' => $default_widgets,
-    );
+    $default_data = array( 'widgets' => $default_widgets,);
     $where = array('id' => 1);
-    $wpdb->update( $widget_presets_table, $default, $where);
+		
+    $wpdb->update( $widget_presets_table, $default_data, $where);
 
     // clean up old data
-    delete_option('ww_default_widgets');
+    //delete_option('ww_default_widgets');
   }
 
   // get the postspage widgets and update the preset
   if($postspage_widgets = get_option('ww_postspage_widgets')){
-    $postspage_data = array(
-      'widgets' => $postspage_widgets,
-    );
+    $postspage_data = array( 'widgets' => $postspage_widgets,);
     $where = array('id' => 2);
+		
     $wpdb->update( $widget_presets_table, $postspage_data, $where);
 
     // clean up old data
-    delete_option('ww_postspage_widgets');
+    //delete_option('ww_postspage_widgets');
   }
 
   /*
@@ -137,25 +136,43 @@ function ww_upgrade_1x_to_2x(){
 			'preset_id' => 0,
       'widgets' => $row->meta_value,
     );
-    $wpdb->insert($post_widgets_table, $insert, array('%d','%s'));
-
-    // clean up old data
-    $wpdb->query("DELETE FROM ".$postmeta_table."
-                  WHERE meta_id = ".$row->meta_id."
-                  AND post_id = ".$row->post_id."
-                  AND meta_key = 'ww_post_widgets'");
+    
+		if ($wpdb->insert($post_widgets_table, $insert, array('%d','%s'))) {
+			// clean up old data
+			//$wpdb->query("DELETE FROM ".$postmeta_table." WHERE meta_id = ".$row->meta_id."	AND post_id = ".$row->post_id."	AND meta_key = 'ww_post_widgets'");
+		}
   }
 
+	/*
+	 * Sidebars -> Corrals
+	 */
+	$sidebars = get_option('ww_sidebars');
+	if ($sidebars){
+		$sidebars = unserialize($sidebars);
+	}
+	
+	$corrals = array();
+	$i = 1;
+	foreach($sidebars as $slug => $name){
+		$corrals[$i] = array(
+			'id' => $i,
+			'slug' => $slug,
+			'name' => $name,
+		);
+		$i++;
+	}
+	update_option('ww_corrals', serialize($corrals));
+	//delete_option('ww_sidebars');
+	
   /*
    * Settings
    */
   $settings = ww_get_settings();
-  // make sure we handle default post_types
-  if (!is_array($settings['post_types'])){
-    $settings['post_types'] = array('page' => 'page', 'post' => 'post');
-		$settings['exclude_from_search'] = 1;
-    ww_settings_save(array('settings' => serialize($settings)));
-  }
+  $default_settings = ww_settings_set_default();
+	// provide defaults
+	$settings = array_merge_recursive($settings, $default_settings);
+
+	ww_settings_save(array('settings' => $settings));
 
 	// update version
 	update_option('ww_version', WW_VERSION);

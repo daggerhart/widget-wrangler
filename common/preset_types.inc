@@ -52,7 +52,9 @@ function ww_default_preset_types($preset_types){
 add_filter('ww_preset_types', 'ww_default_preset_types');
 
 /*
+ * Execute standard preset type
  *
+ * @return array of widgets
  */
 function ww_preset_standard_execute($op, &$widgets_array){
 	global $post;
@@ -80,7 +82,9 @@ function ww_preset_standard_execute($op, &$widgets_array){
 }
 
 /*
+ * Execute term preset type
  *
+ * @return array of widgets
  */
 function ww_preset_term_execute($op, &$widgets_array){
 	
@@ -122,7 +126,9 @@ function ww_preset_term_execute($op, &$widgets_array){
 }
 
 /*
+ * Execute default preset type
  *
+ * @return array of widgets
  */
 function ww_preset_default_execute($op, &$widgets_array){
 	switch($op){
@@ -148,7 +154,9 @@ function ww_preset_default_execute($op, &$widgets_array){
 }
 
 /*
- * 
+ * Form to display on the admin presets page
+ *		- use data[my_key] for form item names
+ * print out preset form
  */
 function ww_preset_term_form($preset)
 { ?>

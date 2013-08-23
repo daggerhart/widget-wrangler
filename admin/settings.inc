@@ -16,12 +16,12 @@ function ww_settings_reset_widgets()
 function ww_settings_save($post)
 {
 	// handle exclude from search
-	$_POST['settings']['exclude_from_search'] = (isset($_POST['settings']['exclude_from_search']) && $_POST['settings']['exclude_from_search'] == "on") ? 1 : 0;
-  $_POST['settings']['disable_autosave'] = (isset($_POST['settings']['disable_autosave']) && $_POST['settings']['disable_autosave'] == "on") ? 1 : 0;
-  $_POST['settings']['enable_shortcode_tinymce'] = (isset($_POST['settings']['enable_shortcode_tinymce']) && $_POST['settings']['enable_shortcode_tinymce'] == "on") ? 1 : 0;
-	//$_POST['settings']['NEWSETTING'] = (isset($_POST['settings']['NEWSETTING']) && $_POST['settings']['NEWSETTING'] == "on") ? 1 : 0;
+	$post['settings']['exclude_from_search'] = (isset($post['settings']['exclude_from_search']) && $post['settings']['exclude_from_search'] == "on") ? 1 : 0;
+  $post['settings']['disable_autosave'] = (isset($post['settings']['disable_autosave']) && $post['settings']['disable_autosave'] == "on") ? 1 : 0;
+  $post['settings']['enable_shortcode_tinymce'] = (isset($post['settings']['enable_shortcode_tinymce']) && $post['settings']['enable_shortcode_tinymce'] == "on") ? 1 : 0;
+	//$post['settings']['NEWSETTING'] = (isset($post['settings']['NEWSETTING']) && $post['settings']['NEWSETTING'] == "on") ? 1 : 0;
 	
-	$settings = serialize($_POST['settings']);
+	$settings = serialize($post['settings']);
   
   // save to wordpress options
   update_option("ww_settings", $settings);

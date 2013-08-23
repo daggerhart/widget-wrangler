@@ -27,6 +27,10 @@ WidgetWrangler.sortable.update_widget_weights = function(){
 	});
 }
 
+WidgetWrangler.sortable.message = function() {
+	jQuery('#ww-post-edit-message').show();
+}
+
 WidgetWrangler.sortable.refresh_all = function() {
 	// Auto change sort order when drag and drop
 	var sortable_lists = jQuery("ul.ww-sortable");
@@ -42,6 +46,7 @@ WidgetWrangler.sortable.refresh_all = function() {
 			});
 			WidgetWrangler.sortable.toggle_no_widgets();
 			WidgetWrangler.sortable.update_widget_weights();
+			WidgetWrangler.sortable.message();
 		}
 	}).disableSelection();
 	

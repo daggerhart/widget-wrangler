@@ -2,7 +2,7 @@
 /****************************************************
  * Common
  ****************************************************/
-#content_WWList_text {
+#content_WWList_text { /* tinymce listbox */
 	font-size: 11px;
 	line-height: 22px;
 	width: 75px;
@@ -80,6 +80,25 @@ hr.ww-hr {
 .ww-textarea-meta,
 .ww-textarea-meta textarea {
 	font-family: monospace;
+}
+.ajax-working {
+	background: transparent url('../images/throbber.gif') top left no-repeat;
+	height: 16px;
+	width: 16px;
+	line-height: 16px;
+	font-size: 16px;
+	padding: 0px;
+	margin: 0px;
+	display: none;
+}
+#ww-post-edit-message {
+	display: none;
+	padding: 4px 8px;
+	margin: 6px 0px 12px;
+	background: #FFFFEE;
+	border: 2px solid #FFFF66;
+	font: italic normal 11px/22px "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+	color: #333;
 }
 /******************************************************
  * Corrals
@@ -212,7 +231,10 @@ label.ww-preset-checkbox input {
 }
 #ww-post-preset { border-bottom: 1px solid #666;padding-top: 8px; }
 #ww-post-preset p { padding-left: 20px; }
-#ww-post-preset dt { font-weight: bold; }
+
+#ww-post-preset .description {
+	padding: 12px 20px;
+}
 
 /******************************************************
  * Widgets

@@ -84,6 +84,9 @@ function ww_widget_post_form($post, $ajax = NULL){
 	// build top and bottom of output array
 	?><div id='widget-wrangler-form' class='new-admin-panel'>
 			<div class='outer'>
+				<input value='true' type='hidden' name='widget-wrangler-edit' />
+				<input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
+				<input value="<?php print $post_id; ?>" type="hidden" id="ww_ajax_post_id" />				
 				<?php
 					// if this post isn't wrangling widgets, disable the sorting
 					if (isset($post_preset) && $post_preset->id != 0)
@@ -96,11 +99,12 @@ function ww_widget_post_form($post, $ajax = NULL){
 						</style>
 						<?php
 					}
-				?>					
+				?>
 				<div id='ww-post-preset'>
-					<span><?php print $post_preset_message; ?></span>
+					<span id="ww-post-preset-message"><?php print $post_preset_message; ?></span>
 					<div class='ww-presets'>
-						Widget Preset:
+						<span>Widget Preset:</span>
+						
 						<select id='ww_post_preset' name='ww-post-preset-id-new'>
 							<option value='0'>- No Preset -</option>
 							<?php
@@ -114,12 +118,16 @@ function ww_widget_post_form($post, $ajax = NULL){
 								}
 							?>
 						</select>
-						<input value="<?php print $post_id; ?>" type="hidden" id="ww_ajax_post_id" />
-						<br /><span class='description'>Select the Widget Preset you would like to control widgets on this page.  When using a preset, you will not be able to rearrange the widgets below.  To allow this page to control it's own widgets, select '- No Preset -'.</span>
+						<span class="ajax-working">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+						
+						<div class='description'>
+							<span>Select the Widget Preset you would like to control widgets on this page.  When using a preset, you will not be able to rearrange the widgets below.  To allow this page to control it's own widgets, select '- No Preset -'.</span>							
+						</div>
 					</div>
 				</div>
-				<input value='true' type='hidden' name='widget-wrangler-edit' />
-				<input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
+				
+				<div id='ww-post-edit-message'>* Widget changes will not be updated until you save this post.</div>
+				
 				<?php print theme('ww_sortable_widgets', array('active_widgets' => $active_widgets)); ?>
 			</div><!-- .outer -->		
 		 </div>

@@ -38,24 +38,27 @@ if(!function_exists('theme')){
 
 // widget post type
 $ww = NULL;
+
 // details about the current widgets loaded
 $ww_page = NULL;
 
 // common functions for front and back ends
-include_once WW_PLUGIN_DIR.'/common.inc';
-include_once WW_PLUGIN_DIR.'/hooks.inc';
+include_once WW_PLUGIN_DIR.'/common/functions.inc';
 
-// functions that control display of widgets
-include_once WW_PLUGIN_DIR.'/display.inc';
+// new hooks provided to wordpress for widgetwrangler
+include_once WW_PLUGIN_DIR.'/common/preset_types.inc';
+
+// functions that control display of widgets and corrals
+include_once WW_PLUGIN_DIR.'/common/display.inc';
 
 // add the widget post type class and initiate it
-include_once WW_PLUGIN_DIR.'/post_type-widget.inc';
+include_once WW_PLUGIN_DIR.'/common/post_type-widget.inc';
 
 // the widget for the post_type-widget allows the use widget wrangler widgets within normal WP sidebars
-include_once WW_PLUGIN_DIR.'/post_type-widget.widget.inc';
+include_once WW_PLUGIN_DIR.'/common/post_type-widget.widget.inc';
 
 // the corrals widget allows the use of corrals within normal WP sidebars
-include_once WW_PLUGIN_DIR.'/corral.widget.inc';
+include_once WW_PLUGIN_DIR.'/common/corral.widget.inc';
 
 /*
  * Make the loaded page's widgets into a global property
@@ -111,7 +114,7 @@ function ww_admin_init() {
   ww_check_version();
  
   // determine whether to display the admin panel
-  // handles adding some css and the js
+  // handles adding css and js
   ww_display_admin_panel();
 }
 add_action( 'admin_init', 'ww_admin_init' );
