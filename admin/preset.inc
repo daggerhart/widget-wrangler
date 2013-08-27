@@ -123,16 +123,16 @@ function ww_preset_form() {
 	
 	// add additional corrals to output
 	if (is_array($all_widgets) && count($all_corrals) > 0 && count($all_widgets) > 0){
-		$sortable_widgets = theme('ww_sortable_widgets', array('active_widgets' => $preset_widgets));
+		//$sortable_widgets = theme('ww_sortable_widgets', array('active_widgets' => $preset_widgets));
 	}
 	
-	// sort each corral
+	/*/ sort each corral
 	if(isset($sortable_widgets['active']) && is_array($sortable_widgets['active'])){
 		foreach($sortable_widgets['active'] as $corral => $unsorted_widgets){
 			ksort($sortable_widgets['active'][$corral]);  
 		}
 	}
-	
+	// */
 	ob_start();
 	?>
 	<form action='edit.php?post_type=widget&page=ww-presets&action=update&noheader=true' method='post' name='widget-wrangler-form'>				
@@ -219,7 +219,7 @@ function ww_preset_form() {
 					<div id="preset-widgets">
 						<?php
 							// themes draggable widgets
-							print ww_theme_sortable_widgets($sortable_widgets);
+							print theme_ww_sortable_widgets($preset_widgets);
 						?>
 					</div>
 			</div>

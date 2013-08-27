@@ -164,7 +164,7 @@ function ww_presets_page_handler()
 		
 	// presets edit form
 	$args = array(
-		'title' => 'Edit Widget Preset <em>'. $this_preset->data['name'] .'</em>',
+		'title' => 'Edit Page Preset <em>'. $this_preset->data['name'] .'</em>',
 		'content' => ww_preset_form(),
 	);
 	print theme('ww_admin_page', $args);

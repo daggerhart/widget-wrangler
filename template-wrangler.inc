@@ -1,12 +1,54 @@
 <?php
 /*
- * Template Wrangler 1.2
+ * Template Wrangler 2.0
  *
+ * version = 2.0
+ * version_safe = 2
+ * 
  * Functions
  * theme() - template some arguments
  *
  */
 
+// ensure we only load this test once
+// if ever there are 2 of the same version in separate plugins,
+// 		we won't define the same function twice
+if (!function_exists('tw_test_include_2')){
+	
+ /*
+  * Test function has unique function name
+  */
+function tw_test_include_2() {
+	$this_version = 2.0;
+	
+	// option key
+	$last_version = get_option('templatewrangler_version', false);
+	$function_loaded = (function_exists('theme'));
+	$load_this_version = false;
+	
+	// version test
+	if (!$last_version || ($this_version > (float) $last_version)) {
+		// older version has existed
+		if ($function_loaded) {
+			// an older version loads faster than this
+			// make ours the new option
+			update_option('templatewrangler_version', $this_version);
+			// nothing else we can do, $load_this_version remains false
+		}
+		else {
+			// this is the newest version, nothing loaded
+			$load_this_version = true;
+		}
+	}
+	// else, this version is old and $load_this_version remains false
+	return $load_this_version;
+}
+
+} // end conditional test function
+
+// test unique version 
+if (tw_test_include_2()) {
+	
 /*
  * Main Templating function
  *
@@ -17,7 +59,7 @@
  */
 function theme($template_name = '', $arguments = array())
 {
-	
+	// we need an array
   if(is_null($arguments)){
     $arguments = array();
   }
@@ -26,7 +68,7 @@ function theme($template_name = '', $arguments = array())
   $templates = tw_templates();
 
   // make sure given templates key exists
-  if(is_array($templates[$template_name]))
+  if(isset($templates[$template_name]) && is_array($templates[$template_name]))
   {
     // template we're using
     $template = $templates[$template_name];
@@ -56,7 +98,7 @@ function theme($template_name = '', $arguments = array())
     }
 
     // proceed if file found
-    if($template['found_path'] != '')
+    if(isset($template['found_path']) && $template['found_path'] != '')
     {
       // allow late modifications
       do_action_ref_array('tw_pre_render_template', array(&$template));
@@ -185,6 +227,10 @@ function tw_templates(){
   $templates = apply_filters('tw_templates', array());
   return $templates;
 }
+
+
+} // end version test
+
 
 /*
  * EXAMPLES
