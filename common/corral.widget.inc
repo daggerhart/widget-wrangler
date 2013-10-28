@@ -45,7 +45,14 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 		}
     
 		extract( $args );
-    ww_dynamic_corral($instance['corral']);
+    ob_start();
+			ww_dynamic_corral($instance['corral']);
+		$out = ob_get_clean();
+		
+		// wordpress sidebar output
+		if ( !empty( $out ) ) {
+			print $before_widget.$out.$after_widget;
+		}	
   }
 	/**
 	 * Update the widget settings.

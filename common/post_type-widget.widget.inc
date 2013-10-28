@@ -41,7 +41,19 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
   function widget( $args, $instance )
   {
     extract( $args );
-		print ww_theme_single_widget(ww_get_single_widget($widget_post_id));
+		$widget = ww_get_single_widget($widget_post_id);
+		$out = ww_theme_single_widget($widget);
+		
+		// wordpress sidebar output
+		if ( !empty( $out ) ) {
+			print $before_widget;
+			// title
+			if ( !empty($instance['title']) && $instance['hide-title'] != 1){
+				print $before_title . $instance['title'] . $after_title;
+			}
+		
+			print $out.$after_widget;
+		}	
   }
 	/**
 	 * Update the widget settings.
@@ -51,6 +63,7 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
     $instance = $old_instance; 
     $instance['title'] = $new_instance['title'];
     $instance['widget_post_id'] = $new_instance['widget_post_id'];
+    $instance['hide-title'] = isset($new_instance['hide-title']) ? 1:0;
     return $instance;
 	}
   /**
@@ -69,13 +82,16 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
 		}
 		
     // Set up some default widget settings. 
-    $defaults = array( 'title' => __('Widget Wrangler - Widget', 'widgetwranglerwidget'), 'widget_post_id' => '' );
+    $defaults = array( 'title' => __('Widget Wrangler - Widget', 'widgetwranglerwidget'), 'widget_post_id' => '', 'hide-title' => 0 );
     $instance = wp_parse_args( (array) $instance, $defaults );
 		$selected_widget_title = (isset($widgets[$instance['widget_post_id']])) ? $widgets[$instance['widget_post_id']]->post_title: ""; 
 		
     ?>
     <?php // Widget Title: Hidden Input ?>
     <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $selected_widget_title; ?>" style="width:100%;" />
+    <p>
+			<input type="checkbox" id="<?php print $this->get_field_id( 'hide-title' ); ?>" name="<?php print $this->get_field_name( 'hide-title' ); ?>" <?php print $hide_title_checked; ?> /> <?php print __('Hide title', 'hidetitle'); ?>
+		</p>
     
     <?php // Widget: Select Box ?>
     <p>
