@@ -96,7 +96,7 @@ class Widget_Wrangler_Admin {
     // Add metabox to enabled post_types
     if (!empty($this->ww->settings['post_types'])){
       foreach($this->ww->settings['post_types'] as $enabled_post_type){
-        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-24.png" />Widget Wrangler'), array( $this, '_sortable_widgets_meta_box'), $enabled_post_type, 'normal', 'high');
+        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />Widget Wrangler'), array( $this, '_sortable_widgets_meta_box'), $enabled_post_type, 'normal', 'high');
         
         // Add some CSS to the admin header on the widget wrangler pages, and edit pages
         if ($this->ww->admin->_is_editing_enabled_post_type()){
