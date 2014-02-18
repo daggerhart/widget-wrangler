@@ -12,18 +12,37 @@
 	margin-bottom: 16px;
 	padding-right: 1%;
 }
+
+.ww-admin-tab-links {
+  width: 20%;
+  float: left;
+  margin-right: 1%;
+}
+.ww-admin-tab-links .ww-admin-tab-list {
+	float: none;
+	width: 100%;
+	border-top: 1px solid #eee;
+  background: #fff;
+}
+.ww-admin-tab-links a {
+}
+.ww-admin-tab-links .active a {
+  background: none repeat scroll 0 0 #1E8CBE;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+}
 .ww-admin-tab {
   float: left;
   width: 74%;
-	background: #fff;
+}
+.ww-admin-tab .ww-admin-tab-inner {
   padding: 0 2% 16px;
-  border: 1px solid #888;
 }
 ul.ww-admin-tab-list {
   float: left;
   width: 20%;
   margin: 0 1% 0 0;
-  border: 1px solid #888;
 }
 ul.ww-admin-tab-list li {
   padding: 0px;
@@ -34,17 +53,13 @@ ul.ww-admin-tab-list li a {
   padding: 0px 6px;
   line-height: 24px;
   border-bottom: 1px solid #bbb;
-  background: #eee;
 }
 ul.ww-admin-tab-list li.ui-state-active a {
   background-color: #fff;
 }
 ul.ww-admin-tab-list .ww-admin-tab-list-title {
-	border-bottom: 1px solid #888888;
 	margin: 0;
-	padding: 3px 5px;
-	font-size: 1em;
-	font-weight: bold;
+  padding: 0px;
 }
 hr.ww-hr {
 	border: none;
@@ -82,7 +97,9 @@ hr.ww-hr {
 	font-family: monospace;
 }
 .ajax-working {
-	background: transparent url('../images/throbber.gif') top left no-repeat;
+	/*background: transparent url('../images/throbber.gif') top left no-repeat;*/
+  background-position: top left;
+  float: none;
 	height: 16px;
 	width: 16px;
 	line-height: 16px;
@@ -111,7 +128,6 @@ hr.ww-hr {
   vertical-align: top;
 }
 #ww-corral-page ul {
-  width: 350px;
 }
 #ww-corrals-edit h4 {
   margin: 0px;
@@ -126,6 +142,10 @@ hr.ww-hr {
 #ww-corral-page .widget-top {
   cursor: default;
 }
+#ww-corral-page .widget-top h4 {
+  margin: 0;
+  padding: 12px 6px;
+}
 .ww-corral-edit {
   float: right;
   padding: 6px 4px;
@@ -139,11 +159,6 @@ hr.ww-hr {
 .ww-corral-details .ww-text {
   width: 84%;
 }
-.ww-corral-update-submit{
-  display: block;
-  width: auto;
-  margin: 4px 0px 0px auto;
-}
 #ww-corrals-sort-list {
 	background: #eee;
 }
@@ -151,37 +166,30 @@ hr.ww-hr {
   margin-top: 24px;
 }
 .ww-delete-corral {
-	float: right;
+}
+li.ww-corral-item {
+  margin-bottom: 24px;
+}
+.ww-widgets-holder-wrap .widgets-holder-wrap {
+  border: none;
+  box-shadow: none;
 }
 .ww-corral-item label {
 	cursor: default;
 }
+
+/* displaying sort*/
 /******************************************************
  * Presets
  *****************************************************/
-#presets-links {
-  width: 20%;
-  float: left;
-  border: 1px solid #888;
-  margin-right: 1%;
-}
-#presets-links .ww-admin-tab-list {
-	float: none;
-	width: 100%;
-	border: none;
-}
-
-#presets-links .active a {
-  background: #fff;
-}
 #presets-add-new {
-  padding: 12px 3px 6px;
-  background : #eee;
-  border-top: 1px solid #888;
+  margin-top: 24px;
+  background: #fff;
 }
 #preset-data {
   padding: 6px 6px 12px;
-  border-bottom: 1px solid #888;
+  border-bottom: 1px solid #bbb;
+  border-top: 1px solid #bbb;
   background: #fff;
 }
 #preset-action {
@@ -189,7 +197,7 @@ hr.ww-hr {
 }
 #preset-terms {
   padding: 6px 12px;
-  border-bottom: 1px solid #888;
+  border-bottom: 1px solid #bbb;
 }
 #preset-terms .description {
   color: red;
@@ -235,7 +243,27 @@ label.ww-preset-checkbox input {
 #ww-post-preset .description {
 	padding: 12px 20px;
 }
-
+.ww-setting-checkbox-label {
+  display: inline-block;
+  padding: 4px;
+}
+.ww-setting-checkbox-container.is-child {
+  padding-left: 24px;
+}
+.ww-preset-terms-form-taxonomy h4 {
+}
+.ww-preset-terms-form-taxonomy-checkboxes {
+  border: 1px solid #bbb;
+  padding: 4px 8px;
+  background: #eee;
+  height: 120px;
+  overflow: scroll;
+}
+#ww-add-taxonomy {
+  color: #0074A2;
+  padding-left: 32px;
+  font-size: 16px;
+}
 /******************************************************
  * Widgets
  *****************************************************/
@@ -354,8 +382,20 @@ label.ww-preset-checkbox input {
 	border-top: 1px solid #999;
 	padding: 12px 4px;
 }
+#ww-preview-html-toggle {
+  color: #0074A2;
+  cursor: pointer;
+}
+#ww-preview-html-content {
+  width: 100%;
+  overflow: scroll;
+  min-height: 250px;
+}
 .php-advanced-textarea {
 	width: 100%;
+}
+.ww-override-html div label {
+  font-weight: bold;
 }
 /******************************************************
  * Clones
@@ -365,9 +405,11 @@ label.ww-preset-checkbox input {
   float: left;
   margin: 0px 0px 0px 24px;
 }
+.ww-clone-widgets .widget-title{
+  cursor: pointer;
+}
 .ww-clone-widgets h4 {
-  margin: 0px;
-  padding: 7px 12px;
+  
 }
 .ww-clone-submit {
   display: block;
@@ -379,10 +421,10 @@ label.ww-preset-checkbox input {
 }
 div.widget-action {
   display: block;
-  height: 26px;
-  width: 26px;
+  height: 42px;
+  width: 32px;
   cursor: pointer;
-  background:transparent url('../images/menu-bits.gif') no-repeat scroll 0 -110px;
+  /*background:transparent url('../images/menu-bits.gif') no-repeat scroll 0px -106px;*/
 }
 .widget-inside {
   display: none;
@@ -403,7 +445,16 @@ div.widget-action {
   background: #fff;
 }
 #ww-disabled-items li {
-  background: linear-gradient(to top, #E9E9E9, #EFEFEF) repeat scroll 0 0;
+  background: linear-gradient(to top, #E9E9E9, #EFEFEF) repeat scroll 0 0 #EFEFEF;
+	background-image: url('../images/drag_handle.png');
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+.ww-sortable-corral-wrapper{
+  
+}
+.ww-sortable-corral-wrapper h4 {
+  
 }
 .ww-sortable-widgets-corral-title {
 	margin-bottom: 12px;
@@ -415,23 +466,22 @@ li.ww-corral-sort-item{
 	background-repeat: no-repeat;
 	background-position: 4px center;
 	font-size: 12px;
-	line-height: 32px;
+	line-height: 34px;
 	font-weight: bold;
-	height: 32px;
+	height: 34px;
 	padding: 0px 12px 0px 30px;
 	margin: 0px;
 	overflow: hidden;
-	border-bottom-style: solid;
-	border-bottom-width: 1px;
-	border-color: #DFDFDF;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
 	border-radius: 3px 3px 3px 3px;
 	box-shadow: 0 1px 0 #FFFFFF inset;
 	cursor: move;
 	color: #222222;
-	border-bottom-color: #DFDFDF;
 	box-shadow: 0 1px 0 #FFFFFF;
 	text-shadow: 0 1px 0 #FFFFFF;
 }
+
 .ww-widget-weight {
   display: none;
   float: right;
@@ -449,13 +499,22 @@ li.ww-corral-sort-item{
   height: auto !important;
   height: 20px;
   border: 2px dashed #eee;
-	background: #ddd;
+	background: #eee url('../images/empty-bg.png') repeat;
 	margin-top: 4px;
 }
+
+li.ww-item.ww-dragging,
+#ww-disabled-items li.ww-item.ww-dragging {
+  background: #ffffe5;
+	background-image: url('../images/drag_handle.png');
+	background-repeat: no-repeat;
+	background-position: 4px center;
+}
+
 .ww-item select {
   display: block;
   float: right;
-  margin: 4px 0 0 0;
+  margin: 3px 0 0 0;
 }
 .ww-no-widgets {
 	font-size: 12px;
@@ -467,7 +526,8 @@ li.ww-corral-sort-item{
 	background: transparent url('../images/empty-bg.png') repeat;
 }
 h4.ww-sortable-widgets-corral-title{
-	margin: 16px 0 0px 0;
+	margin: 0;
+  padding: 12px 6px 6px;
 	border-bottom: 1px solid #bbb;
 	font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
 	font-size: 1.1em;
@@ -476,12 +536,36 @@ h4.ww-sortable-widgets-corral-title{
 /******************************************************
  * Settings
  *****************************************************/
-
-.ww-settings-field {
-  padding: 12px 20px 10px;
-  margin: 6px 0px;
-  background-color: #fff;
-  border: 1px solid #bbb;
+.wrap .ww-setting-button-bad{
+  color: #aaa;
+}
+.ww-admin-top{
+  width: 95%;
+}
+.ww-top-right-save{
+  padding: 0px;
+  margin: 0px;
+  display: block;
+  float: right;
+}
+.ww-setting-column {
+  float: left;
+  width: 46%;
+  margin-right: 3%;
+}
+h2.ww-setting-title{
+  padding: 6px 12px;
+  border-top: 1px solid #bbb;
+  border-bottom: 1px solid #bbb;
+}
+div.ww-setting-content {
+  padding: 6px 12px 24px;
+}
+#ww-mass-reset {
+  float: none;
+  clear: both;
+  margin-top: 64px;
+  border-top: 2px solid darkred;
 }
 .ww-settings-field label.ww-corral-checkbox {
 	display: block;
@@ -492,39 +576,6 @@ h4.ww-sortable-widgets-corral-title{
 .ww-settings-field label.ww-corral-checkbox input {
 	margin-top: -1px;
 }
-h3.ww-settings-title {
-  margin: 32px 0px 16px;
-  font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
-  font-size: 22px;
-}
-h4.ww-settings-title {
-  margin: 16px 0px 8px;
-	padding-bottom: 8px;
-  font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
-  font-size: 18px;
-	border-bottom: 1px solid #bbb;
-}
 .ww-settings-roles {
   padding: 8px 24px;
-}
-
-/******************************************************
- * Display Logic
- *****************************************************/
-#logic-tabs .description {
-	padding: 12px 2% 6px;
-}
-#logic-tabs-list {
-	font-size: 94%;
-}
-.description ul li {
-  list-style: disc;
-  list-style-type: disc;
-  list-style-position: inside;
-}
-#tab-php.ww-admin-tab {
-	float: none;
-}
-#tab-php.ww-admin-tab .description {
-	float: left;
 }

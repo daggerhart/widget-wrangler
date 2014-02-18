@@ -1,0 +1,864 @@
+<?php
+// hook this addon in
+add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_settings_admin_addon' );
+
+//
+function ww_settings_admin_addon($addons){
+  $addons['Settings'] = new WW_Settings_Admin();
+  return $addons;
+}
+
+/*/
+// example setting tab
+add_filter('ww_settings_form_tabs', 'example_settings_tab');
+
+function example_settings_tab($tabs){
+  $tabs['settings'] = array(
+    'title' => 'General',
+    'description' => 'Setup how Widget Wrangler works with other Wordpress content.',
+    'form_action' => array( $this, '_settings_general_form' ),
+    );
+  return $tabs;
+}
+
+// example setting item
+add_filter('ww_settings_form_items', 'example_settings_items');
+
+function example_settings_items($settings){
+  $settings['setting_key'] = array(
+    // (required) - setting title
+    'title' => 'Setting Title',
+    // (required) - during form_action, field names should be prefixed with 'settings'
+    'form_action' => array( $this, '_my_form_method' ),
+    // (required) - handle execution
+    'execute_action' => array( $this, '_my_submit_method' ),
+    
+    // * optional 
+    // (optional) - defaults to 'settings'
+    'tab' => 'settings/some_tab',
+    // (optional)
+    'description' => '',
+    // (optional) - defaults to false
+    'require_license' => false,
+    // (optional) - something like 0 or array() when needed, defaults to empty string
+    'empty_value' => '',
+    // (optional) - these are keys of values you plan to save to the ww->settings array
+    //   while techinically optional, if your form has more than 1 field, this will need
+    //   to be setup completely
+    //  - defaults to array($setting_key)
+    'value_keys' => array(
+      'setting_array_key_must_be_unique',
+      'another_setting_key',
+      ),
+    // (optional) - which $_GET['ww_action'] to execute on - defaults to 'save'
+    'execute_key' => 'save',
+    
+    // * created during processing
+    // (processed) - rendered html of the form item
+    'form' => ''
+    // (processed) - value exists here if key exists in $_POST
+    'submitted_values' => array(
+      'another_setting_key' => '',
+    ),
+    // (processed) - settings' form values - value exists here as they exist in ww->settings array
+    //    not related at all to ww->default_settings
+    'form_values' => array(
+      'another_setting_key' => '',
+    ),
+  );
+  return $settings;
+}
+
+ 
+//*/
+
+
+/*
+ *
+ */
+class WW_Settings_Admin  {
+  public $urlbase = 'edit.php?post_type=widget&page=';
+  public $page_hook;
+  public $settings_form_tabs = array();
+  public $settings_form_items = array();
+  public $current_settings_form_tab = array();
+  
+  // hook into the settings form items and tabs
+  function __construct(){
+    add_filter('ww_settings_form_items', array( $this, '_default_settings_form_items' ) );
+    add_filter('ww_settings_form_tabs', array( $this, '_default_settings_form_tabs' ) );
+  }
+  
+  // hook init
+  function wp_init(){
+    $this->_preprocess_settings_form_items();
+    $this->_preprocess_settings_form_tabs();
+  }
+  
+  function wp_admin_init(){
+    $this->_process_settings_form_items();
+    //$this->_process_settings_form_tabs();
+  }
+  
+  // hook admin menu
+  function wp_admin_menu(){
+    $page_title = 'Settings';
+    $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'settings', array( $this, '_menu_router' ));
+    
+    foreach( $this->settings_form_tabs as $menu_slug => $tab){
+      $title = $tab['title'].' '.$page_title;
+      $this->tab_pages[$menu_slug]['page_hook']  = add_submenu_page(null, $title, $title, $this->ww->admin->capability, $menu_slug, array( $this, '_menu_router' ) );
+      
+      add_action( "admin_head", array( $this->ww->admin, '_admin_css' ) );
+    }
+  }
+  
+  /*
+   * Handles settings pages
+   *   - all settings pages submit to this execute_action
+   */
+  function _menu_router(){
+    if (isset($_GET['ww_action'])){
+      do_action('ww_settings_form_items_execute_'.$_GET['ww_action']);
+      wp_redirect($_SERVER['HTTP_REFERER']);
+      exit;
+    }
+    else if (isset($_GET['page']) && isset($this->settings_form_tabs[$_GET['page']])) {
+      $this->current_settings_form_tab = $this->settings_form_tabs[$_GET['page']];
+      do_action('ww_settings_form_tab_'.$this->current_settings_form_tab['safe_tab_key']);
+    }
+  }
+
+  // -------------------------- Setting tabs and setting items ---------------------------
+  
+  //
+  // Settings sub-pages
+  //
+  function _default_settings_form_tabs($tabs){
+    $tabs['settings'] = array(
+      'title' => 'General',
+      'description' => 'Setup how Widget Wrangler works with other Wordpress content.',
+      'form_action' => array( $this, '_settings_general_form' ),
+      );
+    $tabs['settings/widget'] = array(
+      'title' => 'Post Type',
+      'description' => 'Post type settings control the "widget" post_type registered by this plugin.',
+      'form_action' => array( $this, '_settings_general_form' ),
+      );
+    $tabs['settings/tools'] = array(
+      'title' => 'Tools',
+      'description' => 'Actions that will modify Widget Wrangler data.',
+      'form_action' => array( $this, '_settings_tools_form' ),
+      );
+    $tabs['settings/license'] = array(
+      'title' => 'Pro License',
+      'description' => 'Widget Wrangler Pro provides new features for site developers that can drastically increase efficiency in widget management for complex sites or needs.',
+      'form_action' => array( $this, '_settings_tools_form' ),
+      );
+    return $tabs;
+  }
+  
+  //
+  //
+  //
+  function _default_settings_form_items($settings){
+    $settings['post_types'] = array(
+      'title' => 'Post Types',
+      'description' => 'Select which post types can control widgets individually.',
+      'empty_value' => array(),
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['taxonomies'] = array(
+      'title' => 'Taxonomies',
+      'description' => 'Select which taxonomies can control widgets individually.',
+      'empty_value' => array(),
+      'require_license' => true,
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['theme_compat'] = array(
+      'title' => 'Theme Compatibility',
+      'empty_value' => 0,
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['z_editor'] = array(
+      'title' => 'Z Editor',
+      'empty_value' => 0,
+      'require_license' => true,
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['shortcode_tinymce'] = array(
+      'title' => 'tinyMCE Shortcode Button',
+      'empty_value' => 0,
+      'require_license' => true,
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['override_elements'] = array(
+      'title' => 'HTML Override Elements',
+      'description' => 'Allowed elements for override a widget\'s html output.  Place one element per line.',
+      'empty_value' => array(),
+      'require_license' => true,
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    
+    if (get_option('ww_previous_main_version', '')){
+      $extra_desc = "This version of Widget Wrangler has been upgraded from 1.x. If you have created templates with the previous version, you should leave this checked.";
+    } else {
+      $extra_desc = "This version of Widget Wrangler was not upgrade from 1.x, you should not need this setting.";
+    }
+    
+    $settings['legacy_template_suggestions'] = array(
+      'title' => 'Legacy Template Suggestions',
+      'description' => $extra_desc,
+      'empty_value' => 0,
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    
+    // widget settings
+    $settings['capabilities'] = array(
+      'title' => 'Capabilities',
+      'tab' => 'settings/widget',
+      'value_keys' => array('capabilities', 'advanced_capability'),
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['exclude_from_search'] = array(
+      'title' => 'Exclude from search',
+      'tab' => 'settings/widget',
+      'empty_value' => 0,
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    
+    /*
+    $settings['widget_advanced'] = array(
+      'title' => 'Advanced',
+      'tab' => 'settings/widget',
+      'require_license' => true,
+      'description' => 'Only change these if you know what you\'re doing.',
+      'value_keys' => array('rewrite_slug', 'query_var'),
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    */
+    
+    // tools
+    $settings['theme_setup'] = array(
+      'title' => 'Setup Theme',
+      'tab' => 'settings/tools',
+      'execute_key' => 'theme_setup',
+      'description' => 'If you click this button, Widget Wrangler will create a Corral for each Wordpress sidebar you have, and place a Widget Wrangler Corral Widget into each Wordpress Sidebar.',
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['mass_reset'] = array(
+      'title' => 'Mass Reset',
+      'tab' => 'settings/tools',
+      'execute_key' => 'reset',
+      'description' => 'If you click this button, all pages will lose their assigned widget settings and will fall back on the default preset.',
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    $settings['settings_reset'] = array(
+      'title' => 'Reset settings to default',
+      'tab' => 'settings/tools',
+      'execute_key' => 'reset_settings',
+      'description' => 'If you click this button, Widget Wrangler settings will be reset to their default state.  This will not affect Corral or Widget data.',
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    
+    // license
+    $settings['license_key'] = array(
+      'title' => 'License Key',
+      'tab' => 'settings/license',
+      'execute_key' => 'license',
+      'description' => 'Enter your license key below.',
+      'form_action' => array( $this, '_default_settings_form_action' ),
+      'execute_action' => array( $this, '_default_settings_execute_action' ),
+      );
+    return $settings;
+  }
+  
+  //
+  //
+  //
+  function _preprocess_settings_form_tabs(){
+    $this->settings_form_tabs = apply_filters('ww_settings_form_tabs', array());
+      // self awareness
+    foreach ($this->settings_form_tabs as $tab_key => $tab){
+      $this->settings_form_tabs[$tab_key]['tab_key'] = $tab_key;
+      $this->settings_form_tabs[$tab_key]['safe_tab_key'] = sanitize_key($tab_key);
+      $this->settings_form_tabs[$tab_key]['tab_url'] = $this->urlbase . $tab_key;
+      add_action('ww_settings_form_tab_'.$this->settings_form_tabs[$tab_key]['safe_tab_key'], $this->settings_form_tabs[$tab_key]['form_action']);
+      
+      // get the setting items associated with this tab
+      foreach ($this->settings_form_items as $setting_key => $setting){
+        if ($setting['tab'] == $tab_key){
+          $this->settings_form_tabs[$tab_key]['items'][$setting_key] = $setting;
+        }
+      }
+    }
+    
+    if (isset($_GET['page']) && isset($this->settings_form_tabs[$_GET['page']])){
+      $this->current_settings_form_tab = $this->settings_form_tabs[$_GET['page']];
+    }
+  }
+  
+  // for later
+  function _process_settings_form_tabs(){}
+  
+  //
+  // Gather, preprocess and process settings_form_items
+  //
+  function _preprocess_settings_form_items(){
+    $settings = apply_filters('ww_settings_form_items', array());
+    
+    foreach ($settings as $setting_key => $setting){
+      // self awareness
+      $setting['setting_key'] = $setting_key;
+      
+      // default setting values
+      if (!isset($setting['tab'])) $setting['tab'] = 'settings';
+      if (!isset($setting['require_license'])) $setting['require_license'] = false;
+      if (!isset($setting['execute_key'])) $setting['execute_key'] = 'save';
+      if (!isset($setting['value_keys'])) $setting['value_keys'] = array($setting_key);
+      if (!isset($setting['empty_value'])) $setting['empty_value'] = '';
+      
+      // get submitted values
+      if (is_array($setting['value_keys'])){
+        foreach ($setting['value_keys'] as $key)
+        {
+          // get submitted values from $_POST if they exist
+          if (isset($_POST['settings'][$key])){
+            $setting['submitted_values'][$key] = $_POST['settings'][$key];
+          }
+          
+          // get default form values from settings array
+          if (isset($this->ww->settings[$key])){
+            $setting['form_values'][$key] = $this->ww->settings[$key];
+          }
+          // fall back to empty value if missing (or disabled)
+          else {
+            $setting['form_values'][$key] = $setting['empty_value'];
+          }
+        }
+      }
+      
+      // add this setting to a dynamic filter for form, and execute
+      // form filter is unique to the setting item
+      add_filter('ww_settings_form_items_'.$setting_key, $setting['form_action']);
+      
+      // execute action is dynamic based on the execute_key
+      add_filter('ww_settings_form_items_execute_'.$setting['execute_key'], $setting['execute_action']);
+      
+      $settings[$setting_key] = $setting;
+    }
+    
+    $this->settings_form_items = $settings;
+  }
+
+  function _process_settings_form_items(){
+    $settings  = $this->settings_form_items;    
+    
+    // now that all the settings are preprocessed, build the forms
+    foreach ($settings as $setting_key => $setting){
+      ob_start();
+        apply_filters('ww_settings_form_items_'.$setting_key, $setting);
+      $settings[$setting_key]['form'] = ob_get_clean();
+    }
+    
+    $this->settings_form_items = $settings;
+  }
+  // -------------------------- Form Related Actions ---------------------------
+  //
+  //
+  //
+  function _default_settings_execute_action(){
+    switch($_GET['ww_action']){
+      case 'save':
+        $this->_save_settings();
+        break;
+      
+      case 'reset':
+        $this->_reset_widgets();
+        break;
+      
+      case 'reset_settings':
+        update_option('ww_settings', $this->ww->default_settings);
+        break;
+      
+      case 'theme_setup':
+        $this->_setup_theme();
+        break;
+      
+      case 'license':
+        $this->_handle_license();
+        break;
+    }
+  }
+  
+  //
+  //
+  //
+  function _default_settings_form_action($setting){
+    $setting_key = $setting['setting_key'];
+    
+    switch($setting['setting_key'])
+    { 
+      case 'post_types':
+        $post_types = get_post_types(array('public' => true, '_builtin' => false), 'names', 'and');
+        $post_types['post'] = 'post';
+        $post_types['page'] = 'page';
+        unset($post_types['widget']);
+        ksort($post_types);
+        ?>
+          <div class="ww-checkboxes">
+            <?php
+              // loop through post types
+              foreach ($post_types as $post_type )
+              {
+                $checked = (in_array($post_type, $setting['form_values']['post_types'])) ? 'checked="checked"' : '';
+                ?>
+                <label class="ww-checkbox"><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
+                <?php
+              }
+            ?>
+          </div>
+        <?php
+        break;
+      
+      // Taxonomies
+      case 'taxonomies':
+        $taxonomies = get_taxonomies(array(), 'objects');
+        if (!isset($setting['form_values']['taxonomies'])){
+          $setting['form_values']['taxonomies'] = array();
+        }
+        ?>
+          <div class="ww-checkboxes">
+            <?php
+              // loop through taxonomies
+              foreach ($taxonomies as $tax_name => $tax ){
+                if ($tax->show_ui){
+                  $checked = (in_array($tax_name, $setting['form_values']['taxonomies'])) ? 'checked="checked"' : '';
+                  ?>
+                  <label class="ww-checkbox"><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $tax_name; ?>]" value="<?php print $tax_name; ?>" <?php print $checked; ?> /> - <?php print $tax->label; ?> </label>
+                  <?php
+                }
+              }
+            ?>
+          </div>
+        <?php
+        break;
+      
+      case 'theme_compat':
+        $checked = (!empty($setting['form_values']['theme_compat'])) ? "checked='checked'" : "";
+        ?>
+          <label class="ww-checkbox">
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - If checked, widgets will include Wordpress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget.
+          </label>
+        <?php
+        break;
+      
+      case 'z_editor':
+        $checked = (!empty($setting['form_values']['z_editor'])) ? "checked='checked'" : "";
+        ?>
+          <label class="ww-checkbox">
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - Use frontend Widget Wrangler
+          </label>
+        <?php
+        break;
+      
+      case 'shortcode_tinymce':
+        $checked = (!empty($setting['form_values']['shortcode_tinymce'])) ? "checked='checked'" : "";
+        ?>
+          <label class="ww-checkbox">
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - Enable tinyMCE shortcode button
+          </label>
+        <?php
+        break;
+      
+      case 'legacy_template_suggestions':
+        $checked = (!empty($setting['form_values']['legacy_template_suggestions'])) ? "checked='checked'" : "";
+        ?>
+          <label class="ww-checkbox">
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - Enable template suggestions from WW 1.x
+          </label>
+        <?php
+        break;
+      
+      // widget settings
+      case 'capabilities':
+        $simple_checked = ($setting['form_values']['capabilities'] == 'simple') ? "checked" : ""; 
+        $adv_checked = ($setting['form_values']['capabilities'] == 'advanced') ? "checked" : ""; 
+        $advanced_capability = (!empty($setting['form_values']['advanced_capability'])) ? $setting['form_values']['advanced_capability'] : "";
+        ?>
+          <p> 
+            <label>
+              <input name="settings[capabilities]" type="radio" value="simple" <?php print $simple_checked; ?> />
+              <strong>Simple</strong>:  Widgets can be Created and Edited by anyone who can edit Posts.  Anyone who can edit a Page can change the Widgets displayed on that Page.
+            </label>
+          </p>
+          <hr />
+          <p>
+            <label>
+              <input name="settings[capabilities]" type="radio" value="advanced" <?php print $adv_checked; ?> />
+              <strong>Advanced</strong>:  Change the capability_type for this post_type.
+            </label>
+            This is primarily for incorporating third party permission systems. <br />
+            A simple use of this setting would be to change the Capability Type to 'page'.  This would make it so that only users who can create and edit pages may create and edit widgets.
+          </p>
+          <p>
+            <label><input name="settings[advanced_capability]" type="text" size="20" value="<?php print $advanced_capability; ?>"/> Capability Type</label>
+          </p>
+        <?php
+        break;
+
+      case 'exclude_from_search':
+        $checked = (!empty($setting['form_values']['exclude_from_search'])) ? "checked='checked'" : "";
+        ?>
+          <label class="ww-checkbox">
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - If checked, widgets will be excluded from search results.
+          </label>
+        <?php
+        break;
+      
+      case 'widget_advanced':
+        ?>
+          <p>
+            <label>
+              Rewrite slug: <input name="settings[rewrite_slug]" type="text" value="<?php print $setting['form_values']['rewrite_slug']; ?>" />
+            </label>
+          </p>
+          <p>
+            <label>
+              Query var: <input name="settings[query_var]" type="text" value="<?php print $setting['form_values']['query_var']; ?>" />
+            </label>
+          </p>        
+        <?php
+        break;
+      
+      // tools
+      case 'theme_setup':
+        ?>
+          <form action="<?php print $this->current_settings_form_tab['tab_url']; ?>&ww_action=theme_setup&noheader=true" method="post">
+            <input class="button ww-setting-button-bad" type="submit" value="Setup Theme" onclick="return confirm('Are you Really sure you want to reset your wordpress sidebars and widget wrangler corrals?');" />
+          </form>        
+        <?php
+        break;
+      
+      case 'mass_reset':
+        ?>
+          <form action="<?php print $this->current_settings_form_tab['tab_url']; ?>&ww_action=reset&noheader=true" method="post">
+            <input class="button ww-setting-button-bad" type="submit" value="Reset All Widgets to Default" onclick="return confirm('Are you Really sure you want to Reset widget settings on all pages?');" />
+          </form>        
+        <?php
+        break;
+      
+      case 'settings_reset':
+        ?>
+          <form action="<?php print $this->current_settings_form_tab['tab_url']; ?>&ww_action=reset_settings&noheader=true" method="post">
+            <input class="button ww-setting-button-bad" type="submit" value="Reset Settings" onclick="return confirm('Are you Really sure you want to Reset Settings?');" />
+          </form>
+        <?php
+        break;
+      
+      // license
+      case 'license_key':    
+        $license 	= get_option( 'ww_pro_license_key' );
+        $status 	= get_option( 'ww_pro_license_status' );
+        $valid = $this->ww->license_status ? true : false;
+        $status_indicator = ( $valid ) ? "<small style='color: green;'>active</small>": "<small style='color: red;'>inactive</small>";
+        
+        $action_title = "Activate";
+        $button_name = "ww_pro_license_activate";
+        if( $valid ){
+          $action_title = "Deactivate";
+          $button_name = "ww_pro_license_deactivate";
+        }
+        ?>
+          <form method="post" action="<?php print $this->current_settings_form_tab['tab_key']; ?>&ww_action=license&noheader=true">  
+              <p>
+                <input id="ww_pro_license_key" name="ww_pro_license_key" type="text" class="regular-text" value="<?php esc_attr_e( $license ); ?>" />
+                <?php print $status_indicator; ?>
+              </p>
+              <p>
+                <input type="submit" class="button-secondary" name="<?php print $button_name; ?>" value="<?php _e($action_title.' License'); ?>"/>
+              </p>
+          </form>        
+        <?php
+        break;
+      
+      case 'override_elements':
+        $rows = count($setting['form_values']['override_elements']) + 1;
+        if ($rows < 5){
+          $rows = 5;
+        }
+        ?>
+          <textarea name="settings[override_elements]" cols="16" rows="<?php print $rows; ?>"><?php print implode("\n", $setting['form_values']['override_elements']); ?></textarea>
+        <?php
+        break;
+    }
+  }
+
+  //
+  // General settings forms use the ww->admin->_form  wrapper
+  //
+  function _settings_general_form(){
+    $form = array(
+      'title' => 'Widget Wrangler '.$this->current_settings_form_tab['title'].' Settings',
+      'description' => $this->current_settings_form_tab['description'],
+      'attributes' => array(
+        'action' => $this->current_settings_form_tab['tab_url'].'&ww_action=save&noheader=true',
+        ),
+      );
+    
+    print $this->ww->admin->_form($form, $this->_settings_form_content());
+  }
+  
+  //
+  // Tools settings forms include special button and stuff that don't fit into a generic form
+  //  - uses ww->admin->_page  wrapper
+  //
+  function _settings_tools_form(){
+    $page = array(
+      'title' => 'Widget Wrangler '.$this->current_settings_form_tab['title'],
+      'description' => $this->current_settings_form_tab['description'],
+      );
+    
+    print $this->ww->admin->_page($page, $this->_settings_form_content());
+  }
+  
+  //
+  // Gather the form items and tools for this tab
+  //
+  function _settings_form_content()
+  {
+    ob_start();
+    ?>
+      <div class="ww-admin-tab-links">
+        <ul class="ww-admin-tab-list">
+          <li class="ww-admin-tab-list-title"><h2 class="ww-setting-title">Settings</h2></li>
+          <?php
+            foreach($this->settings_form_tabs as $tab_key => $tab)
+            {
+              $li_class = ($tab_key == $this->current_settings_form_tab['tab_key']) ? "active" : "in-active";
+              ?>
+                <li class="<?php print $li_class; ?>"><a href="<?php print $tab['tab_url']; ?>"><?php print $tab['title']; ?></a></li>
+              <?php
+            }
+          ?>
+        </ul>        
+      </div>
+      
+      <div class="ww-admin-tab">
+        <?php
+          foreach ($this->settings_form_items as $setting_key => $setting){
+            // only settings on this tab
+            if ($setting['tab'] == $this->current_settings_form_tab['tab_key']){
+              // skip settings that require a license if license invalid
+              if ($setting['require_license'] && !$this->ww->license_status){
+                continue;
+              }
+              
+              $this->_theme_settings_form_item($setting);
+            }
+          }
+        ?>
+      </div>    
+    <?php
+    return ob_get_clean();
+  }
+
+  //
+  // Individual settings form item html template
+  //  - happens within an output buffer
+  //
+  function _theme_settings_form_item($setting)
+  { ?>
+      <div class="postbox">
+        <h2 class="ww-setting-title"><?php print $setting['title']; ?></h2>
+        <div class="ww-setting-content">
+          <?php if (isset($setting['description'])) { ?>
+            <p class="description"><?php print $setting['description']; ?></p>
+          <?php } ?>
+          <div class='ww-setting-form-item'>
+            <?php print $setting['form']; ?>
+          </div>
+          <div class="ww-clear-gone">&nbsp;</div>
+        </div>
+      </div>
+    <?php
+  }
+
+  // -------------------------- Form Execute Actions ---------------------------
+  
+  //
+  // Reset all pages to use the default widget settings
+  //
+  function _reset_widgets(){
+    global $wpdb;
+    $query = "DELETE FROM `".$wpdb->prefix."postmeta` WHERE `meta_key` = 'ww_post_widgets' OR `meta_key` = 'ww_post_preset_id'";
+    $wpdb->query($query);
+  }
+  
+  //
+  // Save the Widget Wrangler Settings page
+  //
+  function _save_settings(){
+    $settings = $this->ww->settings;
+    
+    // loop through all settings_items looking for submitted values
+    foreach ($this->current_settings_form_tab['items'] as $setting_key => $setting){
+      // if these values were submitted with values, store them in the settings array
+      foreach ($setting['value_keys'] as $value_key){
+        // default to empty
+        $value = $setting['empty_value'];
+        
+        if (isset($setting['submitted_values'][$value_key])){
+          $value = $setting['submitted_values'][$value_key];
+        }
+        
+        // override elements
+        if ($setting_key == "override_elements" && is_string($value)){
+          $value = explode("\n", $value);
+        }
+        
+        $settings[$value_key] = $value;
+      }
+    }
+    
+    // save
+    update_option('ww_settings', $settings);
+    $this->ww->settings = $settings;    
+  }
+    
+  //
+  // check license
+  //
+  function _handle_license() {
+    // run a quick security check 
+    if( ! check_admin_referer( 'ww_nonce', 'ww_nonce' ) ) 	{
+      return; // get out if we didn't click the Activate button
+    }
+    
+    if ( isset($_POST['ww_pro_license_key_update']) ) {
+      $new = trim($_POST['ww_pro_license_key']);
+      $old = trim( get_option( 'ww_pro_license_key' ) );
+      
+      if($old != $new ) {
+        update_option( 'ww_pro_license_key', $new);
+        delete_option( 'ww_pro_license_status' ); // new license has been entered, so must reactivate
+      }
+    }
+    
+    // listen for our activate button to be clicked
+    else if( isset( $_POST['ww_pro_license_activate'] ) )
+    {
+      // retrieve the license from the database
+      $license = get_option( 'ww_pro_license_key' );
+        
+      // data to send in our API request
+      $api_params = array( 
+        'edd_action'=> 'activate_license', 
+        'license' 	=> $license, 
+        'item_name' => urlencode( WW_PRO_NAME ) // the name of our product in EDD
+      );
+      
+      // Call the custom API.
+      $response = wp_remote_get( add_query_arg( $api_params, WW_PRO_URL ), array( 'timeout' => 15, 'sslverify' => false ) );
+  
+      // make sure the response came back okay
+      if ( is_wp_error( $response ) )
+        return false;
+  
+      // decode the license data
+      $license_data = json_decode( wp_remote_retrieve_body( $response ) );
+      
+      // $license_data->license will be either "valid" or "invalid"
+      update_option( 'ww_pro_license_status', $license_data );
+    }
+  
+    // listen for our activate button to be clicked
+    else if( isset( $_POST['ww_pro_license_deactivate'] ) )
+    {
+      // retrieve the license from the database
+      $license = get_option( 'ww_pro_license_key' );
+        
+      // data to send in our API request
+      $api_params = array( 
+        'edd_action'=> 'deactivate_license', 
+        'license' 	=> $license, 
+        'item_name' => urlencode( WW_PRO_NAME ) // the name of our product in EDD
+      );
+      
+      // Call the custom API.
+      $response = wp_remote_get( add_query_arg( $api_params, WW_PRO_URL ), array( 'timeout' => 15, 'sslverify' => false ) );
+  
+      // make sure the response came back okay
+      if ( is_wp_error( $response ) ){
+        return false;
+      }
+  
+      // decode the license data
+      $license_data = json_decode( wp_remote_retrieve_body( $response ) );
+      
+      // $license_data->license will be either "deactivated" or "failed"
+      if( $license_data->license == 'deactivated' ){
+        delete_option( 'ww_pro_license_status' );
+      }
+    }
+  }
+  
+  //
+  // Empty wp sidebars,
+  //  - create a corral for each wp sidebar,
+  //  - place corral widget inside of each wp sidebar
+  //
+  function _setup_theme(){  
+    global $wp_registered_sidebars;
+    $sidebars_widgets = get_option( 'sidebars_widgets' );
+    $widget_ww_sidebar = get_option('widget_widget-wrangler-sidebar');
+    $corrals = $this->ww->corrals;
+    
+    // new options 
+    $new_sidebars_widgets = array(
+      'wp_inactive_widgets' => $sidebars_widgets['wp_inactive_widgets'],
+      'array_version' => $sidebars_widgets['array_version'],
+    );
+    $new_widget_ww_sidebar = array('_multiwidget' => 1);
+    
+    $i = 0;
+    foreach ($wp_registered_sidebars as $sidebar_id => $sidebar_details){
+      $corral_slug = $this->ww->admin->_make_slug($sidebar_details['name']);
+      
+      // see if corral exists
+      if (!isset($corrals[$corral_slug])){
+        // make it
+        $corrals[$corral_slug] = $sidebar_details['name'];
+      }
+      
+      // assign a new corral widget instances
+      $new_widget_ww_sidebar[$i] = array(
+        'title' => '',
+        'sidebar' => $corral_slug,
+      );
+      
+      // assign new widget instance to sidebar
+      $new_sidebars_widgets[$sidebar_id][$i] = 'widget-wrangler-sidebar-'.$i;
+      
+      $i++;
+    }
+    
+    update_option('ww_sidebars', $corrals);
+    update_option('sidebars_widgets', $new_sidebars_widgets);
+    update_option('widget_widget-wrangler-sidebar', $new_widget_ww_sidebar);
+  }
+
+}

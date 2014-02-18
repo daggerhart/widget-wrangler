@@ -1,45 +1,65 @@
 <?php
 /*
- * Template Wrangler 2.0 (previously 1.2)
+ * Template Wrangler 2.1 (previously 2.0)
  *
- * version = 2.0
- * version_safe = 2
+ * version = 2.1
+ * version_safe = 2_1
  * 
  * Functions
  * theme() - template some arguments
  *
+ * Changes:  2.1
+ *    - changed do_action_ref_array into apply_filters for tw_pre_process_template
+ * 
  */
 
 // ensure we only load this test once
 // if ever there are 2 of the same version in separate plugins,
 // 		we won't define the same function twice
-if (!function_exists('tw_test_include_2')){
+if (!function_exists('tw_test_include_2_1')){
 	
  /*
   * Test function has unique function name
+  *
+  * Cases
+  *   - no previous version
+  *   - this version is less than another version
+  *   - this version is greater than another version
+  *   - this version is equal to another version
   */
-function tw_test_include_2() {
-	$this_version = 2.0;
+function tw_test_include_2_1() {
+	$this_version = 2.1;
 	
 	// option key
-	$last_version = get_option('templatewrangler_version', false);
+	$last_version = (float) get_option('templatewrangler_version', false);
 	$function_loaded = (function_exists('theme'));
 	$load_this_version = false;
 	
-	// version test
-	if (!$last_version || ($this_version > (float) $last_version)) {
-		// older version has existed
-		if ($function_loaded) {
-			// an older version loads faster than this
-			// make ours the new option
-			update_option('templatewrangler_version', $this_version);
-			// nothing else we can do, $load_this_version remains false
-		}
-		else {
-			// this is the newest version, nothing loaded
-			$load_this_version = true;
-		}
-	}
+  if (!$last_version || ($this_version > $last_version)) {
+    // - no previous version
+    // or
+    // - this version is greater than another version 
+    // make ours the new option
+    update_option('templatewrangler_version', $this_version);
+    
+    // if function hasn't loaded, use this version
+    if(!$function_loaded){
+      $load_this_version = true;
+    }
+    // else do nothing, function is already loaded
+  }
+  else if ($this_version == $last_version){
+    // - this version is equal to another version
+    // go ahead and load the first one that hits
+		if (!$function_loaded) {
+      $load_this_version = true;
+    }
+  }
+  //else if ($this_version < $last_version){
+      // - this version is less than another version
+      // do nothing
+  //}
+  
 	// else, this version is old and $load_this_version remains false
 	return $load_this_version;
 }
@@ -47,8 +67,8 @@ function tw_test_include_2() {
 } // end conditional test function
 
 // test unique version 
-if (tw_test_include_2()) {
-	
+if (tw_test_include_2_1()) {
+  
 /*
  * Main Templating function
  *
@@ -63,7 +83,7 @@ function theme($template_name = '', $arguments = array())
   if(is_null($arguments)){
     $arguments = array();
   }
-
+  
   // get all the hooks
   $tw_templates = tw_templates();
 
@@ -82,10 +102,10 @@ function theme($template_name = '', $arguments = array())
     // merge passed arguments into array overriding defaults
     // update the template arguments for preprocess functions
     $tw_template['arguments'] = array_merge($tw_template['arguments'], $arguments);
-
-    // wp style hook for preprocess
-    do_action_ref_array('tw_pre_process_template', array(&$tw_template));
-
+    
+    // allow other plugins to alter the template before processing
+    $tw_template = apply_filters('tw_pre_process_template', $tw_template);
+    
 		// theme functions return now if found
     if ($theme = tw_process_template($tw_template)){
 			return $theme;
@@ -124,7 +144,7 @@ function theme($template_name = '', $arguments = array())
  */
 function tw_process_template(&$template){
   // get theme folder name
-  $theme_folder = explode("/", TEMPLATEPATH);
+  $theme_folder = explode("/", STYLESHEETPATH);
   $theme_folder = array_pop($theme_folder);
 
   // if no default_path, set to function execution path
@@ -138,7 +158,25 @@ function tw_process_template(&$template){
     // @TODO: instead, find a way to set the default path to where the hook was set
     $template['default_path'] = dirname($caller['file']);
   }
-
+  
+  // allow for including files
+  if (isset($template['includes']) && is_array($template['includes'])){
+    foreach ($template['includes'] as $include_file_location){
+      @include_once $include_file_location;
+    }
+  }
+  
+  // if there is a theme based preprocess function, run it on the arguments
+  if(function_exists($theme_folder.'_'.$template['name'].'_preprocess')){
+    $preprocess = $theme_folder.'_'.$template['name'].'_preprocess';
+    $template = call_user_func($preprocess, $template);
+  }
+  // else if there is a default preprocess function, run it on the arguments
+  else if(function_exists('theme_'.$template['name'].'_preprocess')){
+    $preprocess = 'theme_'.$template['name'].'_preprocess';
+    $template = call_user_func($preprocess, $template);
+  }
+  
   // if no templates were given, look for theme functions
   if(!isset($template['files']))
   {
@@ -153,6 +191,7 @@ function tw_process_template(&$template){
       return call_user_func_array('theme_'.$template['name'], $template['arguments']);
     }
   }
+  // help clean up
   // else if given templates is not an array, make it one
   else if(!is_array($template['files']))
   {
@@ -169,9 +208,13 @@ function tw_find_template(&$template){
   $found_path = '';
   foreach($template['files'] as $suggestion)
   {
+    $replace_count = 0;
+    $tokens_count = 0;
+    
     // look for an argument in template suggestions
     if (preg_match('/\[.*\]/',$suggestion))
     {
+      $tokens_count = substr_count($suggestion, '[');
       // we have arguments, lets build the possibilities
       $search = array();
       $replace = array();
@@ -179,15 +222,21 @@ function tw_find_template(&$template){
       {
         // only apply to strings and numerics
         if(is_string($template['arguments'][$key]) || is_numeric($template['arguments'][$key])){
-          $search[] = '['.$key.']';
-          $replace[] = $value;
+          if (trim($template['arguments'][$key])){
+            $search[] = '['.$key.']';
+            $replace[] = $value;
+          }
         }
       }
 
       // do the replacement
-      $suggestion = str_replace($search, $replace, $suggestion);
+      $suggestion = str_replace($search, $replace, $suggestion, $replace_count);
     }
-    $template['suggestions'][] = $suggestion;
+    
+    // only accept a suggestion if all tokens were replaced
+    if ($tokens_count == 0 || ($replace_count > 0 && $tokens_count == $replace_count)){
+      $template['suggestions'][] = $suggestion;
+    }
   }
 
   // loop through suggestions and find existing template in theme path first
@@ -228,6 +277,10 @@ function tw_templates(){
   return $templates;
 }
 
+// Very simple link theming function
+function theme_link($href, $text){
+  return "<a href='$href'>$text</a>";
+}
 
 } // end version test
 
@@ -302,9 +355,5 @@ function example_template_preprocess($template)
   return $template;
 }
 
-// example theme function
-function theme_link($href, $text){
-  return "<a href='$href'>$text</a>";
-}
 */
 
