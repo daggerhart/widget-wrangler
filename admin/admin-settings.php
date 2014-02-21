@@ -583,7 +583,7 @@ class WW_Settings_Admin  {
           $button_name = "ww_pro_license_deactivate";
         }
         ?>
-          <form method="post" action="<?php print $this->current_settings_form_tab['tab_key']; ?>&ww_action=license&noheader=true">  
+          <form method="post" action="<?php print $this->current_settings_form_tab['tab_url']; ?>&ww_action=license&noheader=true">  
               <p>
                 <input id="ww_pro_license_key" name="ww_pro_license_key" type="text" class="regular-text" value="<?php esc_attr_e( $license ); ?>" />
                 <?php print $status_indicator; ?>
@@ -744,11 +744,11 @@ class WW_Settings_Admin  {
   //
   function _handle_license() {
     // run a quick security check 
-    if( ! check_admin_referer( 'ww_nonce', 'ww_nonce' ) ) 	{
-      return; // get out if we didn't click the Activate button
-    }
+    //if( ! check_admin_referer( 'ww_nonce', 'ww_nonce' ) ) 	{
+      //return; // get out if we didn't click the Activate button
+    //}
     
-    if ( isset($_POST['ww_pro_license_key_update']) ) {
+    if ( isset( $_POST['ww_pro_license_activate'] ) ) {
       $new = trim($_POST['ww_pro_license_key']);
       $old = trim( get_option( 'ww_pro_license_key' ) );
       
@@ -756,11 +756,7 @@ class WW_Settings_Admin  {
         update_option( 'ww_pro_license_key', $new);
         delete_option( 'ww_pro_license_status' ); // new license has been entered, so must reactivate
       }
-    }
-    
-    // listen for our activate button to be clicked
-    else if( isset( $_POST['ww_pro_license_activate'] ) )
-    {
+      
       // retrieve the license from the database
       $license = get_option( 'ww_pro_license_key' );
         
@@ -775,8 +771,9 @@ class WW_Settings_Admin  {
       $response = wp_remote_get( add_query_arg( $api_params, WW_PRO_URL ), array( 'timeout' => 15, 'sslverify' => false ) );
   
       // make sure the response came back okay
-      if ( is_wp_error( $response ) )
+      if ( is_wp_error( $response ) ){
         return false;
+      }
   
       // decode the license data
       $license_data = json_decode( wp_remote_retrieve_body( $response ) );
