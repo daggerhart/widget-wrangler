@@ -320,7 +320,7 @@ class Widget_Wrangler {
         
         // upgrade from 1x to 2x
         if ((float) $old_version < 2){
-          $settings = get_options('ww_settings', array());
+          $settings = get_option('ww_settings', array());
           // help with over serialization
           if (is_string($settings)){
             $settings = unserialize($settings);
@@ -422,7 +422,7 @@ class Widget_Wrangler {
 `widgets` text NOT NULL,
 UNIQUE KEY id (id)
 );";
-    require_once(ABSPATH . 'wp-admin/common/upgrade.php');
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     $t = dbDelta($sql);
   }
   

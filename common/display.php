@@ -268,7 +268,7 @@ class Widget_Wrangler_Display {
       // give the post title back now that we're done
       $widget->post_title = $widget->hidden_title;
     }
-  dbw($output);
+    
     return $output;  
   }
   

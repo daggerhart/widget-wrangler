@@ -9,7 +9,9 @@
  * theme() - template some arguments
  *
  * Changes:  2.1
- *    - changed do_action_ref_array into apply_filters for tw_pre_process_template
+ *    - changed do_action_ref_array into apply_filters for
+ *        tw_pre_process_template
+ *        tw_pre_render_template
  * 
  */
 
@@ -121,7 +123,7 @@ function theme($template_name = '', $arguments = array())
     if(isset($tw_template['found_path']) && $tw_template['found_path'] != '')
     {
       // allow late modifications
-      do_action_ref_array('tw_pre_render_template', array(&$tw_template));
+      apply_filters('tw_pre_render_template', $tw_template);
 
       // start output buffer
       ob_start();
