@@ -39,9 +39,9 @@ $widget_wrangler = new Widget_Wrangler();
 
 /*
 new wp filters
-  - widget_wrangler_find_all_page_widgets
   - Widget_Wrangler_Addons
- 
+  - widget_wrangler_find_all_page_widgets
+  - widget-wrangler-set-page-context
  *
  */
 class Widget_Wrangler {
@@ -244,6 +244,7 @@ class Widget_Wrangler {
                 post_status = 'publish'";
     $results = $wpdb->get_results($query);
     
+    $widgets = array();
     $i=0;
     $total = count($results);
     while($i < $total){
@@ -312,121 +313,12 @@ class Widget_Wrangler {
   }
 
   /*
-   * Activation
-   */
-  function register_activation_hook(){
-    $this->_handle_extras_table();
-    
-    // upgrade, if an old version exists
-    if ($old_version = get_option('ww_version', FALSE)){
-      if ((float) $old_version < WW_VERSION){
-        
-        // upgrade from 1x to 2x
-        if ((float) $old_version < 2){
-          $settings = get_option('ww_settings', array());
-          
-          // help with over serialization
-          $settings = maybe_unserialize($settings);
-          
-          // enable legacy template suggestions
-          $settings['legacy_template_suggestions'] = 1;
-          update_option('ww_settings', $settings);
-          
-          // save the previous main version number for later use
-          if (!get_option('ww_previous_main_version', '')){
-            add_option('ww_previous_main_version', 1, '', 'no');
-          } else {
-            update_option('ww_previous_main_version', 1);
-          }
-        }
-        
-        $this->_upgrade_core();
-        // upgrade
-        update_option('ww_version', WW_VERSION);
-      }
-    }
-    // otherwise, install
-    else {
-      $this->_install_core();
-      add_option('ww_version', WW_VERSION);
-    }
-  }
-  
-  /*
-   * First install
-   */
-  function _install_core(){
-    add_option('ww_settings', $this->default_settings);
-  }
-  
-  /*
-   * Upgrade handling
-   */ 
-  function _upgrade_core(){
-    
-    // check to make sure array options aren't over serialized
-    $options = array('ww_default_widgets', 'ww_postspage_widgets', 'ww_settings', 'ww_sidebars');
-    foreach ($options as $option){
-      if ($v = get_option($option)){
-        if (is_string($v)){
-          $v = unserialize($v);
-        }
-        update_option($option, $v);
-      }
-    }
-    
-    // add new default settings
-    foreach ($this->default_settings as $key => $value ){
-      if (!isset($this->settings[$key])){
-        $this->settings[$key] = $value;
-      }
-    }
-    
-    // update some settings changes
-    // advanced => advanced_capability
-    if (isset($this->settings['advanced'])){
-      $this->settings['advanced_capability'] = $this->settings['advanced'];
-      unset($this->settings['advanced']);
-    }
-    
-    update_option('ww_settings', $this->settings);
-  }
-  
-  /*
-   * Helper function for sorting arrays of items
-   */
-  function _sort_by_weight($a, $b){
-    $a = (object) $a;
-    $b = (object) $b;
-    if ($a->weight == $b->weight) return 0;
-    return ($a->weight > $b->weight) ? 1 : -1;
-  }
-  
-  /*
-   *
+   * Simple check
    */
   function _check_license() {    
     $status = get_option('ww_pro_license_status');
     $this->license_status = (isset($status->license) && $status->license === "valid") ? TRUE : FALSE;
     return $this->license_status;
-  }
-  
-  /*
-   * Create widget presets table
-   */ 
-  function _handle_extras_table(){
-    global $wpdb;
-    $sql = "CREATE TABLE " . $wpdb->ww_extras_table . " (
-`id` mediumint(11) NOT NULL AUTO_INCREMENT,
-`type` varchar(32) NOT NULL,
-`variety` varchar(32) DEFAULT NULL,
-`extra_key` varchar(32) DEFAULT NULL,
-`data` text NOT NULL,
-`widgets` text NOT NULL,
-UNIQUE KEY id (id)
-);";
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    $t = dbDelta($sql);
   }
   
   /*
@@ -570,9 +462,123 @@ UNIQUE KEY id (id)
       $context['object'] = $term;
     }
     
+    $context = apply_filters('widget-wrangler-set-page-context', $context);
+    
     if ($context){
       $this->page_context = $context;
     }
   }
+    
+  /*
+   * Helper function for sorting arrays of items
+   */
+  function _sort_by_weight($a, $b){
+    $a = (object) $a;
+    $b = (object) $b;
+    if ($a->weight == $b->weight) return 0;
+    return ($a->weight > $b->weight) ? 1 : -1;
+  }
   
+  /*
+   * Activation
+   */
+  function register_activation_hook(){
+    $this->_handle_extras_table();
+    
+    // upgrade, if an old version exists
+    if ($old_version = get_option('ww_version', FALSE)){
+      if ((float) $old_version < WW_VERSION){
+        
+        // upgrade from 1x to 2x
+        if ((float) $old_version < 2){
+          $this->_upgrade_from_1x_to_2x();
+        }
+        
+        $this->_upgrade_core();
+      }
+    }
+    // otherwise, install
+    else {
+      $this->_install_core();
+      add_option('ww_version', WW_VERSION);
+    }
+  }
+  
+  /*
+   * First install
+   */
+  function _install_core(){
+    add_option('ww_settings', $this->default_settings);
+  }
+  
+  /*
+   * Upgrade very-core stuff
+   */ 
+  function _upgrade_core(){
+    // upgrade
+    update_option('ww_version', WW_VERSION);
+    // refresh settings
+    $this->_get_settings();
+  }
+  
+  /*
+   * Big upgrade with a lot of 1-time changes
+   */
+  function _upgrade_from_1x_to_2x(){
+    // check to make sure array options aren't over serialized
+    $options = array('ww_default_widgets', 'ww_postspage_widgets', 'ww_settings', 'ww_sidebars');
+    foreach ($options as $option){
+      if ($v = get_option($option)){
+        $v = maybe_unserialize($v);
+        update_option($option, $v);
+      }
+    }
+    
+    $settings = get_option('ww_settings', array());
+          
+    // help with over serialization in previous versions
+    $settings = maybe_unserialize($settings);
+    
+    // add new default settings
+    foreach ($this->default_settings as $key => $value ){
+      if (!isset($settings[$key])){
+        $settings[$key] = $value;
+      }
+    }
+    
+    if (isset($settings['advanced'])){
+      $settings['advanced_capability'] = $settings['advanced'];
+      unset($settings['advanced']);
+    }
+    
+    // enable legacy template suggestions
+    $settings['legacy_template_suggestions'] = 1;
+    update_option('ww_settings', $settings);
+    
+    // save the previous main version number for later use
+    if (!get_option('ww_previous_main_version', '')){
+      add_option('ww_previous_main_version', 1, '', 'no');
+    } else {
+      update_option('ww_previous_main_version', 1);
+    }    
+  }
+  
+  
+  /*
+   * Create widget presets table
+   */ 
+  function _handle_extras_table(){
+    global $wpdb;
+    $sql = "CREATE TABLE " . $wpdb->ww_extras_table . " (
+`id` mediumint(11) NOT NULL AUTO_INCREMENT,
+`type` varchar(32) NOT NULL,
+`variety` varchar(32) DEFAULT NULL,
+`extra_key` varchar(32) DEFAULT NULL,
+`data` text NOT NULL,
+`widgets` text NOT NULL,
+UNIQUE KEY id (id)
+);";
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    $t = dbDelta($sql);
+  }
 }
