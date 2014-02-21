@@ -208,6 +208,9 @@ class Widget_Wrangler {
       update_option("ww_settings", $settings);
     }
     
+    // can't trust some functions not to over-serialize
+    $settings = maybe_unserialize($settings);
+    
     // merge in the default settings where missing
     foreach ($this->default_settings as $k => $v){
       if (!isset($settings[$k])){
@@ -321,10 +324,10 @@ class Widget_Wrangler {
         // upgrade from 1x to 2x
         if ((float) $old_version < 2){
           $settings = get_option('ww_settings', array());
+          
           // help with over serialization
-          if (is_string($settings)){
-            $settings = unserialize($settings);
-          }
+          $settings = maybe_unserialize($settings);
+          
           // enable legacy template suggestions
           $settings['legacy_template_suggestions'] = 1;
           update_option('ww_settings', $settings);

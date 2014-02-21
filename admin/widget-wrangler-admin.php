@@ -626,7 +626,10 @@ class Widget_Wrangler_Admin {
   
   // cleanup previously serialized widgets
   function _cleanup_serialized_widgets($existing_widgets){
-    $existing_widgets = unserialize($existing_widgets);
+    // problem with over serialized options
+    $existing_widgets = maybe_unserialize($existing_widgets);
+    $existing_widgets = maybe_unserialize($existing_widgets);
+    
     if (isset($existing_widgets['disabled'])){
       unset($existing_widgets['disabled']);
     }
