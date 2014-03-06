@@ -183,8 +183,6 @@ class Widget_Wrangler {
         'init' => 'wp_init',
         'admin_init' => 'wp_admin_init',
         'admin_menu' => 'wp_admin_menu',
-        //'wp_ajax_'.$addon->safe_name => 'action_wp_ajax_ajax',
-        
       );
       
       foreach ($auto_hooks as $wp_hook => $addon_method){
@@ -562,7 +560,6 @@ class Widget_Wrangler {
       update_option('ww_previous_main_version', 1);
     }    
   }
-  
   
   /*
    * Create widget presets table
