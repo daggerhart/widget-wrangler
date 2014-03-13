@@ -63,8 +63,11 @@ class WW_Clone_Admin  {
         }
       }
     }
-    
+
     $user = wp_get_current_user();
+    
+    $wp_widget = new $this_class_name;
+    $instance = $wp_widget->update($instance, array());  
     
     // prep new widget info for saving
     $new_widget = array();
@@ -109,7 +112,7 @@ class WW_Clone_Admin  {
       <p>Here you can clone an existing Wordpress widget into the Widget Wrangler system.</p>
       <ul class='ww-clone-widgets'>
       <?php
-        foreach ($wp_widget_factory->widgets as $class_name => $widget)
+        foreach ($wp_widget_factory->widgets as $classname => $widget)
         {
           $posted_array_key = "widget-".$widget->id_base;
           
@@ -121,7 +124,8 @@ class WW_Clone_Admin  {
           }
           
           ob_start();
-          eval('$w = new '.$class_name.'(); $w->form(array());');
+            $wp_widget = new $classname;
+            $wp_widget->form(array());
           $new_class_form = ob_get_clean();
           ?>
             <li class="ww-widgets-holder-wrap">
@@ -136,7 +140,7 @@ class WW_Clone_Admin  {
                 </div>
                 <div class='widget-inside'>            
                   <form action='edit.php?post_type=widget&page=clone&ww_action=insert&noheader=true' method='post'>
-                    <input type='hidden' name='ww-classname' value='<?php print $class_name; ?>' />
+                    <input type='hidden' name='ww-classname' value='<?php print $classname; ?>' />
                     <input type='hidden' name='ww-keyname' value='<?php print $posted_array_key; ?>' />
                     <?php print $new_class_form; ?>
                     <input class='ww-clone-submit button button-primary button-large' type='submit' value='Create' />

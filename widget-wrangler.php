@@ -233,13 +233,16 @@ class Widget_Wrangler {
    * 
    * @return array of all widget objects
    */
-  function get_all_widgets()
+  function get_all_widgets($post_status = array('publish'))
   {
+    if (!is_array($post_status)) { $post_status = array($post_status); }
+    $status = implode("','", $post_status);
+    
     global $wpdb;
     $query = "SELECT `ID` FROM ".$wpdb->prefix."posts
               WHERE
-                post_type = 'widget' AND
-                post_status = 'publish'";
+                `post_type` = 'widget' AND
+                `post_status` IN ('$status')";
     $results = $wpdb->get_results($query);
     
     $widgets = array();
@@ -257,15 +260,19 @@ class Widget_Wrangler {
    * 
    * @return widget object
    */
-  function get_single_widget($post_id){
+  function get_single_widget($post_id, $widget_status = false)
+  {
     global $wpdb;
     
+    $status = $widget_status ? "`post_status` = '".$widget_status."' AND" : "";
+    
     $query = "SELECT
-                `ID`,`post_name`,`post_title`,`post_content`
+                `ID`,`post_name`,`post_title`,`post_content`,`post_status`
               FROM
                 `".$wpdb->prefix."posts`
               WHERE
                 `post_type` = 'widget' AND
+                ".$status."
                 `ID` = ".$post_id." LIMIT 1";
     if ($widget = $wpdb->get_row($query)) {
   

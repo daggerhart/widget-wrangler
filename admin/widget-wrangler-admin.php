@@ -255,7 +255,7 @@ class Widget_Wrangler_Admin {
   function _serialize_widgets($submitted_widget_data){
     // OK, we're authenticated:
     // we need to find and save the data
-    $all_widgets = $this->ww->get_all_widgets();
+    $all_widgets = $this->ww->get_all_widgets(array('publish', 'draft'));
     $active_widgets = array();
     
     $i = 1;
@@ -401,7 +401,7 @@ class Widget_Wrangler_Admin {
    */
   function get_sortable_widgets($active_widgets)
   {
-    $all_widgets = $this->ww->get_all_widgets();
+    $all_widgets = $this->ww->get_all_widgets(array('publish', 'draft'));
     $sidebars = $this->ww->corrals;
     $sorted_widgets = array('active' => array(), 'disabled' => array());
   
@@ -477,7 +477,7 @@ class Widget_Wrangler_Admin {
           }
           ?>
         </select>
-        <?php print $widget->post_title; ?>
+        <?php print $widget->post_title; ?> <?php print (($widget->post_status == 'draft') ? '- <em>(draft)</em>': ''); ?>
       </li>
     <?php
     return ob_get_clean();
@@ -489,6 +489,9 @@ class Widget_Wrangler_Admin {
    */
   function _save_post_widgets($post_id)
   {
+    // skip quick edit
+    if (isset($_REQUEST['_inline_edit'])) { return; }
+    
     // don't know what is being saved if not a post_type, so we do nothing
     if (!isset($_POST['post_type'])){
       return $post_id;
@@ -586,7 +589,7 @@ class Widget_Wrangler_Admin {
   //
   function _sortable_widgets_js(){
     wp_enqueue_script('ww-sortable-widgets',
-                    plugins_url('js/sortable-widgets.js', __FILE__ ),
+                    WW_PLUGIN_URL.'/admin/js/sortable-widgets.js',
                     array('jquery-ui-core', 'jquery-ui-sortable'),
                     false,
                     true);
@@ -599,7 +602,7 @@ class Widget_Wrangler_Admin {
   // 
   function _editing_widget_js(){
     wp_enqueue_script('ww-editing-widget',
-                    plugins_url('js/editing-widget.js', __FILE__ ),
+                    WW_PLUGIN_URL.'/admin/js/editing-widget.js',
                     array('jquery'),
                     false,
                     true);

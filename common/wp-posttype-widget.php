@@ -192,8 +192,8 @@ class WW_Widget_PostType {
   function wp_insert_post($post_id, $post = null)
   {
     //Check if this call results from another event, like the "Quick Edit" option
-    // http://wordpress.org/support/topic/plugin-widget-wrangler-adv-parsing-gets-lost-after-quickedit
-		if (isset($_POST['quickeditfix']) && $_POST['quickeditfix'] != "true")  { return; }
+    // http://wordpress.org/support/topic/quickedit-deletes-code-in-advanced-parsing
+		if (isset($_REQUEST['_inline_edit'])) { return; }
     
     // Loop through the public meta fields ($this->meta_box_fields) for $_POST data
     foreach ($this->meta_box_fields as $key){
@@ -224,6 +224,15 @@ class WW_Widget_PostType {
     // update clone instance
     if ($this->widget_type == "clone"){
       $instance = $this->make_clone_instance($_POST);
+      $old_instance = get_post_meta($post_id, 'ww-clone-instance', true);
+      
+      // let the widget update itself
+      $classname = $_POST['ww-data']['clone']['clone-class'];
+      if (class_exists($classname)) {
+        $wp_widget = new $classname;
+        $instance = $wp_widget->update($instance, $old_instance);
+      }
+
       $instance['ID'] = $post_id;
       if (isset($_POST['ww-data']['clone']['hide_title'])){
         $instance['hide_title'] = $_POST['ww-data']['clone']['hide_title'];
@@ -239,18 +248,21 @@ class WW_Widget_PostType {
    */
   function make_clone_instance($posted){
     global $wp_widget_factory;
-    $clone_class = $posted['ww-data']['clone']['clone-class'];
-    $option_name = "widget-".$wp_widget_factory->widgets[$clone_class]->control_options['id_base'];
-    $instance = array();
+    if (isset($posted['ww-data']['clone'])) {
+      $clone_class = $posted['ww-data']['clone']['clone-class'];
+      $option_name = "widget-".$wp_widget_factory->widgets[$clone_class]->control_options['id_base'];
+      $instance = array();
     
-    // loop through instance values and create an instance array
-    foreach($posted[$option_name] as $i => $settings){
-      foreach($settings as $key => $value){
-        $instance[$key] = $value;
+      // loop through instance values and create an instance array
+      foreach($posted[$option_name] as $i => $settings){
+        foreach($settings as $key => $value){
+          $instance[$key] = $value;
+        }
       }
+      
+      return $instance;
     }
-    
-    return $instance;
+    return false;
   }
 	
   /*
@@ -264,14 +276,13 @@ class WW_Widget_PostType {
     $wp_widget_classname = get_post_meta($this->post_id,'ww-clone-classname', true);
     $wp_widget_instance = get_post_meta($this->post_id, 'ww-clone-instance', true);
     
-    //var_dump($wp_widget_instance);
-    
     if($wp_widget_classname)
     {
       // create instance form
       ob_start();
-        eval('$w = new '.$wp_widget_classname.'(); $w->form($wp_widget_instance);');
-        $instance_form = ob_get_clean();
+        $wp_widget = new $wp_widget_classname;
+        $wp_widget->form($wp_widget_instance);
+      $instance_form = ob_get_clean();
         
       $hide_title_checked = (isset($wp_widget_instance['hide_title'])) ? 'checked="checked"' : '';
       ?>
@@ -490,7 +501,6 @@ class WW_Widget_PostType {
       }
     }
 			?>
-      <input type="hidden" name="quickeditfix" value="true" />
       <div class="adv-parse-description">
         <div id="ww-advanced-help">
           <div class="ww-advanced-help-description adv-parse-description">
@@ -546,7 +556,7 @@ class WW_Widget_PostType {
                   ?>
                   <div>
                     <h4>WP_Widget $instance</h4>
-                    <div><pre style="font-size: 0.9em;"><?php print_r($clone_instance); ?></pre></div>
+                    <div><pre style="font-size: 0.9em;"><?php print htmlentities(print_r($clone_instance,1)); ?></pre></div>
                   </div>
                   <?php
                 }

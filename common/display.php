@@ -116,7 +116,7 @@ class Widget_Wrangler_Display {
       $i = 0;
       $total = count($this->ww->page_widgets[$corral_slug]);
       while($i < $total) {
-        if($widget = $this->ww->get_single_widget($this->ww->page_widgets[$corral_slug][$i]['id']))
+        if($widget = $this->ww->get_single_widget($this->ww->page_widgets[$corral_slug][$i]['id'], 'publish'))
         {
           // we know the widget is in this corral
           $widget->in_corral = TRUE;
@@ -157,6 +157,8 @@ class Widget_Wrangler_Display {
    * @return themed widget for output or templating
    */
   function theme_single_widget($widget){
+    if (empty($widget)) { return ''; }
+    
     $default_html = array(
       'wrapper_element' => 'div',
       'wrapper_id'      => 'widget-'.$widget->ID,
@@ -214,7 +216,6 @@ class Widget_Wrangler_Display {
   function template_widget($widget)
   {
     $output = '';
-    //$corral_id = (isset($widget->in_corral) && isset($widget->corral['id']) && $widget->in_corral == true) ? $widget->corral['id'] : 0;
     
     $args = array(
       'widget' => $widget, // needed in final template
@@ -349,12 +350,12 @@ class Widget_Wrangler_Display {
   {
     // load widget from widget factory ?
     global $wp_widget_factory;
-    $wp_widget_class_obj = $wp_widget_factory->widgets[$wp_widget_class];
+    $wp_widget = $wp_widget_factory->widgets[$wp_widget_class];
   
     // get as much ww widget data as possible 
     $ww_widget = (isset($instance['ww_widget'])) ? $instance['ww_widget'] : $this->ww->get_single_widget($instance['ID']);
     
-    if ( !is_a($wp_widget_class_obj, 'WP_Widget') )
+    if ( !is_a($wp_widget, 'WP_Widget') )
       return;
   
     // args for spliting title from content
@@ -362,15 +363,22 @@ class Widget_Wrangler_Display {
   
     // output to variable for replacements
     ob_start();
-       $wp_widget_class_obj->widget($args, $instance);
+       $wp_widget->widget($args, $instance);
     $temp = ob_get_clean();
   
     // get title and content separate
     $array = explode("[eXpl0de]", $temp);
   
     // prep object for template
-    $ww_widget->post_title    = ($array[0]) ? $array[0]: $instance['title'];
-    $ww_widget->post_content  = $array[1];
+    if (count($array) > 1) {
+      // we have a title
+      $ww_widget->post_title    = ($array[0]) ? $array[0]: $instance['title'];
+      $ww_widget->post_content  = $array[1];
+    }
+    else {
+      // no title
+      $ww_widget->post_content = $array[0];
+    }
   
     if (isset($instance['hide_title']) && $instance['hide_title']){
       $ww_widget->post_title = NULL;
@@ -398,9 +406,10 @@ class Widget_Wrangler_Display {
       }
     }
     
-    if ($widget = $this->ww->get_single_widget($args['id'])){
+    if ($widget = $this->ww->get_single_widget($args['id'], 'publish')){
       return $this->ww->display->theme_single_widget($widget);
-    }    
+    }
+    return '';
   }
   
   /*
