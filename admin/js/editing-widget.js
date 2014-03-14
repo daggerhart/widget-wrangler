@@ -8,6 +8,15 @@
   $('#ww-adv-parse-toggle').change(function(event){
     $('#ww-adv-parse-content').toggle();
   });
+
+  // hide adv parsing if not checked
+  if (!$('#ww-display-logic-toggle').prop('checked')){
+    $('#ww-display-logic-content').hide();
+  }
+  
+  $('#ww-display-logic-toggle').change(function(event){
+    $('#ww-display-logic-content').toggle();
+  });
   
   // hide override html if not checked
   if (!$('#ww-override-html-toggle').prop('checked')){

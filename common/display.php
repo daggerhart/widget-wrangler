@@ -159,6 +159,23 @@ class Widget_Wrangler_Display {
   function theme_single_widget($widget){
     if (empty($widget)) { return ''; }
     
+    if ($widget->display_logic_enabled){
+      //$show = TRUE;
+      ob_start();
+        // expecting direct conditional statemnt
+        if (stripos($widget->display_logic, 'return') === FALSE){
+          $show = (eval('return '.$widget->display_logic.';'));
+        }
+        else {
+          $show = eval($widget->display_logic);
+        }
+      // 
+      $ob = ob_get_clean();
+      if (!$show && !$widget->in_preview){
+        return '';
+      }
+    }
+    
     $default_html = array(
       'wrapper_element' => 'div',
       'wrapper_id'      => 'widget-'.$widget->ID,
@@ -205,7 +222,7 @@ class Widget_Wrangler_Display {
         $themed = $this->template_widget($widget);
       }
     }
-  
+    
     return $themed;
   }
   

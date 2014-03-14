@@ -477,7 +477,7 @@ class Widget_Wrangler_Admin {
           }
           ?>
         </select>
-        <?php print $widget->post_title; ?> <?php print (($widget->post_status == 'draft') ? '- <em>(draft)</em>': ''); ?>
+        <?php print $widget->post_title; ?> <?php print (($widget->post_status == 'draft') ? '- <em>(draft)</em>': ''); ?> <?php print (($widget->display_logic_enabled) ? '- <em>(display logic)</em>': ''); ?>
       </li>
     <?php
     return ob_get_clean();

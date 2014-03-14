@@ -21,6 +21,8 @@ class WW_Widget_PostType {
         'ww-html-content-element',
         'ww-html-content-classes',
         'ww-preview-corral-slug',
+        'ww-display-logic-enabled',
+        'ww-display-logic',
       );
   var $capability_type;
   var $widget_type;
@@ -307,6 +309,7 @@ class WW_Widget_PostType {
       // buffer all of this in case of php errors
       ob_start();
         $widget = $this->ww->get_single_widget($this->post_id);
+        $widget->in_preview = TRUE;
         $preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
         if ($preview_corral_slug){
           $widget->in_corral = TRUE;
@@ -417,6 +420,20 @@ class WW_Widget_PostType {
             </div>
           </div>
         </div>
+        <?php $j = '1'; var_dump($j); $k = (bool) $j; var_dump($k);?>
+        <div>
+          <hr />
+          <h4>Display Logic</h4>
+            <p>
+              <label><input id="ww-display-logic-toggle" type="checkbox" name="ww-data[ww-display-logic-enabled]" <?php print $fields['ww-display-logic-enabled']['checked']; ?> /> Enable Display Logic</label>
+            </p>
+            <div id="ww-display-logic-content">
+              <p class="description">Site-wide raw PHP logic for displaying this widget</p>
+              <div>
+                <textarea name="ww-data[ww-display-logic]" cols="40" rows="5" style="width: 100%;"><?php print htmlentities($fields['ww-display-logic']['value']); ?></textarea>
+              </div>
+        </div>
+        
         <?php if ($this->ww->_check_license()) { ?>
           <hr />
           <h4>Override HTML Output</h4>
@@ -518,13 +535,19 @@ class WW_Widget_PostType {
                 <h4>Templating Advanced Parsed Widgets</h4>
                 <ul>
                   <li>To template an advanced parsed widget you must return an associative array with a title and content string.</li>
-                  <li>Example: &lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</li>
-                  <li><strong>All Cloned widgets are already templated so this setting should not be used for them.</strong></li>
-                  <li><strong>If you are unclear on what this means, it is highly recommended that you avoid this option.</strong></li>
+                  <li>Example: <code>&lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</code></li>
                 </ul>
                 <?php
               }
-              
+            ?>
+              <h4>Display Logic</h4>
+              <ul>
+                <li>Do NOT use &lt;?php and ?&gt; tags.  This field is for raw PHP.</li>
+                <li>Evaluate boolean true or false with php. (Defaults to <em>true</em>).</li>
+                <li>For simple logic, execute your conditions directly.  (For example, use Wordpress Conditional Tags such as <code>is_search()</code> or <code>is_404()</code>).</li>
+                <li>For complex logic, <em>return</em> TRUE or FALSE as needed.</li>
+              </ul>
+            <?php
               if (isset($suggestions)) { ?>
               
                 <?php if ($this->ww->_check_license()){ ?>

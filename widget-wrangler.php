@@ -118,7 +118,9 @@ class Widget_Wrangler {
    */
   function wp_widgets_init(){
     include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-corral.php';
+    include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-widget.php';
     register_widget( 'WidgetWrangler_Corral_Widget' );
+    register_widget( 'WidgetWrangler_Widget_Widget' );
   }
 
   /*
@@ -289,6 +291,8 @@ class Widget_Wrangler {
       }
       
       // output related variables
+      $widget->display_logic_enabled  = get_post_meta($widget->ID,'ww-display-logic-enabled',TRUE);
+      $widget->display_logic  = get_post_meta($widget->ID,'ww-display-logic',TRUE);
       $widget->theme_compat = (isset($this->settings['theme_compat']) && $this->settings['theme_compat']) ? 1 : 0;
       $widget->wp_widget_args = array('before_widget' => '', 'before_title' => '', 'after_title' => '', 'after_widget' => '');
       $widget->hide_title = get_post_meta($widget->ID,'ww-hide-title', TRUE);
@@ -311,6 +315,7 @@ class Widget_Wrangler {
       
       //presume it's not in a corral until we know later that it is
       $widget->in_corral = FALSE;
+      $widget->in_preview = FALSE;
       
       return $widget;
     }
