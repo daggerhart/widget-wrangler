@@ -11,7 +11,7 @@ filters
 class Widget_Wrangler_Display {
   //
   function __construct(){
-    include_once WW_PLUGIN_DIR.'/includes/backwards-compat-functions.inc';
+    include_once WW_PLUGIN_DIR.'/common/backwards-compat-functions.inc';
     $this->add_hooks();
   }
   

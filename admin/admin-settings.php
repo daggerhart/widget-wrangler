@@ -183,6 +183,7 @@ class WW_Settings_Admin  {
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
+    /*
     $settings['z_editor'] = array(
       'title' => 'Z Editor',
       'empty_value' => 0,
@@ -190,6 +191,7 @@ class WW_Settings_Admin  {
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
+    */
     $settings['shortcode_tinymce'] = array(
       'title' => 'tinyMCE Shortcode Button',
       'empty_value' => 0,
@@ -209,7 +211,7 @@ class WW_Settings_Admin  {
     if (get_option('ww_previous_main_version', '')){
       $extra_desc = "This version of Widget Wrangler has been upgraded from 1.x. If you have created templates with the previous version, you should leave this checked.";
     } else {
-      $extra_desc = "This version of Widget Wrangler was not upgrade from 1.x, you should not need this setting.";
+      $extra_desc = "This version of Widget Wrangler was not upgraded from 1.x, you should not need this setting.";
     }
     
     $settings['legacy_template_suggestions'] = array(
@@ -462,6 +464,7 @@ class WW_Settings_Admin  {
         ?>
           <label class="ww-checkbox">
             <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - If checked, widgets will include Wordpress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget.
+            <br /> Additionally, Enabling theme compatibility provides an administration page for managing the current theme's registered sidebar html.
           </label>
         <?php
         break;
@@ -591,7 +594,13 @@ class WW_Settings_Admin  {
               <p>
                 <input type="submit" class="button-secondary" name="<?php print $button_name; ?>" value="<?php _e($action_title.' License'); ?>"/>
               </p>
-          </form>        
+          </form>
+          
+          <h2>About Widget Wrangler Pro</h2>
+          <p>
+            Widget Wrangler Pro offers new features for a whole new level of control over your widgets.  Manage the widgets on archive (category) pages, create as many presets as you want, and many more!
+            <a target="_blank" href="http://wranglerplugins.com/plugins/widget-wrangler/#compare">View Pro Features</a>
+          </p>
         <?php
         break;
       

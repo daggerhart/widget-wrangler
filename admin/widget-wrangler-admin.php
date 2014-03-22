@@ -26,11 +26,12 @@ class Widget_Wrangler_Admin {
     include_once WW_PLUGIN_DIR.'/admin/admin-clone.php';
     include_once WW_PLUGIN_DIR.'/admin/admin-presets.php';
     include_once WW_PLUGIN_DIR.'/admin/admin-corrals.php';
+    include_once WW_PLUGIN_DIR.'/admin/admin-sidebars.php';
     include_once WW_PLUGIN_DIR.'/admin/admin-settings.php';
     include_once WW_PLUGIN_DIR.'/admin/admin-shortcode-tinymce.php';
     include_once WW_PLUGIN_DIR.'/admin/admin-taxonomies.php';
     
-    include_once WW_PLUGIN_DIR.'/includes/EDD_SL_Plugin_Updater.php';
+    //include_once WW_PLUGIN_DIR.'/includes/EDD_SL_Plugin_Updater.php';
     
     global $widget_wrangler;
     $this->ww = $widget_wrangler;
@@ -56,7 +57,7 @@ class Widget_Wrangler_Admin {
     
     $this->addons = $addons;
   }
-  
+    
   //
   // add common wp hooks for addons if they implement them with certain method names
   //  - wp_{hook_name}
@@ -89,7 +90,7 @@ class Widget_Wrangler_Admin {
   
   //
   function wp_admin_init(){
-    $this->init_updater();
+    //$this->init_updater();
     
     add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
           

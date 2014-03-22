@@ -1,6 +1,5 @@
 === Widget Wrangler ===
 Contributors: daggerhart
-Donate link: http://widgetwrangler.com
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 3
 Tested up to: 3.8.1
@@ -10,15 +9,23 @@ A plugin for managing the display of widgets on a page by page basis. Using widg
 
 == Description ==
 
-Widget Wrangler is a plugin for Wordpress that gives administrators a clean interface for managing widgets on a page by page basis.  On each page, you can control which widets appear in which sidebars. 
+Widget Wrangler is a plugin for Wordpress that gives administrators a clean interface for managing widgets on a page by page basis.  On each page, you can control what widgets appear where.
 
-Widget Wrangler provides widgets as a post type, gives you the ability to use existing wordpress widgets (called 'Cloning'), and provides shortcode support for individual widgets.
+Widget Wrangler provides the following features:
 
-Create and manage multiple corrals ("sidebars", or groups of widgets) per page.
+* Widgets as a post type
+* PHP in widgets
+* TinyMCE (wysiwyg) for Widgets
+* Custom Widget templates
+* Control Widget visibility on any page (or post type)
+* Control Widget visibility globally (Display Logic)
+* Alter WP Sidebar HTML
+* Shortcodes for Widgets
+* Compatible with almost any existing Wordpress Widget
+* Hide Widget Titles
+* Automatic Theme Setup
 
-Long time users beware!  There is a new setting called "Theme compatibility" that is now set by default on new installs.  This setting causes widgets to respect the wordpress register_sidebar display settings. 
-
-=Screencasts=
+= Screencasts =
 
 http://www.youtube.com/watch?v=oW2NgtwUuHE
 
@@ -60,8 +67,8 @@ A widget's post ID is displayed in the 'Options' panel when editing that widget.
 
 = How do I display my widgets? =
 
-There are two ways to accomplish this.   The easiest way is to go to the standard Widget area under the Appearance admin menu item and drag the WW Sidebar widget into the sidebar area where it should appear, then select which WW sidebar should be shown from the widget options.
-The other way requires you to edit your template files and find any instance of the dynamic_sidebar() function.  Replace these functions with ww_dynamic_sidebar('name_of_sidebar').
+The easiest way is to go to the standard Widget area under the Appearance admin menu item and drag the "Widget Wrangler - Corral" widget into the sidebar area where you want it, then select which Widget Wrangler corral should be shown from the widget options.
+The other way requires you to edit your template files and find any instance of the dynamic_sidebar() function.  Replace these functions with ww_dynamic_sidebar('corral_slug').
 
 = How can I control the widget's template (HTML)? =
 
@@ -74,7 +81,7 @@ Mostly. Widgets designed for Wordpress 3+ are able to be used with the 'Copy WP 
 
 = What does it mean to Copy/Clone a widget? =
 
-When you Copy a wordpress widget, it creates a new widget post in the Widget Wrangler system with the settings for the original wordpress widget pre-filled.  A copied widget will contain the original widget instance form for the WP widget.
+When you Copy a wordpress widget, it creates a new widget post in the Widget Wrangler system with the settings for the original wordpress widget pre-filled.  A copied widget will contain the original widget form for the WP widget.
 
 
 == Screenshots ==
@@ -85,6 +92,17 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 1. Widget Wrangler Corral Widget
 
 == Changelog ==
+
+= 2.0 =
+
+* New: Widget Diplay logic allows you to control a widget's visibility globally
+* New: Customize WP Sidebar HTML
+* New: More granular template suggestions
+* New: Presets
+
+= 1.5.4 =
+
+* Fix: Saving draft widgets correctly when wrangling
 
 = 1.5.3 =
 
@@ -219,4 +237,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-1.5.2 Bug fixes on new post creation and sortable widgets form
+2.0 New Features

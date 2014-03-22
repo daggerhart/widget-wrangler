@@ -579,3 +579,21 @@ div.ww-setting-content {
 .ww-settings-roles {
   padding: 8px 24px;
 }
+
+/*
+ * Sidebar Alter
+ */
+.ww-alter-sidebar-field {
+  min-height: 40px;
+  clear: left;
+}
+.ww-alter-sidebar-field label {
+  font-weight: bold;
+  display: block;
+  float: left;
+  clear: left;
+  width: 14%;
+}
+.ww-alter-sidebar-field input[type=text] {
+  width: 85%;
+}

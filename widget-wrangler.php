@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Widget Wrangler
-Plugin URI: http://www.widgetwrangler.com
+Plugin URI: http://www.wranglerplugins.com
 Description: Widget Wrangler gives the wordpress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing wordpress widgets, and granular control over widgets' templates.
 Author: Jonathan Daggerhart
 Version: 2.0
-Author URI: http://www.websmiths.co
+Author URI: http://jonathan.daggerhart.com
 License: GPL2
 */
 /*  Copyright 2010  Jonathan Daggerhart  (email : jonathan@daggerhart.com)
@@ -61,6 +61,9 @@ class Widget_Wrangler {
   // licensing
   var $license_status = FALSE;
   
+  // altered sidebars
+  var $altered_sidebars = array();
+  
   // ww
   var $settings = array();
   var $default_settings = array(
@@ -79,10 +82,16 @@ class Widget_Wrangler {
         'legacy_template_suggestions' => 0,
       );
   
+  
+  function __d($v){
+    print '<pre>'.htmlentities(print_r($v,1)).'</pre>';
+  }
+  
   //
   function __construct(){
+    add_action('wp_loaded', array($this, 'wp_loaded'), 999);
     // core
-    include_once WW_PLUGIN_DIR.'/includes/template-wrangler.inc';
+    include_once WW_PLUGIN_DIR.'/common/template-wrangler.inc';
     include_once WW_PLUGIN_DIR.'/common/presets.php';
     include_once WW_PLUGIN_DIR.'/common/display.php';
     include_once WW_PLUGIN_DIR.'/common/wp-posttype-widget.php';
@@ -97,7 +106,7 @@ class Widget_Wrangler {
     
     // z_editor
     if (isset($this->settings['z_editor']) && $this->settings['z_editor'] && $this->_check_license()){
-      include_once WW_PLUGIN_DIR.'/admin/z-editor.php';
+      //include_once WW_PLUGIN_DIR.'/admin/z-editor.php';
     }
     
     // early wp hooks
@@ -143,12 +152,59 @@ class Widget_Wrangler {
   }
   
   /*
+   * wp-loaded action hook
+   */
+  function wp_loaded(){
+    global $wp_registered_sidebars;
+    $wp_registered_sidebars = $this->get_altered_sidebars();
+  }
+    
+  /*
    * Apply the filter so all addons can help find the appropriate page_widgets
    */
   function find_all_page_widgets(){
     $this->_set_page_context();
     // gather page widgets by allowing anything to look for them
     $this->page_widgets = apply_filters('widget_wrangler_find_all_page_widgets', $this->page_widgets);
+  }
+
+  /*
+   * Alter WP Sidebars 
+   */
+  function get_altered_sidebars($force_alter = false){
+    global $wp_registered_sidebars;
+    $ww_alter_sidebars = get_option('ww_alter_sidebars');
+    $combined = array();
+    
+    // altered sidebars
+    foreach ($wp_registered_sidebars as $slug => $sidebar){
+      
+      // use original
+      if ($force_alter || isset($ww_alter_sidebars[$slug]['ww_altered'])){
+        $combined[$slug] = $wp_registered_sidebars[$slug];
+        foreach ($ww_alter_sidebars[$slug] as $k => $v){
+          if (isset($v)) {
+            $combined[$slug][$k] = $v;
+          }
+        }
+      }
+      else {
+        $combined[$slug] = $wp_registered_sidebars[$slug];
+      }
+      $combined[$slug]['ww_created'] = FALSE;
+    }
+    
+    /*/ new sidebars
+    foreach ($ww_alter_sidebars as $slug => $sidebar){
+      if (!isset($combined[$slug])){
+        $combined[$slug] = $sidebar;
+        $combined[$slug]['ww_created'] = TRUE;
+      }
+    }
+    // */
+    $this->altered_sidebars = $combined;
+    
+    return $combined;
   }
   
   /*

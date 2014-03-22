@@ -19,7 +19,7 @@ class WW_Corrals_Admin  {
   function wp_admin_init(){}
   
   function wp_admin_menu(){
-    $page_title = 'Corrals (Sidebars)';
+    $page_title = 'Corrals';
 
     $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'corrals', array( $this, '_menu_router' ));
     add_action( "admin_print_scripts-".$this->page_hook, array( $this, '_corrals_form_js' ) );

@@ -420,7 +420,7 @@ class WW_Widget_PostType {
             </div>
           </div>
         </div>
-        <?php $j = '1'; var_dump($j); $k = (bool) $j; var_dump($k);?>
+        
         <div>
           <hr />
           <h4>Display Logic</h4>
@@ -432,6 +432,7 @@ class WW_Widget_PostType {
               <div>
                 <textarea name="ww-data[ww-display-logic]" cols="40" rows="5" style="width: 100%;"><?php print htmlentities($fields['ww-display-logic']['value']); ?></textarea>
               </div>
+            </div>
         </div>
         
         <?php if ($this->ww->_check_license()) { ?>
