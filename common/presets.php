@@ -54,6 +54,7 @@ class WW_Presets {
   function wp_admin_init(){
     // make sure our core presets are installed
     if (!$this->get_core_preset('default')){
+      $this->ww->_handle_extras_table();
       $this->_install_core_presets();
     }
   }

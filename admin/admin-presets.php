@@ -31,7 +31,7 @@ class WW_Presets_Admin  {
   //
   function ww_save_widgets_alter($widgets){
     // '0' handles itself
-    $new_preset_id = (isset($_POST['ww-post-preset-id-new'])) ? (int)$_POST['ww-post-preset-id-new'] : 0;
+    $new_preset_id = (isset($_POST['ww-post-preset-id-new'])) ? (int)$_POST['ww-post-preset-id-new'] : 1;
     $new_preset_widgets = NULL;
     
     // attempt to load that new preset
@@ -39,18 +39,17 @@ class WW_Presets_Admin  {
       $new_preset_widgets = serialize($new_preset->widgets);
     }
     
-    // if new_preset_id is not zero, then a preset was selected and we don't want to save widgets
-    if ($new_preset_id !== 0){
-      $widgets = false;
-    }
-    //  - or, the new_preset_id is not zero
     // if the widgets to be saved are not the same as the selected preset's widgets
     //   then the user loaded a preset, and changed some widgets
-    else if ($widgets != $new_preset_widgets){
+    if ($widgets != $new_preset_widgets){
       // force the 'zero' preset because these widgets are custom
       $new_preset_id = 0;      
     }
     
+    // if new_preset_id is not zero, then a preset was selected and we don't want to save widgets
+    if ($new_preset_id !== 0){
+      $widgets = false;
+    }
     // set the new preset id for other plugins or addons to use
     $this->ww->presets->new_preset_id = $new_preset_id;
     

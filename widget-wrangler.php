@@ -4,7 +4,7 @@ Plugin Name: Widget Wrangler
 Plugin URI: http://www.wranglerplugins.com
 Description: Widget Wrangler gives the wordpress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing wordpress widgets, and granular control over widgets' templates.
 Author: Jonathan Daggerhart
-Version: 2.0
+Version: 2.0.1
 Author URI: http://jonathan.daggerhart.com
 License: GPL2
 */
@@ -148,6 +148,9 @@ class Widget_Wrangler {
     if (is_admin()){
       include_once WW_PLUGIN_DIR.'/admin/widget-wrangler-admin.php';
       $this->admin = new Widget_Wrangler_Admin();
+      
+      // make sure we're updated
+      $this->register_activation_hook();
     }  
   }
   
@@ -549,8 +552,6 @@ class Widget_Wrangler {
    * Activation
    */
   function register_activation_hook(){
-    $this->_handle_extras_table();
-    
     // upgrade, if an old version exists
     if ($old_version = get_option('ww_version', FALSE)){
       if ((float) $old_version < WW_VERSION){
@@ -574,7 +575,9 @@ class Widget_Wrangler {
    * First install
    */
   function _install_core(){
-    add_option('ww_settings', $this->default_settings);
+    if (!get_option('ww_settings', false)){
+      add_option('ww_settings', $this->default_settings);
+    }
   }
   
   /*

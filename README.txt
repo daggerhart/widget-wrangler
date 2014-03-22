@@ -93,6 +93,7 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+
 = 2.0 =
 
 * New: Widget Diplay logic allows you to control a widget's visibility globally
@@ -237,4 +238,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.0 New Features
+2.0.1 New Features
