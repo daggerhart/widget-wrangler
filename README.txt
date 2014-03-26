@@ -37,10 +37,17 @@ http://www.youtube.com/watch?v=oW2NgtwUuHE
 == Installation ==
 
 1. Visit Plugins >> Add New on your site and search for "widget wrangler".  Download and activate the plugin.
-1. Add a new corral under the Widget Wrangler >> Corrals (Sidebars) menu item
+
+= Automatic Theme Setup =
+
+If you want to use a single Corral per Wordpress sidebar (or are unsure what all this means), visit Widget Wrangler >> Settings >> Tools and click "Setup Theme".  This will automatically create one Corral for each Wordpress Sidebar, and place the Corral Widget into each Sidebar.
+
+= Manual Setup =
+
+1. Add a new corral under the Widget Wrangler >> Corrals menu item
 1. Corral Display: Add a Corral to your existing theme's sidebars by using the Widget Wrangler Corral widget in the Appearance >> Widgets area.
 1. Begin adding widgets under the Widget Wrangler >> Add New menu
-1. Set default widgets on the Widget Wrangler >> Default Widgets page
+1. Set default widgets on the Widget Wrangler >> Presets >> Default page
 
 == Frequently Asked Questions ==
 
