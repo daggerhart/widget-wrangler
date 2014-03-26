@@ -93,6 +93,13 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.0.2 =
+
+* Bug fix: Saving settings without Pro License
+
+= 2.0.1 =
+
+* Upgrade bug fix
 
 = 2.0 =
 
@@ -238,4 +245,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.0.1 New Features
+2.0.2 Bug fix when saving settings

@@ -172,7 +172,7 @@ class WW_Settings_Admin  {
     $settings['taxonomies'] = array(
       'title' => 'Taxonomies',
       'description' => 'Select which taxonomies can control widgets individually.',
-      'empty_value' => array(),
+      'empty_value' => $this->ww->settings['taxonomies'],
       'require_license' => true,
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
@@ -202,7 +202,7 @@ class WW_Settings_Admin  {
     $settings['override_elements'] = array(
       'title' => 'HTML Override Elements',
       'description' => 'Allowed elements for override a widget\'s html output.  Place one element per line.',
-      'empty_value' => array(),
+      'empty_value' => $this->ww->settings['override_elements'],
       'require_license' => true,
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
