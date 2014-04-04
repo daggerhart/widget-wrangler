@@ -4,7 +4,7 @@ Plugin Name: Widget Wrangler
 Plugin URI: http://www.wranglerplugins.com
 Description: Widget Wrangler gives the wordpress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing wordpress widgets, and granular control over widgets' templates.
 Author: Jonathan Daggerhart
-Version: 2.0.2
+Version: 2.0.3
 Author URI: http://jonathan.daggerhart.com
 License: GPL2
 */
@@ -290,7 +290,8 @@ class Widget_Wrangler {
    * Get all corrals and store them in the ww object
    */
   function _get_corrals(){
-    $this->corrals = get_option('ww_sidebars', array());
+    $corrals = get_option('ww_sidebars', array());
+    $this->corrals = maybe_unserialize($corrals);
     return $this->corrals;
   }
   
@@ -615,7 +616,7 @@ class Widget_Wrangler {
     
     // add new default settings
     foreach ($this->default_settings as $key => $value ){
-      if (!isset($settings[$key])){
+      if ($key != "theme_compat" && !isset($settings[$key])){
         $settings[$key] = $value;
       }
     }

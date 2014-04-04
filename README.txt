@@ -100,6 +100,11 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.0.3 =
+
+* Bug fix: Fix issue with corrals and settings for users that upgrade from much older versions.
+* Bug fix: Retain theme copatibility setting during upgrade to 2.x
+
 = 2.0.2 =
 
 * Bug fix: Saving settings without Pro License
@@ -252,4 +257,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.0.2 Bug fix when saving settings
+2.0.3 More 2.x upgrade bug fixes.  Not a necessary upgrade if you're already on 2.x
