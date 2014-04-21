@@ -100,6 +100,11 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.0.4 =
+
+* Bug fix: Unable to show title on cloned widgets
+* Improved preview HTML when corral context is set.
+
 = 2.0.3 =
 
 * Bug fix: Fix issue with corrals and settings for users that upgrade from much older versions.
@@ -257,4 +262,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.0.3 More 2.x upgrade bug fixes.  Not a necessary upgrade if you're already on 2.x
+2.0.4 Hide title fix on Cloned widgets.  Better preview when corral context is set.

@@ -129,13 +129,8 @@ class Widget_Wrangler_Display {
           if (!$widget->override_output_html &&
               $widget->theme_compat)
           {
-            // don't break widget args for other widgets
-            $copy_wp_widget_args = $wp_widget_args;
-            
-            // wrapper_classes
-            $replace = !empty($widget->html['wrapper_classes']) ? $widget->html['wrapper_classes']: 'ww_widget-'.$widget->post_name.' ww_widget-'.$widget->ID;
-            $copy_wp_widget_args['before_widget'] = str_replace('widget-wrangler-widget-classname', $replace, $wp_widget_args['before_widget']);
-            $widget->wp_widget_args = $copy_wp_widget_args;
+            $widget->wp_widget_args = $wp_widget_args;
+            $widget = $this->_replace_wp_widget_args($widget);
           }
           
           $widget_html = $this->theme_single_widget($widget);
@@ -150,6 +145,16 @@ class Widget_Wrangler_Display {
     }
     
     print $corral_html;
+  }
+  
+  /*
+   * Replace the classes and IDs of a widget displayed within a sidebar
+   */
+  function _replace_wp_widget_args($widget){
+    // wrapper_classes
+    $replace = !empty($widget->html['wrapper_classes']) ? $widget->html['wrapper_classes']: 'ww_widget-'.$widget->post_name.' ww_widget-'.$widget->ID;
+    $widget->wp_widget_args['before_widget'] = str_replace('widget-wrangler-widget-classname', $replace, $widget->wp_widget_args['before_widget']);
+    return $widget;
   }
   
   /*

@@ -238,6 +238,8 @@ class WW_Widget_PostType {
       $instance['ID'] = $post_id;
       if (isset($_POST['ww-data']['clone']['hide_title'])){
         $instance['hide_title'] = $_POST['ww-data']['clone']['hide_title'];
+      } else if (isset($instance['hide_title'])) {
+        unset($instance['hide_title']);
       }
       
       delete_post_meta($post_id, 'ww-clone-instance');
@@ -311,7 +313,27 @@ class WW_Widget_PostType {
         $widget = $this->ww->get_single_widget($this->post_id);
         $widget->in_preview = TRUE;
         $preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
+        
+        // set some data so the preview is as accurate as possible
         if ($preview_corral_slug){
+          global $wp_registered_sidebars;
+          $corral_sidebar_map = $this->ww->display->corrals_to_wpsidebars_map();
+          
+          // get the sidebar widget args if context is set
+          if (isset($corral_sidebar_map[$preview_corral_slug]) && isset($wp_registered_sidebars[$corral_sidebar_map[$preview_corral_slug]])){
+            $this_sidebar = $wp_registered_sidebars[$corral_sidebar_map[$preview_corral_slug]];
+            
+            // get the id of the corral selected if it exists within the sidebar
+            $sidebars_widgets = wp_get_sidebars_widgets();
+            if (isset($sidebars_widgets[$this_sidebar['id']])){
+              $corral_widgets = $sidebars_widgets[$this_sidebar['id']];
+            }
+            $widget->wp_widget_args = $this_sidebar;
+            $widget->wp_widget_args['before_widget'] = sprintf($this_sidebar['before_widget'], $corral_widgets[0], 'widget-wrangler-widget-classname');
+            // replace id and classes as done during output
+            $widget = $this->ww->display->_replace_wp_widget_args($widget);
+          }
+          
           $widget->in_corral = TRUE;
           $widget->corral_slug = $preview_corral_slug;
         }
