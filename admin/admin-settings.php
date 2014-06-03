@@ -353,7 +353,7 @@ class WW_Settings_Admin  {
         }
       }
       
-      // add this setting to a dynamic filter for form, and execute
+      // add this setting to a dynamic filter for form, and execute.
       // form filter is unique to the setting item
       add_filter('ww_settings_form_items_'.$setting_key, $setting['form_action']);
       
@@ -439,6 +439,10 @@ class WW_Settings_Admin  {
       // Taxonomies
       case 'taxonomies':
         $taxonomies = get_taxonomies(array(), 'objects');
+
+//        $this->ww->__d($taxonomies);
+
+          
         if (!isset($setting['form_values']['taxonomies'])){
           $setting['form_values']['taxonomies'] = array();
         }
@@ -448,10 +452,20 @@ class WW_Settings_Admin  {
               // loop through taxonomies
               foreach ($taxonomies as $tax_name => $tax ){
                 if ($tax->show_ui){
+                  // taken from get_edit_term_link
+                  // https://core.trac.wordpress.org/browser/tags/3.9.1/src/wp-includes/link-template.php#L894
+                  $args = array(
+                    'taxonomy' => $tax_name,
+                  );
+                  
+                  $edit_link = add_query_arg( $args, admin_url( 'edit-tags.php' ) );
+                  
                   $checked = (in_array($tax_name, $setting['form_values']['taxonomies'])) ? 'checked="checked"' : '';
                   ?>
-                  <label class="ww-checkbox"><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $tax_name; ?>]" value="<?php print $tax_name; ?>" <?php print $checked; ?> /> - <?php print $tax->label; ?> </label>
-                  <?php
+                  <label class="ww-checkbox"><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $tax_name; ?>]" value="<?php print $tax_name; ?>" <?php print $checked; ?> /> - <?php print $tax->label; ?>
+                    <?php if ($checked) { ?>- <a href="<?php print $edit_link;?>#widget-wrangler">edit widgets</a><?php } ?>
+                  </label> 
+                  <?php                    
                 }
               }
             ?>

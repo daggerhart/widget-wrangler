@@ -192,6 +192,7 @@ class Widget_Wrangler_Admin {
     
     ob_start();
     ?>
+      <a id="widget-wrangler"></a><br />
       <div class="wrap">
         <form <?php print $form['attributes']['output']; ?>>
           <div class="ww-admin-top">
@@ -407,6 +408,11 @@ class Widget_Wrangler_Admin {
     // loop through $all_widgets, so we can know which widgets are disabled
     $i = 0;
     foreach($all_widgets as $widget){
+      // hide widget from wrangler if applicable
+      if (!empty($widget->hide_from_wrangler)){
+        continue;
+      }
+      
       // fix widgets with no title
       if ($widget->post_title == ""){
         $widget->post_title = "(no title) - Slug: ".$widget->post_name." - ID: ".$widget->ID;

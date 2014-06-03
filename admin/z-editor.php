@@ -233,12 +233,12 @@ class WW_Z_Editor  {
           if($widget = $this->ww->get_single_widget($widget_id))
           {
             // include theme compatibility data
-            $widget->theme_compat = 0;
+            $this->ww->display->theme_compat = 0;
             $widget->wp_widget_args = array('before_widget' => '', 'before_title' => '', 'after_title' => '', 'after_widget' => '');
             $widget->current_weight = 0;  // js will fix
             
             if ($this->ww->settings['theme_compat']) {
-              $widget->theme_compat = 1;
+              $this->ww->display->theme_compat = 1;
               
               // get wp widget args like it was in this sidebar
               $corrals_to_wpsidebar_map = $this->ww->display->corrals_to_wpsidebars_map();

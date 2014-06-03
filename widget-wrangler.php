@@ -4,7 +4,7 @@ Plugin Name: Widget Wrangler
 Plugin URI: http://www.wranglerplugins.com
 Description: Widget Wrangler gives the wordpress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing wordpress widgets, and granular control over widgets' templates.
 Author: Jonathan Daggerhart
-Version: 2.0.4
+Version: 2.1
 Author URI: http://jonathan.daggerhart.com
 License: GPL2
 */
@@ -54,6 +54,9 @@ class Widget_Wrangler {
     
   // context for current page being viewed on front end
   var $page_context = NULL;
+
+  // theme compatiblity is a global option
+  var $theme_compat = 0;
   
   // all corrals
   var $corrals = array();
@@ -82,9 +85,14 @@ class Widget_Wrangler {
         'legacy_template_suggestions' => 0,
       );
   
-  
-  function __d($v){
-    print '<pre>'.htmlentities(print_r($v,1)).'</pre>';
+  // simple debugging
+  function __d($v, $return = false){
+    $d ='<pre>'.htmlentities(print_r($v,1)).'</pre>';
+    if (!$return) {
+      print $d;
+    } else {
+      return $d;
+    }
   }
   
   //
@@ -103,7 +111,7 @@ class Widget_Wrangler {
     $this->_get_settings();
     $this->_get_corrals();
     $this->_check_license();
-    
+        
     // z_editor
     if (isset($this->settings['z_editor']) && $this->settings['z_editor'] && $this->_check_license()){
       //include_once WW_PLUGIN_DIR.'/admin/z-editor.php';
@@ -183,7 +191,7 @@ class Widget_Wrangler {
     foreach ($wp_registered_sidebars as $slug => $sidebar){
       
       // use original
-      if ($force_alter || isset($ww_alter_sidebars[$slug]['ww_altered'])){
+      if ($force_alter || isset($ww_alter_sidebars[$slug]['ww_alter'])){
         $combined[$slug] = $wp_registered_sidebars[$slug];
         foreach ($ww_alter_sidebars[$slug] as $k => $v){
           if (isset($v)) {
@@ -358,9 +366,9 @@ class Widget_Wrangler {
       // output related variables
       $widget->display_logic_enabled  = get_post_meta($widget->ID,'ww-display-logic-enabled',TRUE);
       $widget->display_logic  = get_post_meta($widget->ID,'ww-display-logic',TRUE);
-      $widget->theme_compat = (isset($this->settings['theme_compat']) && $this->settings['theme_compat']) ? 1 : 0;
       $widget->wp_widget_args = array('before_widget' => '', 'before_title' => '', 'after_title' => '', 'after_widget' => '');
       $widget->hide_title = get_post_meta($widget->ID,'ww-hide-title', TRUE);
+      $widget->hide_from_wrangler = get_post_meta($widget->ID,'ww-hide-from-wrangler', TRUE);
       $widget->override_output_html = get_post_meta($widget->ID,'ww-override-output-html', TRUE);
       $widget->html = array(
         'wrapper_element' => get_post_meta($widget->ID,'ww-html-wrapper-element', TRUE),
@@ -378,8 +386,6 @@ class Widget_Wrangler {
       $widget->clone_classname = get_post_meta($widget->ID,'ww-clone-classname', TRUE);
       $widget->clone_instance = get_post_meta($widget->ID,'ww-clone-instance', TRUE);
       
-      //presume it's not in a corral until we know later that it is
-      $widget->in_corral = FALSE;
       $widget->in_preview = FALSE;
       
       return $widget;

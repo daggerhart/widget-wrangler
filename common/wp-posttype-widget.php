@@ -11,6 +11,7 @@ class WW_Widget_PostType {
         "ww-wpautop",
         "ww-adv-template",
         "ww-hide-title",
+        "ww-hide-from-wrangler",
         "ww-custom-template-suggestion",
         'ww-override-output-html',
         'ww-html-wrapper-element',
@@ -49,6 +50,7 @@ class WW_Widget_PostType {
       'excerpt' => 'excerpt',
       'editor' => 'editor',
       'custom-fields' => 'custom-fields',
+      'thumbnail' => 'thumbnail'
     );
       
     // custom post type labels
@@ -279,6 +281,7 @@ class WW_Widget_PostType {
 
     $wp_widget_classname = get_post_meta($this->post_id,'ww-clone-classname', true);
     $wp_widget_instance = get_post_meta($this->post_id, 'ww-clone-instance', true);
+    $ww_hide_from_wrangler = get_post_meta( $this->post_id, 'ww-hide-from-wrangler', true);
     
     if($wp_widget_classname)
     {
@@ -290,9 +293,17 @@ class WW_Widget_PostType {
         
       $hide_title_checked = (isset($wp_widget_instance['hide_title'])) ? 'checked="checked"' : '';
       ?>
-        <label>
-          <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> - Hide the Widget's title on display
-        </label>
+        <p>
+          <label>
+            <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> Hide the Widget's title on display
+          </label>
+        </p>
+        <p>
+          <label>
+            <input type="checkbox" name="ww-data[ww-hide-from-wrangler]" <?php checked($ww_hide_from_wrangler, 'on', 1); ?> /> Hide the Widget from the drag and drop Wrangler.
+            <br /><em>This is useful for widgets that are only meant to be used as shortcodes.</em>
+          </label>
+        </p>
         <div class="ww-clone-form">
           <?php print $instance_form; ?>
         </div>
@@ -334,8 +345,8 @@ class WW_Widget_PostType {
             $widget = $this->ww->display->_replace_wp_widget_args($widget);
           }
           
-          $widget->in_corral = TRUE;
-          $widget->corral_slug = $preview_corral_slug;
+          $this->ww->display->doing_corral = TRUE;
+          $this->ww->display->doing_corral_slug = $preview_corral_slug;
         }
         print $this->ww->display->theme_single_widget($widget);
       $preview = ob_get_clean();
@@ -350,7 +361,7 @@ class WW_Widget_PostType {
               <?php
                 foreach($this->ww->corrals as $corral_slug => $corral)
                 {
-                  $selected = (isset($widget->corral_slug) && $corral_slug == $widget->corral_slug) ? 'selected="selected"': "";
+                  $selected = (isset($this->ww->display->doing_corral_slug) && $corral_slug == $this->ww->display->doing_corral_slug) ? 'selected="selected"': "";
                   ?>
                   <option <?php print $selected; ?> value="<?php print $corral_slug; ?>"><?php print $corral; ?></option>
                   <?php
@@ -424,6 +435,12 @@ class WW_Widget_PostType {
         </p>
         <p>
           <label><input type="checkbox" name="ww-data[ww-hide-title]" <?php print $fields['ww-hide-title']['checked']; ?> /> Hide this widget's title on output.</label>
+        </p>
+        <p>
+          <label>
+            <input type="checkbox" name="ww-data[ww-hide-from-wrangler]" <?php print $fields['ww-hide-from-wrangler']['checked']; ?> /> Hide the Widget from the drag and drop Wrangler.
+            <br /><em>This is useful for widgets that are only meant to be used as shortcodes.</em>
+          </label>
         </p>
         <hr />
         <div>
@@ -511,8 +528,8 @@ class WW_Widget_PostType {
       
 			$preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
       if ($preview_corral_slug){
-        $widget->in_corral = TRUE;
-        $widget->corral_slug = $preview_corral_slug;
+        $this->ww->display->doing_corral = TRUE;
+        $this->ww->display->doing_corral_slug = $preview_corral_slug;
       }
       
       $args = array(
