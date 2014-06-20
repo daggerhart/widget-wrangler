@@ -1,14 +1,13 @@
 <?php
 
 /*
+ * Presets are a mechanism for using pre-configured groups of widgets throughout
+ *  a WordPress site.
  *
-filters
-  - widget_wrangler_preset_varieties
- 
-*/
-
-/*
- * Presets
+ * Preset varieties are different types of presets.
+ *
+ * New WordPress filters
+ *  - widget_wrangler_preset_varieties
  */
 class WW_Presets {
   public $preset_varieties = array();
@@ -30,9 +29,10 @@ class WW_Presets {
     add_filter( 'widget_wrangler_find_all_page_widgets', array( $this, 'ww_find_core_preset_widgets' ), 999 );
   }
 
-  //
-  // hook - init
-  //
+  /*
+   * WordPress hook - init
+   *  Gather and process the preset varieties
+   */
   function wp_init(){
     // gather and process preset_varieties
     $preset_varieties = apply_filters('widget_wrangler_preset_varieties', $this->preset_varieties);
@@ -48,9 +48,10 @@ class WW_Presets {
     $this->preset_varieties = $preset_varieties;
   }
   
-  //
-  // hook admin_init
-  //
+  /*
+   * WordPress hook admin_init
+   *  Ensure default presets are installed
+   */
   function wp_admin_init(){
     // make sure our core presets are installed
     if (!$this->get_core_preset('default')){
@@ -62,7 +63,9 @@ class WW_Presets {
   /*
    * All Widget Preset types provided by default
    *
-   * @return array All widget preset types
+   * @param (array) - existing preset varieties
+   * 
+   * @return (array) default preset varieties
    */  
   function ww_default_preset_varieties($preset_varieties){
     $preset_varieties['core'] = array(
@@ -76,9 +79,13 @@ class WW_Presets {
     return $preset_varieties;
   }
   
-  //
-  //
-  //
+  /*
+   * Handle determining the widgets for a single post using a preset
+   *
+   * @param (mixed) - array if widgets already found, null if not
+   *
+   * @return (mixed) - array if widgets found, null if not
+   */
   function ww_find_standard_preset_widgets($widgets){
     if (is_null($widgets) && (is_singular() || is_admin())) {
       global $post;
@@ -93,9 +100,13 @@ class WW_Presets {
     return $widgets;
   }
   
-  //
-  //
-  //
+  /*
+   * Handle determining the widgets for non-post routes using a preset
+   *
+   * @param (mixed) - array if widgets already found, null if not
+   *
+   * @return (mixed) - array if widgets found, null if not
+   */
   function ww_find_core_preset_widgets($widgets){
     // only take over with core widgets if no other widgets have been found
     if (is_null($widgets)){
@@ -145,7 +156,11 @@ class WW_Presets {
   }  
   
   /*
+   * Get a preset of the 'core' variety using it's key
    *
+   * @param (string) - key for the core preset
+   *
+   * @return (mixed) - as Widget_Wrangler::_extras_get
    */
   function get_core_preset($preset_key){
     $where = array(
@@ -156,7 +171,6 @@ class WW_Presets {
     
     return $this->ww->_extras_get($where);
   }  
-  
   
   /*
    * Look for and insert legacy default and postpage widgets as presets

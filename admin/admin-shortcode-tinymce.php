@@ -29,10 +29,12 @@ class WW_Shortcode_Tinymce_Admin  {
 	 
 	   // Add only in Rich Editor mode
 	    if ( get_user_option('rich_editing') == 'true') {
-	      add_filter('mce_external_plugins', array($this, 'mce_external_plugins_widgets'));
+        // TODO:  disabled because of tinymce update to 4.x.  Rewrite button
+        
+	      //add_filter('mce_external_plugins', array($this, 'mce_external_plugins_widgets'));
 	      //you can use the filters mce_buttons_2, mce_buttons_3 and mce_buttons_4 
 	      //to add your button to other toolbars of your tinymce
-	      add_filter('mce_buttons', array($this, 'mce_buttons_widgets_listbox'));
+	      //add_filter('mce_buttons', array($this, 'mce_buttons_widgets_listbox'));
 	    }
 	}
 	

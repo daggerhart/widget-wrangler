@@ -38,11 +38,14 @@ $wpdb->ww_extras_table = $wpdb->prefix."ww_extras";
 $widget_wrangler = new Widget_Wrangler();
 
 /*
-new wp filters
-  - Widget_Wrangler_Addons
-  - widget_wrangler_find_all_page_widgets
-  - widget-wrangler-set-page-context
- *
+ * The Widget_Wrangler object is the master of all things widget wrangler.
+ *   It handles database interactions, loading addons, and execution of output.
+ *   Does NOT build the output.  See Widget_Wrangler_Display (common/display.php)
+ *   
+ * New WordPress filters included
+ *  - Widget_Wrangler_Addons
+ *  - widget_wrangler_find_all_page_widgets
+ *  - widget-wrangler-set-page-context
  */
 class Widget_Wrangler {
   // addons
@@ -84,18 +87,13 @@ class Widget_Wrangler {
         ),
         'legacy_template_suggestions' => 0,
       );
-  
-  // simple debugging
-  function __d($v, $return = false){
-    $d ='<pre>'.htmlentities(print_r($v,1)).'</pre>';
-    if (!$return) {
-      print $d;
-    } else {
-      return $d;
-    }
-  }
-  
-  //
+
+  /*
+   * Construct the widget wrangler object.
+   *  - add dependencies
+   *  - load settings
+   *  - assign hooks
+   */
   function __construct(){
     add_action('wp_loaded', array($this, 'wp_loaded'), 999);
     // core
@@ -111,11 +109,6 @@ class Widget_Wrangler {
     $this->_get_settings();
     $this->_get_corrals();
     $this->_check_license();
-        
-    // z_editor
-    if (isset($this->settings['z_editor']) && $this->settings['z_editor'] && $this->_check_license()){
-      //include_once WW_PLUGIN_DIR.'/admin/z-editor.php';
-    }
     
     // early wp hooks
     register_activation_hook(WW_PLUGIN_FILE, array( $this, 'register_activation_hook' ));
@@ -131,7 +124,9 @@ class Widget_Wrangler {
   }
 
   /*
-   * wp hook widgets_init
+   * WordPress hook widgets_init
+   * 
+   *  - Register the corral and widget WP_Widget(s) 
    */
   function wp_widgets_init(){
     include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-corral.php';
@@ -141,7 +136,10 @@ class Widget_Wrangler {
   }
 
   /*
-   * wp hook plugins_loaded
+   * WordPress hook plugins_loaded
+   * 
+   *  - load all Widget Wrangler Addons
+   *  - load core WW display and preset functionality
    */
   function wp_plugins_loaded(){
     $this->_gather_addons();
@@ -163,7 +161,9 @@ class Widget_Wrangler {
   }
   
   /*
-   * wp-loaded action hook
+   * WordPress wp_loaded hook
+   *
+   *  - Handle altered sidebar definitions
    */
   function wp_loaded(){
     global $wp_registered_sidebars;
@@ -180,11 +180,15 @@ class Widget_Wrangler {
   }
 
   /*
-   * Alter WP Sidebars 
+   * Alter WP Sidebars
+   *
+   * @param (bool) - Force sidebar alterations
+   *
+   * @return (array) - Array of sidebar definitions
    */
   function get_altered_sidebars($force_alter = false){
     global $wp_registered_sidebars;
-    $ww_alter_sidebars = get_option('ww_alter_sidebars');
+    $ww_alter_sidebars = get_option('ww_alter_sidebars', array());
     $combined = array();
     
     // altered sidebars
@@ -193,9 +197,11 @@ class Widget_Wrangler {
       // use original
       if ($force_alter || isset($ww_alter_sidebars[$slug]['ww_alter'])){
         $combined[$slug] = $wp_registered_sidebars[$slug];
-        foreach ($ww_alter_sidebars[$slug] as $k => $v){
-          if (isset($v)) {
-            $combined[$slug][$k] = $v;
+        if (is_array($ww_alter_sidebars[$slug])){
+          foreach ($ww_alter_sidebars[$slug] as $k => $v){
+            if (isset($v)) {
+              $combined[$slug][$k] = $v;
+            }
           }
         }
       }
@@ -205,14 +211,6 @@ class Widget_Wrangler {
       $combined[$slug]['ww_created'] = FALSE;
     }
     
-    /*/ new sidebars
-    foreach ($ww_alter_sidebars as $slug => $sidebar){
-      if (!isset($combined[$slug])){
-        $combined[$slug] = $sidebar;
-        $combined[$slug]['ww_created'] = TRUE;
-      }
-    }
-    // */
     $this->altered_sidebars = $combined;
     
     return $combined;
@@ -220,6 +218,10 @@ class Widget_Wrangler {
   
   /*
    * Detect if the current page being viewed is wrangling own widgets
+   *
+   * @param (array) - $widgets found by the system
+   *
+   * @return (array) - widgets array
    */
   function _find_singular_page_widgets($widgets){
     // don't replace any widgets already found
@@ -266,6 +268,8 @@ class Widget_Wrangler {
   
   /*
    * Get ww_settings and merge defaults in where appropriate
+   *
+   * @return (array) - Widget Wrangler settings
    */
   function _get_settings(){
     $settings = get_option("ww_settings", array());
@@ -296,6 +300,8 @@ class Widget_Wrangler {
   
   /*
    * Get all corrals and store them in the ww object
+   *
+   * @return (array) - Widget Wrangler corrals
    */
   function _get_corrals(){
     $corrals = get_option('ww_sidebars', array());
@@ -337,6 +343,8 @@ class Widget_Wrangler {
    */
   function get_single_widget($post_id, $widget_status = false)
   {
+    if (empty($post_id)) { return false; }
+    
     global $wpdb;
     
     $status = $widget_status ? "`post_status` = '".$widget_status."' AND" : "";
@@ -395,6 +403,8 @@ class Widget_Wrangler {
 
   /*
    * Simple check
+   *
+   * @return (bool) - Whether or not the license is valid
    */
   function _check_license() {    
     $status = get_option('ww_pro_license_status');
@@ -403,6 +413,7 @@ class Widget_Wrangler {
   }
   
   /*
+   * Get data from the ww_extras table
    *
    * @params $where (array)
    *          - key value pairs for extras database table
@@ -459,6 +470,10 @@ class Widget_Wrangler {
   /*
    * Wrapper for wpdb->insert
    *  - ensure data is serialized
+   *
+   * @param (array) - ww_extra data that needs to be inserted into the db.
+   *
+   * @return (mixed) - as $wpdb->insert.  false on failure
    */ 
   function _extras_insert($data){
     global $wpdb;
@@ -480,6 +495,11 @@ class Widget_Wrangler {
   /*
    * Wrapper for wpdb->update
    *  - ensure data is serialized
+   *
+   * @param (array) - $data according to table structure
+   * @param (array) - $where according to table structure
+   *
+   * @return (mixed) - as $wpdb->update, number of rows if successful, false on failure
    */ 
   function _extras_update($data, $where){
     global $wpdb;
@@ -500,6 +520,10 @@ class Widget_Wrangler {
   
   /*
    * Wrapper for wpdb->delete
+   *
+   * @param (array) - $where according to table structure
+   *
+   * @return (mixed) - as $wpdb->delete, number of rows if successful, false on failure
    */ 
   function _extras_delete($where){
     global $wpdb;
@@ -523,6 +547,7 @@ class Widget_Wrangler {
     
   /*
    * Gather some often-needed data
+   *   - Provide some useful information to help determine the current screen
    */ 
   function _set_page_context(){
     $context = false;
@@ -562,6 +587,7 @@ class Widget_Wrangler {
   
   /*
    * Activation
+   * @TODO - refactor to "Check Upgrade / version"
    */
   function register_activation_hook(){
     // upgrade, if an old version exists
@@ -661,4 +687,21 @@ UNIQUE KEY id (id)
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     $t = dbDelta($sql);
   }
+  
+  /*
+   * Simple debugging function
+   *
+   * @param (mixed) - $data to output
+   * @param (bool) - $return the output
+   *
+   * @return (void|string) - depending on $return parameter
+   */ 
+  function __d($v, $return = false){
+    $d ='<pre>'.htmlentities(print_r($v,1)).'</pre>';
+    if (!$return) {
+      print $d;
+    } else {
+      return $d;
+    }
+  }  
 }

@@ -1,12 +1,14 @@
 <?php
 
 /*
+ * The Widget_Wrangler_Display object handles output of
+ *  - corrals
+ *  - widgets
+ *  - shortcodes
  *
-
-filters
-  - widget-wrangler-display-widget-output-alter
-  - widget-wrangler-display-corral-output-alter
-  
+ * New Wordpress filters included 
+ *  - widget-wrangler-display-widget-output-alter
+ *  - widget-wrangler-display-corral-output-alter
  */
 class Widget_Wrangler_Display {
   
@@ -22,14 +24,20 @@ class Widget_Wrangler_Display {
   var $dynamic_sidebar_args = array();
   var $dynamic_sidebar_has_widgets = FALSE;
     
-  //
+  /*
+   * Constructor for Display object
+   * 
+   *  - load backwards compatibility functions
+   *  - prepare display object for WordPress
+   */
   function __construct(){
     include_once WW_PLUGIN_DIR.'/common/backwards-compat-functions.inc';
     $this->add_hooks();
-    // set theme compatibility
   }
   
-  //
+  /*
+   * Assign WordPress hooks for display object
+   */
   function add_hooks(){
     
     // shortcodes
@@ -46,16 +54,18 @@ class Widget_Wrangler_Display {
     
     add_action( 'wp', array( $this, 'wp_loaded'));
   }
-  /*
-   * WP Hooks
-   */
   
-  // need this to happen a little later
+  /*
+   * WordPress hook wp
+   *  - need theme compatibility check to happen a little later
+   */ 
   function wp_loaded(){
     $this->theme_compat = (isset($this->ww->settings['theme_compat']) && $this->ww->settings['theme_compat']) ? 1 : 0;
   }
   
-  // get wp sidebar details
+  /*
+   * Get wp sidebar details
+   */ 
   function dynamic_sidebar_before($index, $has_widgets){
     $this->dynamic_sidebar_index = $index;
     $this->dynamic_sidebar_has_widgets = $has_widgets;
@@ -73,9 +83,10 @@ class Widget_Wrangler_Display {
     $this->dynamic_sidebar_args = array();
   }
   
-  //
-  // Template wrangler hook
-  //
+  /*
+   * Template wrangler hook
+   *  - add template suggestions for widgets
+   */
   function _tw_templates($templates)
   {
     // template applied by files
@@ -136,9 +147,14 @@ class Widget_Wrangler_Display {
     return $templates;
   }
   
-  // allow for custom template names
+  /*
+   * Allow for custom template names by preprocessing template wrangler suggestions
+   *
+   * @param (array) - template wrangler single-template array
+   */ 
   function _tw_pre_process_template($tw_template){
     if ($tw_template['name'] == "ww_widget" && !empty($tw_template['arguments']['widget']->custom_template_suggestion)){
+      // make this suggestion the first
       array_unshift($tw_template['files'], 'widget-[custom_template_suggestion].php');
       $tw_template['arguments']['custom_template_suggestion'] = $tw_template['arguments']['widget']->custom_template_suggestion;
     }
@@ -147,6 +163,11 @@ class Widget_Wrangler_Display {
   
   /*
    * Output a corral
+   *
+   * @param (string) - slug for the corral to output
+   * @param (array) - wp_widget_args are the WordPress sidebar definitions for wrapping a widget
+   *
+   * @return (void) - Output is sent to the screen immediately
    */
   function dynamic_corral($corral_slug = 'default', $wp_widget_args = array('before_widget' => '', 'before_title' => '', 'after_title' => '', 'after_widget' => ''))
   {
@@ -200,6 +221,10 @@ class Widget_Wrangler_Display {
   
   /*
    * Replace the classes and IDs of a widget displayed within a sidebar
+   *
+   * @param (object) - Widget Wrangler widget object
+   *
+   * @return (object) - Same WW widget, but modified if necessary
    */
   function _replace_wp_widget_args($widget){
     // wrapper_classes
@@ -210,7 +235,10 @@ class Widget_Wrangler_Display {
   
   /*
    * Apply templating and parsing to a single widget
-   * @return themed widget for output or templating
+   *
+   * @param (object) - Widget Wrangler widget object (standard class)
+   * 
+   * @return (string) - themed widget for output or templating
    */
   function theme_single_widget($widget){
     if (empty($widget)) { return ''; }
@@ -284,7 +312,10 @@ class Widget_Wrangler_Display {
   
   /*
    * Look for possible custom templates, then default to widget.php
-   * @return templated widget
+   *
+   * @param (object) - Widget Wrangler widget object
+   *
+   * @return (string) - templated widget
    */
   function template_widget($widget)
   {
@@ -350,6 +381,8 @@ class Widget_Wrangler_Display {
   
   /*
    * Handle the advanced parsing for a widget, including adv templating
+   *
+   * @param (object) - Widget Wrangler widget object
    * 
    * @return advanced parsed widget
    */
@@ -417,9 +450,9 @@ class Widget_Wrangler_Display {
    * 
    * Taken from wp-includes/widgets.php, adjusted for my needs
    *
-   * @param string $wp_widget_class the widget's PHP class name (see default-widgets.php)
-   * @param array $instance the widget's instance settings
-   * @return string - themed widget
+   * @param (string) -  $wp_widget_class the widget's PHP class name (see default-widgets.php)
+   * @param (array) - $instance the widget's instance settings
+   * @return (string) - themed widget
    **/
   function _the_widget($wp_widget_class, $instance = array())
   {
@@ -430,8 +463,9 @@ class Widget_Wrangler_Display {
     // get as much ww widget data as possible 
     $ww_widget = (isset($instance['ww_widget'])) ? $instance['ww_widget'] : $this->ww->get_single_widget($instance['ID']);
     
-    if ( !is_a($wp_widget, 'WP_Widget') )
+    if ( !is_a($wp_widget, 'WP_Widget') ){
       return '<!-- widget clone is not a WP_Widget -->';
+    }
   
     $explode_target = '[eXpl0de--WW_ID-'.$instance['ID'].']';
     
@@ -440,7 +474,7 @@ class Widget_Wrangler_Display {
   
     // output to variable for replacements
     ob_start();
-       $wp_widget->widget($args, $instance);
+      $wp_widget->widget($args, $instance);
     $temp = ob_get_clean();
   
     // get title and content separate
@@ -469,6 +503,10 @@ class Widget_Wrangler_Display {
   
   /*
    * Single widget shortcode
+   *
+   * @param (array) - attributes passed into the shortcode
+   *
+   * @return (string) - output of templated widget
    */
   function single_widget_shortcode($atts){
     $args = shortcode_atts(array('id' => NULL, 'slug' => NULL), $atts);
@@ -492,6 +530,10 @@ class Widget_Wrangler_Display {
   
   /*
    * Single corral shortcode
+   *
+   * @param (array) - attributes passed into the shortcode
+   *
+   * @return (string) - output of corral with widgets
    */
   function single_corral_shortcode($atts){
     $args = shortcode_atts(array('slug' => NULL), $atts);
@@ -506,6 +548,8 @@ class Widget_Wrangler_Display {
 
   /*
    * Create a reusable map of corrals to sidebars
+   *
+   * @return (array) - map of which WW corrals exist in what WP sidebars
    */
   function corrals_to_wpsidebars_map(){
     global $wp_registered_sidebars;
@@ -529,4 +573,3 @@ class Widget_Wrangler_Display {
   }  
 }
 
-// new

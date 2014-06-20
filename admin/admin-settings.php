@@ -183,15 +183,6 @@ class WW_Settings_Admin  {
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
-    /*
-    $settings['z_editor'] = array(
-      'title' => 'Z Editor',
-      'empty_value' => 0,
-      'require_license' => true,
-      'form_action' => array( $this, '_default_settings_form_action' ),
-      'execute_action' => array( $this, '_default_settings_execute_action' ),
-      );
-    */
     $settings['shortcode_tinymce'] = array(
       'title' => 'tinyMCE Shortcode Button',
       'empty_value' => 0,
@@ -439,9 +430,6 @@ class WW_Settings_Admin  {
       // Taxonomies
       case 'taxonomies':
         $taxonomies = get_taxonomies(array(), 'objects');
-
-//        $this->ww->__d($taxonomies);
-
           
         if (!isset($setting['form_values']['taxonomies'])){
           $setting['form_values']['taxonomies'] = array();
@@ -479,15 +467,6 @@ class WW_Settings_Admin  {
           <label class="ww-checkbox">
             <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - If checked, widgets will include Wordpress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget.
             <br /> Additionally, Enabling theme compatibility provides an administration page for managing the current theme's registered sidebar html.
-          </label>
-        <?php
-        break;
-      
-      case 'z_editor':
-        $checked = (!empty($setting['form_values']['z_editor'])) ? "checked='checked'" : "";
-        ?>
-          <label class="ww-checkbox">
-            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - Use frontend Widget Wrangler
           </label>
         <?php
         break;
