@@ -100,6 +100,16 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.1.1 =
+
+* Bug fix: Display of cloned widgets broken in 2.1
+
+= 2.1 =
+
+* Feature: Hide widget from sortable Wrangler
+* Bug fix: Alter sidebars array loop
+* Bug fix: Widget shortcode display
+
 = 2.0.4 =
 
 * Bug fix: Unable to show title on cloned widgets
@@ -262,4 +272,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.0.4 Hide title fix on Cloned widgets.  Better preview when corral context is set.
+2.1.1 Clone display bug fixed

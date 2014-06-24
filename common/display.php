@@ -478,17 +478,17 @@ class Widget_Wrangler_Display {
     $temp = ob_get_clean();
   
     // get title and content separate
-    list($title, $content) = explode($explode_target, $temp);
+    $array = explode($explode_target, $temp);
   
     // prep object for template
     if (count($array) > 1) {
       // we have a title
-      $ww_widget->post_title    = ($title) ? $title: $instance['title'];
-      $ww_widget->post_content  = $content;
+      $ww_widget->post_title    = ($array[0]) ? $array[0]: $instance['title'];
+      $ww_widget->post_content  = $array[1];
     }
     else {
       // no title
-      $ww_widget->post_content = $content;
+      $ww_widget->post_content = $array[0];
     }
   
     if (isset($instance['hide_title']) && $instance['hide_title']){
