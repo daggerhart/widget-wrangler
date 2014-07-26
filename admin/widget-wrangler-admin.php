@@ -504,7 +504,7 @@ class Widget_Wrangler_Admin {
     
     // Ensure this is an enabled post_type and user can edit it
     $settings = $this->ww->settings;  
-    if (in_array($_POST['post_type'], $settings['post_types']) && !current_user_can('edit_page', $post_id)){
+    if (!in_array($_POST['post_type'], $settings['post_types']) || !current_user_can('edit_post', $post_id)){
       return $post_id;
     }
     
