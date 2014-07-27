@@ -100,6 +100,10 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.1.3 =
+
+* Bug fix: Caused an issue with refactoring javascript load on presets page.  Fixed.
+
 = 2.1.2 =
 
 * Bug fix: Capability test on saving post type widgets caused an issue with custom post types.
@@ -277,4 +281,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.1.2 Saving widgets to custom post types fixed.  Some code clean up to prevent WW assets from loading inappropriately.
+2.1.3 Saving widgets to custom post types fixed.  Some code clean up to prevent WW assets from loading inappropriately. Fix issue with Presets js.

@@ -26,6 +26,12 @@ class WW_Presets_Admin  {
     add_action( 'widget_wrangler_form_top', array( $this, 'ww_form_top' ));
     add_action( 'wp_ajax_ww_form_ajax', array( $this, 'ww_form_ajax' ) );
     add_action( 'widget_wrangler_save_widgets_alter', array( $this, 'ww_save_widgets_alter' ) );
+    
+    if ( isset($_GET['post_type']) && 'widget' == $_GET['post_type'] &&
+         isset($_GET['page']) && $_GET['page'] == 'presets' )
+    {
+      $this->ww->admin->init_sortable_widgets();
+    }
   }
   
   //
@@ -92,7 +98,6 @@ class WW_Presets_Admin  {
       wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=presets&preset_id='.$preset_id);  
     }
     else {
-      $this->ww->admin->init_sortable_widgets();
       $this->_presets_form();
     }
   }
