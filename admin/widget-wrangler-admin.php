@@ -96,9 +96,8 @@ class Widget_Wrangler_Admin {
     if (!empty($this->ww->settings['post_types'])){
       foreach($this->ww->settings['post_types'] as $enabled_post_type){
         add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />Widget Wrangler'), array( $this, '_sortable_widgets_meta_box'), $enabled_post_type, 'normal', 'high');
-        
         // Add some CSS to the admin header on the widget wrangler pages, and edit pages
-        if ($this->ww->admin->_is_editing_enabled_post_type()){
+        if ($this->_is_editing_enabled_post_type()){
           $this->init_sortable_widgets();
         }
         
@@ -111,8 +110,8 @@ class Widget_Wrangler_Admin {
    
   // add js and css for sortable widgets
   function init_sortable_widgets(){
-      add_action( 'admin_enqueue_scripts', array( $this, '_sortable_widgets_js' ) );
-      add_action( 'admin_head', array( $this, '_admin_css' ) );
+    add_action( 'admin_enqueue_scripts', array( $this, '_sortable_widgets_js' ) );
+    add_action( 'admin_head', array( $this, '_admin_css' ) );
   }
   
   //
@@ -594,7 +593,7 @@ class Widget_Wrangler_Admin {
   //
   function _sortable_widgets_js(){
     wp_enqueue_script('ww-sortable-widgets',
-                    WW_PLUGIN_URL.'/admin/js/sortable-widgets.js',
+                    WW_PLUGIN_URL.'admin/js/sortable-widgets.js',
                     array('jquery-ui-core', 'jquery-ui-sortable'),
                     false,
                     true);
@@ -607,7 +606,7 @@ class Widget_Wrangler_Admin {
   // 
   function _editing_widget_js(){
     wp_enqueue_script('ww-editing-widget',
-                    WW_PLUGIN_URL.'/admin/js/editing-widget.js',
+                    WW_PLUGIN_URL.'admin/js/editing-widget.js',
                     array('jquery'),
                     false,
                     true);

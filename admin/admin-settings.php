@@ -96,8 +96,12 @@ class WW_Settings_Admin  {
   }
   
   function wp_admin_init(){
-    $this->_process_settings_form_items();
-    //$this->_process_settings_form_tabs();
+    if ( isset($_GET['post_type']) && 'widget' == $_GET['post_type'] &&
+         isset($_GET['page']) && strpos($_GET['page'], 'settings') !== FALSE )
+    {
+      $this->_process_settings_form_items();
+      //$this->_process_settings_form_tabs();
+    }
   }
   
   // hook admin menu
@@ -107,7 +111,7 @@ class WW_Settings_Admin  {
     
     foreach( $this->settings_form_tabs as $menu_slug => $tab){
       $title = $tab['title'].' '.$page_title;
-      $this->tab_pages[$menu_slug]['page_hook']  = add_submenu_page(null, $title, $title, $this->ww->admin->capability, $menu_slug, array( $this, '_menu_router' ) );
+      $this->tab_pages[$menu_slug]['page_hook'] = add_submenu_page(null, $title, $title, $this->ww->admin->capability, $menu_slug, array( $this, '_menu_router' ) );
       
       add_action( "admin_head", array( $this->ww->admin, '_admin_css' ) );
     }
@@ -283,25 +287,25 @@ class WW_Settings_Admin  {
   //
   //
   function _preprocess_settings_form_tabs(){
-    $this->settings_form_tabs = apply_filters('ww_settings_form_tabs', array());
-      // self awareness
-    foreach ($this->settings_form_tabs as $tab_key => $tab){
-      $this->settings_form_tabs[$tab_key]['tab_key'] = $tab_key;
-      $this->settings_form_tabs[$tab_key]['safe_tab_key'] = sanitize_key($tab_key);
-      $this->settings_form_tabs[$tab_key]['tab_url'] = $this->urlbase . $tab_key;
-      add_action('ww_settings_form_tab_'.$this->settings_form_tabs[$tab_key]['safe_tab_key'], $this->settings_form_tabs[$tab_key]['form_action']);
+    $settings_form_tabs = apply_filters('ww_settings_form_tabs', array());
+    
+    foreach ($settings_form_tabs as $tab_key => $tab){
+      $settings_form_tabs[$tab_key]['tab_key'] = $tab_key;
+      $settings_form_tabs[$tab_key]['safe_tab_key'] = sanitize_key($tab_key);
+      $settings_form_tabs[$tab_key]['tab_url'] = $this->urlbase . $tab_key;
+      add_action('ww_settings_form_tab_'.$settings_form_tabs[$tab_key]['safe_tab_key'], $settings_form_tabs[$tab_key]['form_action']);
       
       // get the setting items associated with this tab
       foreach ($this->settings_form_items as $setting_key => $setting){
         if ($setting['tab'] == $tab_key){
-          $this->settings_form_tabs[$tab_key]['items'][$setting_key] = $setting;
+          $settings_form_tabs[$tab_key]['items'][$setting_key] = $setting;
         }
       }
     }
-    
-    if (isset($_GET['page']) && isset($this->settings_form_tabs[$_GET['page']])){
-      $this->current_settings_form_tab = $this->settings_form_tabs[$_GET['page']];
+    if (isset($_GET['page']) && isset($settings_form_tabs[$_GET['page']])){
+      $this->current_settings_form_tab = $settings_form_tabs[$_GET['page']];
     }
+    $this->settings_form_tabs = $settings_form_tabs;
   }
   
   // for later

@@ -61,7 +61,6 @@ class WW_Presets_Admin  {
     $page_title = 'Presets';
 
     $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'presets', array( $this, '_menu_router' ));
-    $this->ww->admin->init_sortable_widgets();
   }
 
   /*
@@ -93,6 +92,7 @@ class WW_Presets_Admin  {
       wp_redirect(get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=presets&preset_id='.$preset_id);  
     }
     else {
+      $this->ww->admin->init_sortable_widgets();
       $this->_presets_form();
     }
   }

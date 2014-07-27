@@ -121,12 +121,10 @@ class WW_Widget_PostType {
     add_filter("manage_edit-widget_columns", array(&$this, "edit_columns"));
     add_action("manage_posts_custom_column", array(&$this, "custom_columns"));
 
-    // Admin interface init
-    add_action("admin_init", array(&$this, "wp_admin_init"));
-  }
-  
-  function _editing_widget_js(){
-    
+    if (isset($_GET['post']) && 'widget' == get_post_type($_GET['post'])){
+      // Admin interface init
+      add_action("admin_init", array(&$this, "wp_admin_init"));
+    }
   }
   
   /*

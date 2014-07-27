@@ -100,6 +100,11 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.1.2 =
+
+* Bug fix: Capability test on saving post type widgets caused an issue with custom post types.
+* Bug fix: Prevent loading of Widget Wrangler assets on inappropriate admin screens.
+
 = 2.1.1 =
 
 * Bug fix: Display of cloned widgets broken in 2.1
@@ -272,4 +277,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.1.1 Clone display bug fixed
+2.1.2 Saving widgets to custom post types fixed.  Some code clean up to prevent WW assets from loading inappropriately.
