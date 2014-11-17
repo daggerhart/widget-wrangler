@@ -4,13 +4,7 @@ jQuery(document).ready(function(){
   jQuery('.widget-action').click(function(){
     jQuery(this).parent('div').parent('div').next('.widget-inside').slideToggle();
   });
-  
-  // delete confirm
-  jQuery('.ww-delete-corral').submit(function(){
-      var ask = confirm('Whoa-there partner! Are you sure you want to delete this corral?');			
-      return (ask) ? true : false;
-  });
-  
+
   // sorting
   jQuery('#ww-corrals-sort-list').sortable({
     update: function(event,ui){

@@ -55,17 +55,17 @@ class WW_Widget_PostType {
       
     // custom post type labels
 		$labels = array(
-      'name' => _x('Widget Wrangler', 'post type general name'),
+      'name' => __('Widget Wrangler', 'widgetwrangler'),
       'all_items' => __('All Widgets'),
-      'singular_name' => _x('Widget', 'post type singular name'),
-      'add_new' => _x('Add New Widget', 'widget'),
-      'add_new_item' => __('Add New Widget'),
-      'edit_item' => __('Edit Widget'),
-      'new_item' => __('New Widget'),
-      'view_item' => __('View Widget'),
-      'search_items' => __('Search Widgets'),
-      'not_found' =>  __('No widgets found'),
-      'not_found_in_trash' => __('No widgets found in Trash'), 
+      'singular_name' => __('Widget', 'widgetwrangler'),
+      'add_new' => __('Add New Widget', 'widgetwrangler'),
+      'add_new_item' => __('Add New Widget', 'widgetwrangler'),
+      'edit_item' => __('Edit Widget', 'widgetwrangler'),
+      'new_item' => __('New Widget', 'widgetwrangler'),
+      'view_item' => __('View Widget', 'widgetwrangler'),
+      'search_items' => __('Search Widgets', 'widgetwrangler'),
+      'not_found' =>  __('No widgets found', 'widgetwrangler'),
+      'not_found_in_trash' => __('No widgets found in Trash', 'widgetwrangler'),
       'parent_item_colon' => '',
     );
 
@@ -136,14 +136,16 @@ class WW_Widget_PostType {
     
     // Clone Instance
     if ($this->widget_type == "clone") {
-      add_meta_box("ww-clone-instance", "Widget Form", array(&$this, "meta_box_clone_instance"), "widget", "normal", "high");
+      add_meta_box("ww-clone-instance", __("Widget Form", 'widgetwrangler'), array(&$this, "meta_box_clone_instance"), "widget", "normal", "high");
+      add_meta_box("ww-display-logic", __("Display Logic", 'widgetwrangler'), array(&$this, "meta_box_display_logic"), "widget", "normal", "high");
     }
     else {
       // Custom meta boxes for the edit widget screen
-      add_meta_box("ww-parse", "Options", array(&$this, "meta_box_parse"), "widget", "normal", "high");
+      add_meta_box("ww-parse", __("Options", 'widgetwrangler'), array(&$this, "meta_box_parse"), "widget", "normal", "high");
+      add_meta_box("ww-display-logic", __("Display Logic", 'widgetwrangler'), array(&$this, "meta_box_display_logic"), "widget", "normal", "high");
     }
-    add_meta_box("ww-adv-help", "Advanced Help", array(&$this, "meta_box_advanced_help"), "widget", "normal", "high");
-    add_meta_box("ww-widget-preview", "Widget Preview", array(&$this, "meta_box_widget_preview"), "widget", "side", "default");
+    add_meta_box("ww-adv-help", __("Advanced Help", 'widgetwrangler'), array(&$this, "meta_box_advanced_help"), "widget", "normal", "high");
+    add_meta_box("ww-widget-preview", __("Widget Preview", 'widgetwrangler'), array(&$this, "meta_box_widget_preview"), "widget", "side", "default");
   }
   
   /*
@@ -153,11 +155,11 @@ class WW_Widget_PostType {
   {
     $columns = array(
       "cb" => "<input type=\"checkbox\" />",
-      "title" => "Widget Title",
-      "ww_type" => "Type",
-      "ww_description" => "Description",
-      "ww_rewrite_output" => "Rewrite Output",
-			"ww_shortcode" => "Shortcode",
+      "title" => __("Widget Title", 'widgetwrangler'),
+      "ww_type" => __("Type", 'widgetwrangler'),
+      "ww_description" => __("Description", 'widgetwrangler'),
+      "ww_rewrite_output" => __("Rewrite Output", 'widgetwrangler'),
+			"ww_shortcode" => __("Shortcode", 'widgetwrangler'),
     );
 
     return $columns;
@@ -293,13 +295,13 @@ class WW_Widget_PostType {
       ?>
         <p>
           <label>
-            <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> Hide the Widget's title on display
+            <input type="checkbox" name="ww-data[clone][hide_title]" <?php print $hide_title_checked; ?> /> <?php _e("Hide the Widget's title on display", 'widgetwrangler'); ?>
           </label>
         </p>
         <p>
           <label>
-            <input type="checkbox" name="ww-data[ww-hide-from-wrangler]" <?php checked($ww_hide_from_wrangler, 'on', 1); ?> /> Hide the Widget from the drag and drop Wrangler.
-            <br /><em>This is useful for widgets that are only meant to be used as shortcodes.</em>
+            <input type="checkbox" name="ww-data[ww-hide-from-wrangler]" <?php checked($ww_hide_from_wrangler, 'on', 1); ?> /> <?php _e("Hide the Widget from the drag and drop Wrangler.", 'widgetwrangler'); ?>
+            <br /><em><?php _e("This is useful for widgets that are only meant to be used as shortcodes.", 'widgetwrangler'); ?></em>
           </label>
         </p>
         <div class="ww-clone-form">
@@ -352,10 +354,10 @@ class WW_Widget_PostType {
 			$preview_balance = balanceTags($preview, true);
       ?>
         <div id="ww-preview">
-          <label><strong>Preview Corral Context:</strong></label>
-          <p><em>This setting only affects the preview on this page, and helps provide accurate template suggestions.</em></p>
+          <label><strong><?php _e("Preview Corral Context", 'widgetwrangler'); ?>:</strong></label>
+          <p><em><?php _e("This setting only affects the preview on this page, and helps provide accurate template suggestions.", 'widgetwrangler'); ?></em></p>
           <select id="ww-preview-corral" name="ww-data[ww-preview-corral-slug]" class="widefat" style="width:100%;">
-            <option value='0'>- No Corral -</option>
+            <option value='0'>- <?php _e("No Corral", 'widgetwrangler'); ?> -</option>
               <?php
                 foreach($this->ww->corrals as $corral_slug => $corral)
                 {
@@ -366,18 +368,18 @@ class WW_Widget_PostType {
                 }
               ?>
           </select>
-          <p><em>This preview does not include your theme's CSS stylesheet, nor corral or sidebar styling.</em></p>
+          <p><em><?php _e("This preview does not include your theme's CSS stylesheet, nor corral or sidebar styling.", 'widgetwrangler'); ?></em></p>
         </div>
         <hr />
         <?php	print $preview_balance; ?>
           
 				<?php if ($preview != $preview_balance) { ?>
 					<div style="border-top: 1px solid #bbb; margin-top: 12px; padding-top: 8px;">
-						<span style="color: red; font-style: italic;">Your widget may contain some broken or malformed html.</span> Wordpress balanced the tags in this preview in an attempt to prevent the page from breaking, but it will not do so on normal widget display.
+						<span style="color: red; font-style: italic;"><?php _e("Your widget may contain some broken or malformed html.", 'widgetwrangler'); ?></span> <?php _e("Wordpress balanced the tags in this preview in an attempt to prevent the page from breaking, but it will not do so on normal widget display.", 'widgetwrangler'); ?>
 					</div>
 				<?php } ?>
         <hr />
-        <div id="ww-preview-html-toggle">View Output HTML</div><pre id="ww-preview-html-content"><?php
+        <div id="ww-preview-html-toggle"><?php _e("View Output HTML"); ?></div><pre id="ww-preview-html-content"><?php
           print htmlentities($preview); ?></pre>
       <?php
     }
@@ -427,29 +429,29 @@ class WW_Widget_PostType {
     }
     
     ?><div id="ww-template">
-        <div class="ww-widget-postid">Post ID<br/><span><?php print $this->post_id;?></span></div>
+        <div class="ww-widget-postid"><?php _e("Post ID"); ?><br/><span><?php print $this->post_id;?></span></div>
         <p>
-          <label><input type="checkbox" name="ww-data[ww-wpautop]" <?php print $fields['ww-wpautop']['checked']; ?> /> Automatically add Paragraphs to this Widget's Content</label>
+          <label><input type="checkbox" name="ww-data[ww-wpautop]" <?php print $fields['ww-wpautop']['checked']; ?> /> <?php _e("Automatically add Paragraphs to this Widget's Content", 'widgetwrangler'); ?></label>
         </p>
         <p>
-          <label><input type="checkbox" name="ww-data[ww-hide-title]" <?php print $fields['ww-hide-title']['checked']; ?> /> Hide this widget's title on output.</label>
+          <label><input type="checkbox" name="ww-data[ww-hide-title]" <?php print $fields['ww-hide-title']['checked']; ?> /> <?php _e("Hide this widget's title on output.", 'widgetwrangler'); ?></label>
         </p>
         <p>
           <label>
-            <input type="checkbox" name="ww-data[ww-hide-from-wrangler]" <?php print $fields['ww-hide-from-wrangler']['checked']; ?> /> Hide the Widget from the drag and drop Wrangler.
-            <br /><em>This is useful for widgets that are only meant to be used as shortcodes.</em>
+            <input type="checkbox" name="ww-data[ww-hide-from-wrangler]" <?php print $fields['ww-hide-from-wrangler']['checked']; ?> /> <?php _e("Hide the Widget from the drag and drop Wrangler.", 'widgetwrangler'); ?>
+            <br /><em><?php _e("This is useful for widgets that are only meant to be used as shortcodes.", 'widgetwrangler'); ?></em>
           </label>
         </p>
         <hr />
         <div>
-          <h4>Advanced Parsing</h4>
+          <h4><?php _e("Advanced Parsing", 'widgetwrangler'); ?></h4>
           <div id="ww-advanced-field">
             <p>
-              <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[ww-adv-enabled]" <?php print $fields['ww-adv-enabled']['checked']; ?> /> Enable Advanced Parsing</label>
+              <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[ww-adv-enabled]" <?php print $fields['ww-adv-enabled']['checked']; ?> /> <?php _e("Enable Advanced Parsing", 'widgetwrangler'); ?></label>
             </p>
             <div id="ww-adv-parse-content">
               <p id="ww-advanced-template">
-                <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[ww-adv-template]" <?php print $fields['ww-adv-template']['checked']; ?> /> Template the Advanced Parsing Area</label> <em>(Do not use with Cloned Widgets.  Details below)</em>
+                <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[ww-adv-template]" <?php print $fields['ww-adv-template']['checked']; ?> /> <?php _e("Template the Advanced Parsing Area", 'widgetwrangler'); ?></label> <em>(<?php _e("Do not use with Cloned Widgets.  Details below", 'widgetwrangler'); ?></em>
               </p>
               <div>
                 <textarea name="ww-data[ww-parse]" cols="40" rows="16" style="width: 100%;"><?php print htmlentities($fields['ww-parse']['value']); ?></textarea>
@@ -457,58 +459,44 @@ class WW_Widget_PostType {
             </div>
           </div>
         </div>
-        
-        <div>
-          <hr />
-          <h4>Display Logic</h4>
-            <p>
-              <label><input id="ww-display-logic-toggle" type="checkbox" name="ww-data[ww-display-logic-enabled]" <?php print $fields['ww-display-logic-enabled']['checked']; ?> /> Enable Display Logic</label>
-            </p>
-            <div id="ww-display-logic-content">
-              <p class="description">Site-wide raw PHP logic for displaying this widget</p>
-              <div>
-                <textarea name="ww-data[ww-display-logic]" cols="40" rows="5" style="width: 100%;"><?php print htmlentities($fields['ww-display-logic']['value']); ?></textarea>
-              </div>
-            </div>
-        </div>
-        
+
         <?php if ($this->ww->_check_license()) { ?>
           <hr />
-          <h4>Override HTML Output</h4>
-          <p class="description">Alter the html output of a templated widget.  Doesn't apply to advanced parsing unless templating is selected.</p>
+          <h4><?php _e("Override HTML Output", 'widgetwrangler'); ?></h4>
+          <p class="description"><?php _e("Alter the html output of a templated widget.  Doesn't apply to advanced parsing unless templating is selected.", 'widgetwrangler'); ?></p>
           <p>
-            <label><input type="checkbox" id="ww-override-html-toggle" name="ww-data[ww-override-output-html]" value="1" <?php print $fields['ww-override-output-html']['checked']; ?> /> Override the HTML output of this widget with the values below.  This will take precendence over theme compatibility.</label>
+            <label><input type="checkbox" id="ww-override-html-toggle" name="ww-data[ww-override-output-html]" value="1" <?php print $fields['ww-override-output-html']['checked']; ?> /> <?php _e("Override the HTML output of this widget with the values below.  This will take precendence over theme compatibility.", 'widgetwrangler'); ?></label>
           </p>
           <div id="ww-override-html-content" class="ww-override-html">
             <div>
-              <label>Wrapper Element</label>
+              <label><?php _e("Wrapper Element", 'widgetwrangler'); ?></label>
               <p><?php $this->_make_override_element_select($fields, 'ww-html-wrapper-element'); ?></p>
             </div>
             <div>
-              <label>Wrapper ID</label>
+              <label><?php _e("Wrapper ID", 'widgetwrangler'); ?></label>
               <p><input type="text" size="30" name="ww-data[ww-html-wrapper-id]" value="<?php print $fields['ww-html-wrapper-id']['value']; ?>"/></p>
             </div>
             <div>
-              <label>Wrapper Classes</label>
-              <p class="description">Separate multiple classes with spaces.</p>
+              <label><?php _e("Wrapper Classes", 'widgetwrangler'); ?></label>
+              <p class="description"><?php _e("Separate multiple classes with spaces.", 'widgetwrangler'); ?></p>
               <p><input type="text" size="30" name="ww-data[ww-html-wrapper-classes]" value="<?php print $fields['ww-html-wrapper-classes']['value']; ?>"/></p>
             </div>
             <div>
-              <label>Title Element</label>
+              <label><?php _e("Title Element", 'widgetwrangler'); ?></label>
               <p><?php $this->_make_override_element_select($fields, 'ww-html-title-element'); ?></p>
             </div>
             <div>
-              <label>Title Classes</label>
-              <p class="description">Separate multiple classes with spaces.</p>
+              <label><?php _e("Title Classes", 'widgetwrangler'); ?></label>
+              <p class="description"><?php _e("Separate multiple classes with spaces.", 'widgetwrangler'); ?></p>
               <p><input type="text" size="30" name="ww-data[ww-html-title-classes]" value="<?php print $fields['ww-html-title-classes']['value']; ?>"/></p>
             </div>
             <div>
-              <label>Content Element</label>
+              <label><?php _e("Content Element", 'widgetwrangler'); ?></label>
               <p><?php $this->_make_override_element_select($fields, 'ww-html-content-element'); ?></p>
             </div>
             <div>
-              <label>Content Classes</label>
-              <p class="description">Separate multiple classes with spaces.</p>
+              <label><?php _e("Content Classes", 'widgetwrangler'); ?></label>
+              <p class="description"><?php _e("Separate multiple classes with spaces.", 'widgetwrangler'); ?></p>
               <p><input type="text" size="30" name="ww-data[ww-html-content-classes]" value="<?php print $fields['ww-html-content-classes']['value']; ?>"/></p>
             </div>
           </div>
@@ -516,7 +504,34 @@ class WW_Widget_PostType {
       </div>
     <?php
   }
-	
+
+  /*
+   * Display Logic
+   */
+  function meta_box_display_logic()
+  {
+    $fields = array();
+    foreach ($this->meta_box_fields as $i => $key){
+      // get values
+      $fields[$key]['value'] = (isset($this->widget_meta[$key])) ? $this->widget_meta[$key][0] : NULL;
+      // for checkboxes
+      $fields[$key]['checked'] = ($fields[$key]['value']) ? 'checked="checked"' : '';
+    }
+    ?>
+    <div>
+      <p>
+        <label><input id="ww-display-logic-toggle" type="checkbox" name="ww-data[ww-display-logic-enabled]" <?php print $fields['ww-display-logic-enabled']['checked']; ?> /> <?php _e("Enable Display Logic"); ?></label>
+      </p>
+      <div id="ww-display-logic-content">
+        <p class="description"><?php _e("Site-wide raw PHP logic for displaying this widget", 'widgetwrangler'); ?></p>
+        <div>
+          <textarea name="ww-data[ww-display-logic]" cols="40" rows="5" style="width: 100%;"><?php print htmlentities($fields['ww-display-logic']['value']); ?></textarea>
+        </div>
+      </div>
+    </div>
+    <?php
+  }
+
 	/*
 	 * Advanced Help
 	 */
@@ -562,50 +577,50 @@ class WW_Widget_PostType {
             <?php
               //  only show adv parsing help on standard
               if ($this->widget_type != "clone"){ ?>
-                <h4>In the Advanced Parsing area you can:</h4>
+                <h4><?php _e("In the Advanced Parsing area you can", 'widgetwrangler'); ?>:</h4>
                 <ul>
-                  <li>Use PHP tags ( &lt;?php and ?&gt; are required )</li>
-                  <li>Use {{title}} or $widget->post_title to insert the widget's title</li>
-                  <li>Use {{content}} or $widget->post_content to insert the widget's content</li>
-                  <li>Access the $widget object for more widget data (see provided template for examples)</li>
-                  <li>Access the $post object for data concerning the page being displayed (see provided template for examples)</li>
+                  <li><?php _e("Use PHP tags ( &lt;?php and ?&gt; are required )", 'widgetwrangler'); ?></li>
+                  <li><?php _e("Use {{title}} or \$widget->post_title to insert the widget's title", 'widgetwrangler'); ?></li>
+                  <li><?php _e("Use {{content}} or \$widget->post_content to insert the widget's content", 'widgetwrangler'); ?></li>
+                  <li><?php _e("Access the \$widget object for more widget data (see provided template for examples)", 'widgetwrangler'); ?></li>
+                  <li><?php _e("Access the \$post object for data concerning the page being displayed (see provided template for examples)", 'widgetwrangler'); ?></li>
                 </ul>
-                <h4>Templating Advanced Parsed Widgets</h4>
+                <h4><?php _e("Templating Advanced Parsed Widgets", 'widgetwrangler'); ?></h4>
                 <ul>
-                  <li>To template an advanced parsed widget you must return an associative array with a title and content string.</li>
-                  <li>Example: <code>&lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</code></li>
+                  <li><?php _e("To template an advanced parsed widget you must return an associative array with a title and content string.", 'widgetwrangler'); ?></li>
+                  <li><?php _e("Example", 'widgetwrangler'); ?>: <code>&lt;?php return array("title" => "The Widget's Title", "content" => "The Widget's Content"); ?&gt;</code></li>
                 </ul>
                 <?php
               }
             ?>
-              <h4>Display Logic</h4>
+              <h4><?php _e("Display Logic", 'widgetwrangler'); ?></h4>
               <ul>
-                <li>Do NOT use &lt;?php and ?&gt; tags.  This field is for raw PHP.</li>
-                <li>Evaluate boolean true or false with php. (Defaults to <em>true</em>).</li>
-                <li>For simple logic, execute your conditions directly.  (For example, use Wordpress Conditional Tags such as <code>is_search()</code> or <code>is_404()</code>).</li>
-                <li>For complex logic, <em>return</em> TRUE or FALSE as needed.</li>
+                <li><?php _e("Do NOT use &lt;?php and ?&gt; tags.  This field is for raw PHP.", 'widgetwrangler'); ?></li>
+                <li><?php _e("Evaluate boolean true or false with php. Defaults to TRUE.", 'widgetwrangler'); ?></li>
+                <li><?php _e("For simple logic, execute your conditions directly.  (For example, use Wordpress Conditional Tags such as 'is_search()' or 'is_404()' ).", 'widgetwrangler'); ?></li>
+                <li><?php _e("For complex logic, return TRUE or FALSE as needed.", 'widgetwrangler'); ?></li>
               </ul>
             <?php
               if (isset($suggestions)) { ?>
               
                 <?php if ($this->ww->_check_license()){ ?>
-                  <h4>Custom template suggestion</h4>
+                  <h4><?php _e("Custom template suggestion", 'widgetwrangler'); ?></h4>
                   <ul class="ww-custom-template-suggestion">
-                    <li>Define a custom template name for this widget. </li>
+                    <li><?php _e("Define a custom template name for this widget.", 'widgetwrangler'); ?></li>
                     <li><label>widget-<input type="text" maxlength="64" size="32" name="ww-data[ww-custom-template-suggestion]" value="<?php print $widget->custom_template_suggestion; ?>" />.php</label></li>
-                    <li>Lowercase alphanumeric characters, dashes and underscores are allowed.</li>
-                    <li>Uppercase characters will be converted to lowercase.</li>
-                    <li>If defined, the custom suggestion will take precedence.</li>
+                    <li><?php _e("Lowercase alphanumeric characters, dashes and underscores are allowed.", 'widgetwrangler'); ?></li>
+                    <li><?php _e("Uppercase characters will be converted to lowercase.", 'widgetwrangler'); ?></li>
+                    <li><?php _e("If defined, the custom suggestion will take precedence.", 'widgetwrangler'); ?></li>
                   </ul>
                 <?php } ?>
                 
-                <h4>Template Suggestions</h4>
-                <p class="description">Corral specific templates will not be detected here unless you set the "Preview Corral Context" in the preview pane.</p>
+                <h4><?php _e("Template Suggestions", 'widgetwrangler'); ?></h4>
+                <p class="description"><?php _e("Corral specific templates will not be detected here unless you set the 'Preview Corral Context' in the preview pane.", 'widgetwrangler'); ?></p>
                 <ul><?php print $suggestions; ?></ul>
               <?php
                 if (isset($a['found_path']) && $a['found_path'])
                 { ?>
-                    <h4>Found template location</h4>
+                    <h4><?php _e("Found template location", 'widgetwrangler'); ?></h4>
                     <div class='ww-found-template-location'><?php print str_replace(ABSPATH, "/", $a['found_path']); ?></div>
                   <?php
                 }

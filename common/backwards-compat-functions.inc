@@ -9,11 +9,21 @@ function ww_dynamic_sidebar($slug, $args = array('before_widget' => '', 'before_
 }
 
 /*
- * For old clone widgest that use advanced parsing area with php to execute the widget
+ * For old clone widgets that use advanced parsing area with php to execute the widget
  */
 function ww_the_widget($wp_widget_class, $instance = array()){
   global $widget_wrangler;
-  $widget_wrangler->display->_the_widget($wp_widget_class, $instance);
+  print $widget_wrangler->display->_the_widget($wp_widget_class, $instance);
+}
+
+/*
+ * Check if corral contains active widgets
+ *
+ * @TODO: Not exactly a backwards compatibility function. Temporarily placed here.
+ */
+function ww_is_active_corral($corral_slug) {
+  global $widget_wrangler;
+  return ( isset($widget_wrangler->page_widgets[$corral_slug]) && !empty($widget_wrangler->page_widgets[$corral_slug]) );
 }
 
 /*

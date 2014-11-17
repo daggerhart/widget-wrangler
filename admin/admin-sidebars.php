@@ -84,28 +84,28 @@ class WW_Sidebars_Admin  {
               <hr />
               <input type="hidden" name="ww-data[sidebars][<?php print $slug; ?>][slug]" value="<?php print $slug; ?>" />
               <div class="ww-alter-sidebar-field">
-                <label>Alter Sidebar</label>
+                <label><?php _e('Alter Sidebar', 'widgetwrangler'); ?></label>
                 <input type="checkbox" name="ww-data[sidebars][<?php print $slug; ?>][ww_alter]" <?php if (isset($sidebar['ww_alter'])) { print "checked='checked'"; } ?> />
               </div>
               <div class="ww-alter-sidebar-field">
-                <label>Before Widget</label>
+                <label><?php _e('Before Widget', 'widgetwrangler'); ?></label>
                 <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][before_widget]" value="<?php print htmlentities($sidebar['before_widget']); ?>" />
               </div>
               <div class="ww-alter-sidebar-field">
-                <label>Before Title</label>
+                <label><?php _e('Before Title', 'widgetwrangler'); ?></label>
                 <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][before_title]" value="<?php print htmlentities($sidebar['before_title']); ?>" />
               </div>
               <div class="ww-alter-sidebar-field">
-                <label>After Title</label>
+                <label><?php _e('After Title', 'widgetwrangler'); ?></label>
                 <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][after_title]" value="<?php print htmlentities($sidebar['after_title']); ?>" />
               </div>
               <div class="ww-alter-sidebar-field">
-                <label>After Widget</label>
+                <label><?php _e('After Widget', 'widgetwrangler'); ?></label>
                 <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][after_widget]" value="<?php print htmlentities($sidebar['after_widget']); ?>" />
               </div>
               
               <div class="ww-alter-sidebar-original">
-                <a class="toggle">View Original</a>
+                <a class="toggle"><?php _e('View Original', 'widgetwrangler'); ?></a>
                 <div class="content"><pre><?php print htmlentities(print_r($original,1)); ?></pre></div>
               </div>
             </div>
@@ -128,14 +128,14 @@ class WW_Sidebars_Admin  {
     
     
     $form = array(
-      'title' => 'Wordpress Sidebars',
-      'description' => 'Alter existing sidebars registered by the current theme.',
+      'title' => __('Wordpress Sidebars', 'widgetwrangler'),
+      'description' => __('Alter existing sidebars registered by the current theme.', 'widgetwrangler'),
       'attributes' => array(
         'action' => 'edit.php?post_type=widget&page=sidebars&ww_action=update&noheader=true',
         ),
       'submit_button' => array(
           'attributes' => array(
-            'value' => 'Update Sidebars',
+            'value' => __('Update Sidebars', 'widgetwrangler'),
           ),
         ),
       );

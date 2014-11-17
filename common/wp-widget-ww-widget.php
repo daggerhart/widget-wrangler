@@ -64,7 +64,7 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
     
     <?php // Sidebar: Select Box ?>
     <p>
-     <label for="<?php echo $this->get_field_id( 'post_id' ); ?>"><?php _e('Widget:', 'widgetwrangler'); ?></label> 
+     <label for="<?php echo $this->get_field_id( 'post_id' ); ?>"><?php _e('Widget', 'widgetwrangler'); ?>:</label>
      <select id="<?php echo $this->get_field_id( 'post_id' ); ?>" name="<?php echo $this->get_field_name( 'post_id' ); ?>" class="widefat" style="width:100%;">
       <?php
         foreach($widgets as $widget)

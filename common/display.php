@@ -319,7 +319,7 @@ class Widget_Wrangler_Display {
    */
   function template_widget($widget)
   {
-    
+
     // prepare template wrangler arguments
     $args = array(
       'widget' => $widget, // needed in final template
@@ -352,10 +352,10 @@ class Widget_Wrangler_Display {
         $widget->hidden_title = $widget->post_title;
         $widget->post_title = NULL;
       }
-      
+
       // apply templating
       $output = theme('ww_widget', $args);
-      
+
       // handle final theme compat issues if the widget is in a corral,
       if ($this->doing_corral && $this->theme_compat)
       {
@@ -375,7 +375,7 @@ class Widget_Wrangler_Display {
         $widget->post_title = $widget->hidden_title;
       }
     }
-    
+
     return $output;  
   }
   
@@ -459,14 +459,18 @@ class Widget_Wrangler_Display {
     // load widget from widget factory ?
     global $wp_widget_factory;
     $wp_widget = $wp_widget_factory->widgets[$wp_widget_class];
-  
+
     // get as much ww widget data as possible 
     $ww_widget = (isset($instance['ww_widget'])) ? $instance['ww_widget'] : $this->ww->get_single_widget($instance['ID']);
-    
+
+    if (!isset($instance['hide_title'])){
+      $instance['hide_title'] = 0;
+    }
+
     if ( !is_a($wp_widget, 'WP_Widget') ){
       return '<!-- widget clone is not a WP_Widget -->';
     }
-  
+
     $explode_target = '[eXpl0de--WW_ID-'.$instance['ID'].']';
     
     // args for spliting title from content
@@ -476,10 +480,10 @@ class Widget_Wrangler_Display {
     ob_start();
       $wp_widget->widget($args, $instance);
     $temp = ob_get_clean();
-  
+
     // get title and content separate
     $array = explode($explode_target, $temp);
-  
+
     // prep object for template
     if (count($array) > 1) {
       // we have a title
@@ -496,7 +500,7 @@ class Widget_Wrangler_Display {
     }
   
     $themed_widget = $this->template_widget($ww_widget);
-    
+
     // template with WW template
     return $themed_widget;
   }

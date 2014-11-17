@@ -73,7 +73,7 @@ class WW_Clone_Admin  {
     $new_widget = array();
     $new_widget['post_author']    = $user->ID;
     $new_widget['post_title']     = ($instance['title']) ? $instance['title'] : "Clone of ".$this_class_name;
-    $new_widget['post_excerpt']   = 'Cloned from '.$this_class_name;
+    $new_widget['post_excerpt']   = __('Cloned from', 'widgetwrangler') .' '. $this_class_name;
     $new_widget['comment_status'] = 'closed';
     $new_widget['ping_status']    = 'closed';
     $new_widget['post_status']    = 'draft';
@@ -108,8 +108,8 @@ class WW_Clone_Admin  {
     $i = 0; 
     ?>
     <div class='wrap'>
-      <h2>Copy a Widget</h2>
-      <p>Here you can clone an existing Wordpress widget into the Widget Wrangler system.</p>
+      <h2><?php _e("Copy a Widget", 'widgetwrangler'); ?></h2>
+      <p><?php _e("Here you can clone an existing WordPress widget into Widget Wrangler.", 'widgetwrangler'); ?></p>
       <ul class='ww-clone-widgets'>
       <?php
         foreach ($wp_widget_factory->widgets as $classname => $widget)

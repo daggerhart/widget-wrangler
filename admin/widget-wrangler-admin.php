@@ -86,7 +86,7 @@ class Widget_Wrangler_Admin {
     }  
   }
   
-  //
+  // WordPress hook 'admin_init'
   function wp_admin_init(){
     //$this->init_updater();
     
@@ -236,8 +236,8 @@ class Widget_Wrangler_Admin {
     ?>
       <div class="wrap">
         <div class="ww-admin-top">
-          <h2><?php print $page['title']; ?></h2>
-          <p class="description"><?php print $page['description']; ?></p>
+          <h2><?php printf( __('%s', 'widgetwrangler'), $page['title']); ?></h2>
+          <p class="description"><?php printf( __('%s', 'widgetwrangler'), $page['description']); ?></p>
         </div>
         <div>
           <?php print $content; ?>
@@ -321,7 +321,7 @@ class Widget_Wrangler_Admin {
               <?php do_action('widget_wrangler_form_top'); ?>
             </div>
             
-            <div id='ww-post-edit-message'>* Widget changes will not be updated until you save.</div>
+            <div id='ww-post-edit-message'>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?>"</div>
             
             <?php print $this->theme_sortable_sidebars($active_widgets); ?>
             
@@ -362,7 +362,7 @@ class Widget_Wrangler_Admin {
               print implode('', $sorted_widgets['active'][$corral_slug]);
             }
           ?>
-          <li class='ww-no-widgets' <?php print $no_widgets_style; ?>>No Widgets in this corral.</li>
+          <li class='ww-no-widgets' <?php print $no_widgets_style; ?>><?php _e("No Widgets in this corral.", 'widgetwrangler'); ?></li>
         </ul>
       </div>
       <?php
@@ -383,7 +383,7 @@ class Widget_Wrangler_Admin {
             print implode('', $sorted_widgets['disabled']);
           }
         ?>
-        <li class='ww-no-widgets' <?php print $no_widgets_style; ?>>No disabled Widgets</li>
+        <li class='ww-no-widgets' <?php print $no_widgets_style; ?>><?php _e("No disabled Widgets", 'widgetwrangler'); ?></li>
       </ul>
     </div>
     <?php
@@ -414,10 +414,10 @@ class Widget_Wrangler_Admin {
       
       // fix widgets with no title
       if ($widget->post_title == ""){
-        $widget->post_title = "(no title) - Slug: ".$widget->post_name." - ID: ".$widget->ID;
+        $widget->post_title = sprintf( __('(no title) - Slug: %1$s - ID: %2$s', 'widgetwrangler'), $widget->post_name, $widget->ID );
       }
       
-      $keys = $this->ww->admin->_array_searchRecursive($widget->ID, $active_widgets);
+      $keys = $this->_array_searchRecursive($widget->ID, $active_widgets);
       
       // setup initial info
       $corral_slug = $keys[0];
@@ -481,7 +481,7 @@ class Widget_Wrangler_Admin {
           }
           ?>
         </select>
-        <?php print $widget->post_title; ?> <?php print (($widget->post_status == 'draft') ? '- <em>(draft)</em>': ''); ?> <?php print (($widget->display_logic_enabled) ? '- <em>(display logic)</em>': ''); ?>
+        <?php print $widget->post_title; ?> <?php print (($widget->post_status == 'draft') ? '- <em>('.__('draft', 'widgetwrangler').')</em>': ''); ?> <?php print (($widget->display_logic_enabled) ? '- <em>('.__('display logic', 'widgetwrangler').')</em>': ''); ?>
       </li>
     <?php
     return ob_get_clean();

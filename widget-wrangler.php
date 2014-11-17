@@ -2,10 +2,12 @@
 /*
 Plugin Name: Widget Wrangler
 Plugin URI: http://www.wranglerplugins.com
-Description: Widget Wrangler gives the wordpress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing wordpress widgets, and granular control over widgets' templates.
+Description: Widget Wrangler gives the WordPress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing WordPress widgets, and granular control over widget templates.
 Author: Jonathan Daggerhart
-Version: 2.1.3
-Author URI: http://jonathan.daggerhart.com
+Version: 2.1.4
+Author URI: http://daggerhart.com
+Text Domain: widgetwrangler
+Domain Path: /languages
 License: GPL2
 */
 /*  Copyright 2010  Jonathan Daggerhart  (email : jonathan@daggerhart.com)
@@ -96,6 +98,7 @@ class Widget_Wrangler {
    */
   function __construct(){
     add_action('wp_loaded', array($this, 'wp_loaded'), 999);
+
     // core
     include_once WW_PLUGIN_DIR.'/common/template-wrangler.inc';
     include_once WW_PLUGIN_DIR.'/common/presets.php';
@@ -142,6 +145,8 @@ class Widget_Wrangler {
    *  - load core WW display and preset functionality
    */
   function wp_plugins_loaded(){
+    load_plugin_textdomain( 'widgetwrangler', FALSE, basename( WW_PLUGIN_DIR ) . '/languages/' );
+
     $this->_gather_addons();
     $this->display = new Widget_Wrangler_Display();
     $this->display->ww = $this;
@@ -166,8 +171,10 @@ class Widget_Wrangler {
    *  - Handle altered sidebar definitions
    */
   function wp_loaded(){
-    global $wp_registered_sidebars;
-    $wp_registered_sidebars = $this->get_altered_sidebars();
+    if ( !is_admin()) {
+      global $wp_registered_sidebars;
+      $wp_registered_sidebars = $this->get_altered_sidebars();
+    }
   }
     
   /*
@@ -197,7 +204,7 @@ class Widget_Wrangler {
       // use original
       if ($force_alter || isset($ww_alter_sidebars[$slug]['ww_alter'])){
         $combined[$slug] = $wp_registered_sidebars[$slug];
-        if (is_array($ww_alter_sidebars[$slug])){
+        if ( isset($ww_alter_sidebars[$slug]) && is_array($ww_alter_sidebars[$slug]) ){
           foreach ($ww_alter_sidebars[$slug] as $k => $v){
             if (isset($v)) {
               $combined[$slug][$k] = $v;

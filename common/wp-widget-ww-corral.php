@@ -62,7 +62,7 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
     
     <?php // Sidebar: Select Box ?>
     <p>
-     <label for="<?php echo $this->get_field_id( 'sidebar' ); ?>"><?php _e('Corral:', 'widgetwrangler'); ?></label> 
+     <label for="<?php echo $this->get_field_id( 'sidebar' ); ?>"><?php _e('Corral', 'widgetwrangler'); ?>:</label>
      <select id="<?php echo $this->get_field_id( 'sidebar' ); ?>" name="<?php echo $this->get_field_name( 'sidebar' ); ?>" class="widefat" style="width:100%;">
       <?php
         foreach($sidebars as $slug => $name)

@@ -15,7 +15,7 @@ add_filter('ww_settings_form_tabs', 'example_settings_tab');
 function example_settings_tab($tabs){
   $tabs['settings'] = array(
     'title' => 'General',
-    'description' => 'Setup how Widget Wrangler works with other Wordpress content.',
+    'description' => 'Setup how Widget Wrangler works with other WordPress content.',
     'form_action' => array( $this, '_settings_general_form' ),
     );
   return $tabs;
@@ -140,23 +140,23 @@ class WW_Settings_Admin  {
   //
   function _default_settings_form_tabs($tabs){
     $tabs['settings'] = array(
-      'title' => 'General',
-      'description' => 'Setup how Widget Wrangler works with other Wordpress content.',
+      'title' => __('General', 'widgetwrangler'),
+      'description' => __('Setup how Widget Wrangler works with other WordPress content.', 'widgetwrangler'),
       'form_action' => array( $this, '_settings_general_form' ),
       );
     $tabs['settings/widget'] = array(
-      'title' => 'Post Type',
-      'description' => 'Post type settings control the "widget" post_type registered by this plugin.',
+      'title' => __('Post Type', 'widgetwrangler'),
+      'description' => __('Post type settings control the widget post_type registered by this plugin.', 'widgetwrangler'),
       'form_action' => array( $this, '_settings_general_form' ),
       );
     $tabs['settings/tools'] = array(
-      'title' => 'Tools',
-      'description' => 'Actions that will modify Widget Wrangler data.',
+      'title' => __('Tools', 'widgetwrangler'),
+      'description' => __('Actions that will modify Widget Wrangler data.', 'widgetwrangler'),
       'form_action' => array( $this, '_settings_tools_form' ),
       );
     $tabs['settings/license'] = array(
-      'title' => 'Pro License',
-      'description' => 'Widget Wrangler Pro provides new features for site developers that can drastically increase efficiency in widget management for complex sites or needs.',
+      'title' => __('Pro License', 'widgetwrangler'),
+      'description' => __('Widget Wrangler Pro provides new features for site developers that can drastically increase efficiency in widget management for complex sites or needs.', 'widgetwrangler'),
       'form_action' => array( $this, '_settings_tools_form' ),
       );
     return $tabs;
@@ -167,36 +167,36 @@ class WW_Settings_Admin  {
   //
   function _default_settings_form_items($settings){
     $settings['post_types'] = array(
-      'title' => 'Post Types',
-      'description' => 'Select which post types can control widgets individually.',
+      'title' => __('Post Types', 'widgetwrangler'),
+      'description' => __('Select which post types can control widgets individually.', 'widgetwrangler'),
       'empty_value' => array(),
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     $settings['taxonomies'] = array(
-      'title' => 'Taxonomies',
-      'description' => 'Select which taxonomies can control widgets individually.',
+      'title' => __('Taxonomies', 'widgetwrangler'),
+      'description' => __('Select which taxonomies can control widgets individually.', 'widgetwrangler'),
       'empty_value' => $this->ww->settings['taxonomies'],
       'require_license' => true,
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     $settings['theme_compat'] = array(
-      'title' => 'Theme Compatibility',
+      'title' => __('Theme Compatibility', 'widgetwrangler'),
       'empty_value' => 0,
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     $settings['shortcode_tinymce'] = array(
-      'title' => 'tinyMCE Shortcode Button',
+      'title' => __('tinyMCE Shortcode Button', 'widgetwrangler'),
       'empty_value' => 0,
       'require_license' => true,
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     $settings['override_elements'] = array(
-      'title' => 'HTML Override Elements',
-      'description' => 'Allowed elements for override a widget\'s html output.  Place one element per line.',
+      'title' => __('HTML Override Elements', 'widgetwrangler'),
+      'description' => __('Allowed elements for override a widget\'s html output.  Place one element per line.', 'widgetwrangler'),
       'empty_value' => $this->ww->settings['override_elements'],
       'require_license' => true,
       'form_action' => array( $this, '_default_settings_form_action' ),
@@ -204,13 +204,13 @@ class WW_Settings_Admin  {
       );
     
     if (get_option('ww_previous_main_version', '')){
-      $extra_desc = "This version of Widget Wrangler has been upgraded from 1.x. If you have created templates with the previous version, you should leave this checked.";
+      $extra_desc = __("This version of Widget Wrangler has been upgraded from 1.x. If you have created templates with the previous version, you should leave this checked.", 'widgetwrangler');
     } else {
-      $extra_desc = "This version of Widget Wrangler was not upgraded from 1.x, you should not need this setting.";
+      $extra_desc = __("This version of Widget Wrangler was not upgraded from 1.x, you should not need this setting.", 'widgetwrangler');
     }
     
     $settings['legacy_template_suggestions'] = array(
-      'title' => 'Legacy Template Suggestions',
+      'title' => __('Legacy Template Suggestions', 'widgetwrangler'),
       'description' => $extra_desc,
       'empty_value' => 0,
       'form_action' => array( $this, '_default_settings_form_action' ),
@@ -219,14 +219,14 @@ class WW_Settings_Admin  {
     
     // widget settings
     $settings['capabilities'] = array(
-      'title' => 'Capabilities',
+      'title' => __('Capabilities', 'widgetwrangler'),
       'tab' => 'settings/widget',
       'value_keys' => array('capabilities', 'advanced_capability'),
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     $settings['exclude_from_search'] = array(
-      'title' => 'Exclude from search',
+      'title' => __('Exclude from search', 'widgetwrangler'),
       'tab' => 'settings/widget',
       'empty_value' => 0,
       'form_action' => array( $this, '_default_settings_form_action' ),
@@ -235,10 +235,10 @@ class WW_Settings_Admin  {
     
     /*
     $settings['widget_advanced'] = array(
-      'title' => 'Advanced',
+      'title' => __('Advanced', 'widgetwrangler'),
       'tab' => 'settings/widget',
       'require_license' => true,
-      'description' => 'Only change these if you know what you\'re doing.',
+      'description' => __('Only change these if you know what you\'re doing.', 'widgetwrangler'),
       'value_keys' => array('rewrite_slug', 'query_var'),
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
@@ -247,36 +247,36 @@ class WW_Settings_Admin  {
     
     // tools
     $settings['theme_setup'] = array(
-      'title' => 'Setup Theme',
+      'title' => __('Setup Theme', 'widgetwrangler'),
       'tab' => 'settings/tools',
       'execute_key' => 'theme_setup',
-      'description' => 'If you click this button, Widget Wrangler will create a Corral for each Wordpress sidebar you have, and place a Widget Wrangler Corral Widget into each Wordpress Sidebar.',
+      'description' => __('If you click this button, Widget Wrangler will create a Corral for each WordPress sidebar you have, and place a Widget Wrangler Corral Widget into each WordPress Sidebar.', 'widgetwrangler'),
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     $settings['mass_reset'] = array(
-      'title' => 'Mass Reset',
+      'title' =>__('Mass Reset', 'widgetwrangler'),
       'tab' => 'settings/tools',
       'execute_key' => 'reset',
-      'description' => 'If you click this button, all pages will lose their assigned widget settings and will fall back on the default preset.',
+      'description' => __('If you click this button, all pages will lose their assigned widget settings and will fall back on the default preset.', 'widgetwrangler'),
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     $settings['settings_reset'] = array(
-      'title' => 'Reset settings to default',
+      'title' => __('Reset settings to default', 'widgetwrangler'),
       'tab' => 'settings/tools',
       'execute_key' => 'reset_settings',
-      'description' => 'If you click this button, Widget Wrangler settings will be reset to their default state.  This will not affect Corral or Widget data.',
+      'description' => __('If you click this button, Widget Wrangler settings will be reset to their default state.  This will not affect Corral or Widget data.', 'widgetwrangler'),
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
     
     // license
     $settings['license_key'] = array(
-      'title' => 'License Key',
+      'title' => __('License Key', 'widgetwrangler'),
       'tab' => 'settings/license',
       'execute_key' => 'license',
-      'description' => 'Enter your license key below.',
+      'description' => __('Enter your license key below.', 'widgetwrangler'),
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
@@ -469,8 +469,7 @@ class WW_Settings_Admin  {
         $checked = (!empty($setting['form_values']['theme_compat'])) ? "checked='checked'" : "";
         ?>
           <label class="ww-checkbox">
-            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - If checked, widgets will include Wordpress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget.
-            <br /> Additionally, Enabling theme compatibility provides an administration page for managing the current theme's registered sidebar html.
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('If checked, widgets will include WordPress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget. -- Additionally, enabling theme compatibility provides an administration page for managing the current theme\'s registered sidebar html.', 'widgetwrangler'); ?>
           </label>
         <?php
         break;
@@ -479,7 +478,7 @@ class WW_Settings_Admin  {
         $checked = (!empty($setting['form_values']['shortcode_tinymce'])) ? "checked='checked'" : "";
         ?>
           <label class="ww-checkbox">
-            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - Enable tinyMCE shortcode button
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('Enable tinyMCE shortcode button', 'widgetwrangler'); ?>
           </label>
         <?php
         break;
@@ -488,7 +487,7 @@ class WW_Settings_Admin  {
         $checked = (!empty($setting['form_values']['legacy_template_suggestions'])) ? "checked='checked'" : "";
         ?>
           <label class="ww-checkbox">
-            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - Enable template suggestions from WW 1.x
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('Enable template suggestions from Widget Wrangler 1.x', 'widgetwrangler'); ?>
           </label>
         <?php
         break;
@@ -502,20 +501,19 @@ class WW_Settings_Admin  {
           <p> 
             <label>
               <input name="settings[capabilities]" type="radio" value="simple" <?php print $simple_checked; ?> />
-              <strong>Simple</strong>:  Widgets can be Created and Edited by anyone who can edit Posts.  Anyone who can edit a Page can change the Widgets displayed on that Page.
+              <strong><?php _e('Simple', 'widgetwrangler'); ?></strong>:  <?php _e('Widgets can be Created and Edited by anyone who can edit Posts.  Anyone who can edit a Page can change the Widgets displayed on that Page.', 'widgetwrangler'); ?>
             </label>
           </p>
           <hr />
           <p>
             <label>
               <input name="settings[capabilities]" type="radio" value="advanced" <?php print $adv_checked; ?> />
-              <strong>Advanced</strong>:  Change the capability_type for this post_type.
+              <strong><?php _e('Advanced', 'widgetwrangler'); ?></strong>:  <?php _e('Change the capability_type for this post_type.', 'widgetwrangler'); ?>
             </label>
-            This is primarily for incorporating third party permission systems. <br />
-            A simple use of this setting would be to change the Capability Type to 'page'.  This would make it so that only users who can create and edit pages may create and edit widgets.
+            <?php _e('This is primarily for incorporating third party permission systems. A simple use of this setting would be to change the Capability Type to \'page\'.  This would make it so that only users who can create and edit pages may create and edit widgets.', 'widgetwrangler'); ?>
           </p>
           <p>
-            <label><input name="settings[advanced_capability]" type="text" size="20" value="<?php print $advanced_capability; ?>"/> Capability Type</label>
+            <label><input name="settings[advanced_capability]" type="text" size="20" value="<?php print $advanced_capability; ?>"/> <?php _e('Capability Type', 'widgetwrangler'); ?></label>
           </p>
         <?php
         break;
@@ -524,7 +522,7 @@ class WW_Settings_Admin  {
         $checked = (!empty($setting['form_values']['exclude_from_search'])) ? "checked='checked'" : "";
         ?>
           <label class="ww-checkbox">
-            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - If checked, widgets will be excluded from search results.
+            <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('If checked, widgets will be excluded from search results.', 'widgetwrangler'); ?>
           </label>
         <?php
         break;
@@ -533,12 +531,12 @@ class WW_Settings_Admin  {
         ?>
           <p>
             <label>
-              Rewrite slug: <input name="settings[rewrite_slug]" type="text" value="<?php print $setting['form_values']['rewrite_slug']; ?>" />
+              <?php _e('Rewrite slug', 'widgetwrangler'); ?>: <input name="settings[rewrite_slug]" type="text" value="<?php print $setting['form_values']['rewrite_slug']; ?>" />
             </label>
           </p>
           <p>
             <label>
-              Query var: <input name="settings[query_var]" type="text" value="<?php print $setting['form_values']['query_var']; ?>" />
+              <?php _e('Query var', 'widgetwrangler'); ?>: <input name="settings[query_var]" type="text" value="<?php print $setting['form_values']['query_var']; ?>" />
             </label>
           </p>        
         <?php
@@ -548,7 +546,7 @@ class WW_Settings_Admin  {
       case 'theme_setup':
         ?>
           <form action="<?php print $this->current_settings_form_tab['tab_url']; ?>&ww_action=theme_setup&noheader=true" method="post">
-            <input class="button ww-setting-button-bad" type="submit" value="Setup Theme" onclick="return confirm('Are you Really sure you want to reset your wordpress sidebars and widget wrangler corrals?');" />
+            <input class="button ww-setting-button-bad" type="submit" value="<?php _e('Setup Theme', 'widgetwrangler'); ?>" onclick="return confirm( '<?php _e('Are you sure you want to reset your WordPress sidebars and widget wrangler corrals?', 'widgetwrangler'); ?>' );" />
           </form>        
         <?php
         break;
@@ -556,7 +554,7 @@ class WW_Settings_Admin  {
       case 'mass_reset':
         ?>
           <form action="<?php print $this->current_settings_form_tab['tab_url']; ?>&ww_action=reset&noheader=true" method="post">
-            <input class="button ww-setting-button-bad" type="submit" value="Reset All Widgets to Default" onclick="return confirm('Are you Really sure you want to Reset widget settings on all pages?');" />
+            <input class="button ww-setting-button-bad" type="submit" value="<?php _e('Reset All Widgets to Default', 'widgetwrangler'); ?>" onclick="return confirm( '<?php _e('Are you sure you want to Reset widget settings on all pages?', 'widgetwrangler'); ?>' );" />
           </form>        
         <?php
         break;
@@ -564,7 +562,7 @@ class WW_Settings_Admin  {
       case 'settings_reset':
         ?>
           <form action="<?php print $this->current_settings_form_tab['tab_url']; ?>&ww_action=reset_settings&noheader=true" method="post">
-            <input class="button ww-setting-button-bad" type="submit" value="Reset Settings" onclick="return confirm('Are you Really sure you want to Reset Settings?');" />
+            <input class="button ww-setting-button-bad" type="submit" value="<?php _e('Reset Settings', 'widgetwrangler'); ?>" onclick="return confirm( '<?php _e('Are you sure you want to Reset Settings?', 'widgetwrangler'); ?>' );" />
           </form>
         <?php
         break;
@@ -574,12 +572,12 @@ class WW_Settings_Admin  {
         $license 	= get_option( 'ww_pro_license_key' );
         $status 	= get_option( 'ww_pro_license_status' );
         $valid = $this->ww->license_status ? true : false;
-        $status_indicator = ( $valid ) ? "<small style='color: green;'>active</small>": "<small style='color: red;'>inactive</small>";
+        $status_indicator = ( $valid ) ? "<small style='color: green;'>".__('active', 'widgetwrangler') . "</small>": "<small style='color: red;'>".__('inactive', 'widgetwrangler') . "</small>";
         
-        $action_title = "Activate";
+        $action_title = __("Activate License", 'widgetwrangler');
         $button_name = "ww_pro_license_activate";
         if( $valid ){
-          $action_title = "Deactivate";
+          $action_title = __("Deactivate License", 'widgetwrangler');
           $button_name = "ww_pro_license_deactivate";
         }
         ?>
@@ -589,14 +587,14 @@ class WW_Settings_Admin  {
                 <?php print $status_indicator; ?>
               </p>
               <p>
-                <input type="submit" class="button-secondary" name="<?php print $button_name; ?>" value="<?php _e($action_title.' License'); ?>"/>
+                <input type="submit" class="button-secondary" name="<?php print $button_name; ?>" value="<?php print $action_title; ?>"/>
               </p>
           </form>
           
-          <h2>About Widget Wrangler Pro</h2>
+          <h2><?php _e('About Widget Wrangler Pro', 'widgetwrangler'); ?></h2>
           <p>
-            Widget Wrangler Pro offers new features for a whole new level of control over your widgets.  Manage the widgets on archive (category) pages, create as many presets as you want, and many more!
-            <a target="_blank" href="http://wranglerplugins.com/plugins/widget-wrangler/#compare">View Pro Features</a>
+            <?php _e('Widget Wrangler Pro offers new features for a whole new level of control over your widgets.  Manage the widgets on archive (category) pages, create as many presets as you want, and many more!'); ?>
+            <a target="_blank" href="http://wranglerplugins.com/plugins/widget-wrangler/#compare"><?php _e('View Pro Features', 'widgetwrangler'); ?></a>
           </p>
         <?php
         break;
@@ -618,7 +616,7 @@ class WW_Settings_Admin  {
   //
   function _settings_general_form(){
     $form = array(
-      'title' => 'Widget Wrangler '.$this->current_settings_form_tab['title'].' Settings',
+      'title' => sprintf( __('Widget Wrangler %s Settings', 'widgetwrangler'), $this->current_settings_form_tab['title']),
       'description' => $this->current_settings_form_tab['description'],
       'attributes' => array(
         'action' => $this->current_settings_form_tab['tab_url'].'&ww_action=save&noheader=true',
@@ -634,7 +632,7 @@ class WW_Settings_Admin  {
   //
   function _settings_tools_form(){
     $page = array(
-      'title' => 'Widget Wrangler '.$this->current_settings_form_tab['title'],
+      'title' => sprintf( __('Widget Wrangler %s', 'widgetwrangler'), $this->current_settings_form_tab['title']),
       'description' => $this->current_settings_form_tab['description'],
       );
     

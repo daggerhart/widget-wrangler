@@ -135,25 +135,25 @@ class WW_Corrals_Admin  {
     $sorting_items = '';
     ?>
     <div class='wrap'>
-      <h2>Widget Corrals</h2>
+      <h2><?php _e("Widget Corrals", 'widgetwrangler'); ?></h2>
       <p>
-        A <strong>Corral</strong> is an arbitrary group of widgets. Wordpress and preview Widget Wrangler versions call them '<em>sidebars</em>', but they are ultimately not limited by that terminology.
+        <?php _e("A Corral is an arbitrary group of widgets. WordPress and preview Widget Wrangler versions call them 'sidebars', but they are ultimately not limited by that terminology.", 'widgetwrangler'); ?>
       </p>                           
     <div id='ww-corral-page'>
       <div class="ww-setting-column">
         
         <div class="postbox">
-          <h2 class="ww-setting-title">Edit existing Corrals</h2>
+          <h2 class="ww-setting-title"><?php _e("Edit existing Corrals", 'widgetwrangler'); ?></h2>
           <div class="ww-setting-content">
           <div class='description' style='color:red;'>
-            Warning! If you change a corral's 'slug', widgets currently assigned to that corral will need to be reassigned.
+            <?php _e("Warning! If you change a corral's slug, widgets currently assigned to that corral will need to be reassigned.", 'widgetwrangler'); ?>
           </div>
           <ul id='ww-corrals-list'>
           <?php
             //  no corrals
             if (!is_array($corrals))
             { ?>
-              <li>No Corrals defined</li>
+              <li><?php _e("No Corrals defined", 'widgetwrangler'); ?></li>
               <?php
             }
             // corrals
@@ -172,14 +172,14 @@ class WW_Corrals_Admin  {
                       <div class='widget-inside'>
                         <form action='edit.php?post_type=widget&page=corrals&ww_action=update&noheader=true' method='post'>
                           <p class="ww-top-right-save">
-                            <input class='ww-corral-update-submit button button-primary button-large' name='ww-update-submit' type='submit' value='Update' />
+                            <input class='ww-corral-update-submit button button-primary button-large' name='ww-update-submit' type='submit' value='<?php _e("Update", 'widgetwrangler'); ?>' />
                           </p>
                           <p>
-                            <label>Name: </label>
+                            <label><?php _e("Name", 'widgetwrangler'); ?>: </label>
                             <input class='ww-text' name='ww-update-corral' type='text' value='<?php print $corral; ?>' />
                           </p>
                           <p>
-                            <label>Slug: </label>
+                            <label><?php _e("Slug", 'widgetwrangler'); ?>: </label>
                             <input class='ww-text' name='ww-update-slug' type='text' value='<?php print $slug; ?>' />
                           </p>
                           <input name='ww-update-old-slug' type='hidden' value='<?php print $slug; ?>' />
@@ -188,7 +188,7 @@ class WW_Corrals_Admin  {
                         <form class='ww-delete-corral' action='edit.php?post_type=widget&page=corrals&ww_action=delete&noheader=true' method='post'>
                           <input name='ww-delete-slug' type='hidden' value='<?php print $slug; ?>' />
                           <p>
-                            <input class='ww-setting-button-bad button button-small ww-delete-submit' name='ww-delete-submit' type='submit' value='Delete' />
+                            <input class='ww-setting-button-bad button button-small ww-delete-submit' name='ww-delete-submit' type='submit' value='<?php _e("Delete", 'widgetwrangler'); ?>' onclick="return confirm('<?php _e('Are you sure you want to delete this corral?', 'widgetwrangler'); ?>');" />
                           </p>
                         </form>
                         <div class="ww-clear-gone">&nbsp;</div>
@@ -212,25 +212,25 @@ class WW_Corrals_Admin  {
       </div>
       <div class="ww-setting-column">
         <div class="postbox">
-          <h2 class="ww-setting-title">Create New Corral</h2>
+          <h2 class="ww-setting-title"><?php _e("Create New Corral", 'widgetwrangler'); ?></h2>
           <div class="ww-setting-content">
             <form action='edit.php?post_type=widget&page=corrals&ww_action=insert&noheader=true' method='post'>
               <p>
-                Corral Name: <input name='ww-new-corral' type='text' value='' />
+                <?php _e("Corral Name", 'widgetwrangler'); ?>: <input name='ww-new-corral' type='text' value='' />
               </p>
-              <input class='button button-primary button-large' type='submit' value='Create Corral' />
+              <input class='button button-primary button-large' type='submit' value='<?php _e("Create Corral", 'widgetwrangler'); ?>' />
             </form>
           </div>
         </div>
         
         <div class="postbox">
-          <h2 class="ww-setting-title">Sort Corrals</h2>
+          <h2 class="ww-setting-title"><?php _e("Sort Corrals", 'widgetwrangler'); ?></h2>
           <div class="ww-setting-content">
             <form action='edit.php?post_type=widget&page=corrals&ww_action=sort&noheader=true' method='post'>
               <ul id='ww-corrals-sort-list'>
                 <?php print $sorting_items; ?>
               </ul>
-              <input class='ww-sidebar-sort-submit button button-primary button-large' type='submit' name='ww-sidebars-save' value='Save Order' />
+              <input class='ww-sidebar-sort-submit button button-primary button-large' type='submit' name='ww-sidebars-save' value='<?php _e("Save Order", 'widgetwrangler'); ?>' />
             </form>
           </div>
         </div>

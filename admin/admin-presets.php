@@ -238,10 +238,10 @@ class WW_Presets_Admin  {
       <input type="hidden" name="widget_wrangler_preset_ajax_op" id="widget_wrangler_preset_ajax_op" value="<?php print $preset_ajax_op; ?>" />
       <span id="ww-post-preset-message"><?php print $current_preset_message; ?></span>
       <div class='ww-presets'>
-        <span>Widget Preset:</span>
+        <span><?php _e("Widget Preset", 'widgetwrangler'); ?>:</span>
         
         <select id='ww_post_preset' name='ww-post-preset-id-new'>
-          <option value='0'>- No Preset -</option>
+          <option value='0'><?php _e("- No Preset -", 'widgetwrangler'); ?></option>
           <?php
             // create options
             foreach($all_presets as $preset)
@@ -256,9 +256,7 @@ class WW_Presets_Admin  {
         <span class="ajax-working spinner">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         
         <p class='description'>
-          Select the Widget Preset you would like to control widgets on this page.
-          To allow this page to control it's own widgets, select '- No Preset -'.
-          If you select a preset and then rearrange widgets, this page will convert itself to '- No Preset -' on save. </span>							
+          <span><?php _e("Select the Widget Preset you would like to control widgets on this page. To allow this page to control its own widgets, select '- No Preset -'. If you select a preset and then rearrange widgets, this page will convert itself to '- No Preset -' on save.", 'widgetwrangler'); ?></span>
         </p>
       </div>
     </div>        
@@ -293,7 +291,7 @@ class WW_Presets_Admin  {
             <input value='true' type='hidden' name='widget-wrangler-edit' />
             <input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
           </p>
-          <h2>Edit Preset <em><?php print $this_preset->data['name']; ?></em></h2>
+          <h2><?php _e("Edit Preset", 'widgetwrangler'); ?> <em><?php print $this_preset->data['name']; ?></em></h2>
         </div>
   
         <div id="presets-wrap">	
@@ -337,7 +335,7 @@ class WW_Presets_Admin  {
                       </select>
                     </p>
                     <p>
-                      <input type="submit" name="action[create]" class="button button-primary button-large" value="Create New Preset" />
+                      <input type="submit" name="action[create]" class="button button-primary button-large" value="<?php _e("Create New Preset", 'widgetwrangler'); ?>" />
                     </p>
                   </div>
                 </div>
@@ -360,11 +358,11 @@ class WW_Presets_Admin  {
                 <div id="preset-data">
                   <div id="preset-name">
                     <div class="detail">
-                      <label>Name:</label>
+                      <label><?php _e("Name:", 'widgetwrangler'); ?></label>
                       <input size="40" type="text" name="data[name]" value="<?php print $this_preset->data['name']; ?>" />
                     </div>
                     <div class="detail">
-                      <label>Type:</label> <?php print $preset_variety['slug']; ?>
+                      <label><?php _e("Type:", 'widgetwrangler'); ?></label> <?php print $preset_variety['slug']; ?>
                     </div>         
                   </div>
                 </div>
@@ -386,7 +384,7 @@ class WW_Presets_Admin  {
         </div>
         <div class="ww-clear-gone">&nbsp;</div>
         <?php if($preset_variety['slug'] != 'core'){ ?>
-          <input class='button' name='action[delete]' type='submit' value='Delete' />
+          <input class='button' name='action[delete]' type='submit' value='<?php _e("Delete", 'widgetwrangler'); ?>' />
         <?php } ?>
       </form>
     </div>

@@ -117,14 +117,14 @@ class WW_Taxonomies_Admin {
       }
       
       $form = array(
-        'title' => 'Widget Wrangler',
-        'description' => 'Here you can override the default widgets for all terms in this taxonomy.',
+        'title' => __('Widget Wrangler', 'widgetwrangler'),
+        'description' => __('Here you can override the default widgets for all terms in this taxonomy.', 'widgetwrangler'),
         'attributes' => array(
           'action' => $this->ww->admin->parent_slug.'&page=ww_save_taxonomy_form&noheader=true',
           ),
         'submit_button' => array(
           'attributes' => array(
-            'value' => 'Save Widgets',
+            'value' => __('Save Widgets', 'widgetwrangler'),
             ),
           ),
         );
@@ -136,7 +136,7 @@ class WW_Taxonomies_Admin {
         <div class="postbox">
           <div class="ww-setting-content">
             <p>
-              <label><input type="checkbox" name="override_default" <?php print $override_default_checked; ?> /> - Enable these widgets as the default widgets for terms in this taxonomy.</label>
+              <label><input type="checkbox" name="override_default" <?php print $override_default_checked; ?> /> - <?php _e('Enable these widgets as the default widgets for terms in this taxonomy.', 'widgetwrangler'); ?></label>
             </p>
             <?php $this->ww->admin->_sortable_widgets_meta_box(); ?>
           </div>
@@ -195,7 +195,7 @@ class WW_Taxonomies_Admin {
       
       ?>
       <tr class="form-field">
-        <th scope="row" valign="top"><label>Widget Wrangler</label><br/><em><small>(for this term only)</small></em></th>
+        <th scope="row" valign="top"><label><?php _e('Widget Wrangler', 'widgetwrangler'); ?></label><br/><em><small>(<?php _e('for this term only', 'widgetwrangler'); ?>)</small></em></th>
         <td>
           <div class="postbox">
             <div class="ww-setting-content">
