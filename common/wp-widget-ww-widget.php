@@ -32,7 +32,7 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
   function widget( $args, $instance )
   {
     if ($widget = $this->ww->get_single_widget($instance['post_id'])){
-      print $this->ww->display->theme_single_widget($instance['post_id'], $args);
+      print $this->ww->display->theme_single_widget($widget, $args);
     }
   }
   
@@ -55,12 +55,18 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
   function form( $instance )
   {
     // Set up some default widget settings. 
-    $defaults = array( 'title' => __('Widget Wrangler Corral', 'widgetwrangler'), 'post_id' => '' );
+    $defaults = array( 'title' => __('Widget', 'widgetwrangler'), 'post_id' => '' );
     $instance = wp_parse_args( (array) $instance, $defaults );
     $widgets = $this->ww->get_all_widgets(array('publish', 'draft'));
+
+    // keep the post_title for easy UI reference
+    if ( !empty($instance['post_id']) ){
+      $this_widget = $this->ww->get_single_widget( $instance['post_id'] );
+      $instance['title'] = $this_widget->post_title;
+    }
     ?>
     <?php // Widget Title: Hidden Input ?>
-    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $sidebars[$instance['sidebar']]; ?>" style="width:100%;" />
+    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" style="width:100%;" />
     
     <?php // Sidebar: Select Box ?>
     <p>
@@ -69,8 +75,12 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
       <?php
         foreach($widgets as $widget)
         {
+          $title = $widget->post_title;
+          if ($widget->post_status == "draft") {
+            $title.=  " - <em>(draft)</em>";
+          }
           ?>
-          <option <?php if ($instance['post_id'] == $widget->ID){ print 'selected="selected"'; }?> value="<?php print $widget->ID; ?>"><?php print $widget->post_title. ($widget->post_status == "draft") ? " - <em>(draft)</em>" : ""; ?></option>
+          <option <?php selected( $instance['post_id'], $widget->ID ); ?> value="<?php print $widget->ID; ?>"><?php print $title ?></option>
           <?php
         }
       ?>
