@@ -9,7 +9,7 @@ A plugin for managing the display of widgets on a page by page basis. Using widg
 
 == Description ==
 
-Widget Wrangler is a plugin for Wordpress that gives administrators a clean interface for managing widgets on a page by page basis.  On each page, you can control what widgets appear where.
+Widget Wrangler is a plugin for WordPress that gives administrators a clean interface for managing widgets on a page by page basis.  On each page, you can control what widgets appear where.
 
 Widget Wrangler provides the following features:
 
@@ -21,7 +21,7 @@ Widget Wrangler provides the following features:
 * Control Widget visibility globally (Display Logic)
 * Alter WP Sidebar HTML
 * Shortcodes for Widgets
-* Compatible with almost any existing Wordpress Widget
+* Compatible with almost any existing WordPress Widget
 * Hide Widget Titles
 * Automatic Theme Setup
 
@@ -40,7 +40,7 @@ http://www.youtube.com/watch?v=oW2NgtwUuHE
 
 = Automatic Theme Setup =
 
-If you want to use a single Corral per Wordpress sidebar (or are unsure what all this means), visit Widget Wrangler >> Settings >> Tools and click "Setup Theme".  This will automatically create one Corral for each Wordpress Sidebar, and place the Corral Widget into each Sidebar.
+If you want to use a single Corral per WordPress sidebar (or are unsure what all this means), visit Widget Wrangler >> Settings >> Tools and click "Setup Theme".  This will automatically create one Corral for each WordPress Sidebar, and place the Corral Widget into each Sidebar.
 
 = Manual Setup =
 
@@ -53,7 +53,7 @@ If you want to use a single Corral per Wordpress sidebar (or are unsure what all
 
 = What is a Corral =
 
-A Corral is an arbitrary group of widgets.  Wordpress calls them "sidebars", but they are not ultimately limited by that terminology.  You could have multiple Corrals appear within a single Sidebar if needed.
+A Corral is an arbitrary group of widgets.  WordPress calls them "sidebars", but they are not ultimately limited by that terminology.  You could have multiple Corrals appear within a single Sidebar if needed.
 
 = Where does a widget's html come from? = 
 
@@ -84,7 +84,7 @@ To template specific widgets, save a copy of templates/widget.php as widget-[wid
 
 = Can I use existing wordpress widgets? =
 
-Mostly. Widgets designed for Wordpress 3+ are able to be used with the 'Copy WP Widget' option in the Widget Wrangler menu.  Widgets programmed for older versions of wordpress may not work.
+Mostly. Widgets designed for WordPress 3+ are able to be used with the 'Copy WP Widget' option in the Widget Wrangler menu.  Widgets programmed for older versions of wordpress may not work.
 
 = What does it mean to Copy/Clone a widget? =
 
@@ -95,7 +95,7 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 1. Widget Page Manager
 1. Individual Widget
-1. Cloned Wordpress Widget
+1. Cloned WordPress Widget
 1. Widget Wrangler Corral Widget
 
 == Changelog ==
@@ -213,7 +213,7 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 = 1.4 =
 
 * Feature: Preview Widget on the widget's edit page
-* Feature: Add WW sidebars using Wordpress's standard widget system
+* Feature: Add WW sidebars using WordPress's standard widget system
 * Bug fix: Issue with cloning specific wordpress widgets
 * Bug fix: Images not showing up in non-standard install directories
 
@@ -229,7 +229,7 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 * Feature: Now use Widget Wrangler on any post type and the blog page (Posts page).
 * Feature: Use template with advanced parsed widget.
-* Feature: Set widgets for the home/frontpage when using Wordpress's 'Reading Setting' for 'Front page displays' as 'Your latest posts'. Settings >> Reading >> Front page displays.
+* Feature: Set widgets for the home/frontpage when using WordPress's 'Reading Setting' for 'Front page displays' as 'Your latest posts'. Settings >> Reading >> Front page displays.
 * Programming: Refactored function names to standardize concepts and descriptors
 
 = 1.2.1 =
