@@ -2,7 +2,7 @@
 Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 3
-Tested up to: 4.0
+Tested up to: 4.0.1
 Stable tag: trunk
 
 A plugin for managing the display of widgets on a page by page basis. Using widgets as a post type.
@@ -82,13 +82,13 @@ The other way requires you to edit your template files and find any instance of 
 In the widget-wrangler directory there is a file named 'templates/widget.php'.  Copy this file to your theme's root directory and rename it 'widget.php'.  You can edit the HTML in the file to have widgets defaultly appear as you want.
 To template specific widgets, save a copy of templates/widget.php as widget-[widget ID].php in your theme directory. (eg. widget-121.php, where 121 is the widget's ID)
 
-= Can I use existing wordpress widgets? =
+= Can I use existing WordPress widgets? =
 
-Mostly. Widgets designed for WordPress 3+ are able to be used with the 'Copy WP Widget' option in the Widget Wrangler menu.  Widgets programmed for older versions of wordpress may not work.
+Mostly. Widgets designed for WordPress 3+ are able to be used with the 'Copy WP Widget' option in the Widget Wrangler menu.  Widgets programmed for older versions of WordPress may not work.
 
 = What does it mean to Copy/Clone a widget? =
 
-When you Copy a wordpress widget, it creates a new widget post in the Widget Wrangler system with the settings for the original wordpress widget pre-filled.  A copied widget will contain the original widget form for the WP widget.
+When you Copy a WordPress widget, it creates a new widget post in the Widget Wrangler system with the settings for the original WordPress widget pre-filled.  A copied widget will contain the original widget form for the WP widget.
 
 
 == Screenshots ==
@@ -99,6 +99,10 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 1. Widget Wrangler Corral Widget
 
 == Changelog ==
+
+= 2.1.5 =
+
+* Bug fix: Widget Wrangler WordPress Widget Widget fixed (yep).
 
 = 2.1.4 =
 
@@ -214,7 +218,7 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 * Feature: Preview Widget on the widget's edit page
 * Feature: Add WW sidebars using WordPress's standard widget system
-* Bug fix: Issue with cloning specific wordpress widgets
+* Bug fix: Issue with cloning specific WordPress widgets
 * Bug fix: Images not showing up in non-standard install directories
 
 = 1.3.2 =
@@ -249,7 +253,7 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 = 1.1rc8 =
 
-* Fix for javascript with wordpress 3.2 update.  Added option to reset all widgets on all pages.
+* Fix for javascript with WordPress 3.2 update.  Added option to reset all widgets on all pages.
 
 = 1.1rc7 =
 
@@ -257,7 +261,7 @@ When you Copy a wordpress widget, it creates a new widget post in the Widget Wra
 
 = 1.1rc6 =
 
-* Fix for disappearing menu items with wordpress 3.1 update.
+* Fix for disappearing menu items with WordPress 3.1 update.
 
 = 1.1rc5 =
 
@@ -288,4 +292,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.1.4 Bug fixes and i18n ready.
+2.1.5 Fix for Standard widget widget.
