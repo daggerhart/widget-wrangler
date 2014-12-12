@@ -2,7 +2,7 @@
 Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 3
-Tested up to: 4.0.1
+Tested up to: 4.0
 Stable tag: trunk
 
 A plugin for managing the display of widgets on a page by page basis. Using widgets as a post type.
@@ -102,7 +102,7 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 
 = 2.1.5 =
 
-* Bug fix: Widget Wrangler WordPress Widget Widget fixed (yep).
+* Bug Fix: WordPress Widget for Widget Wrangler widget.
 
 = 2.1.4 =
 
@@ -292,4 +292,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.1.5 Fix for Standard widget widget.
+2.1.5 WordPress Widget for Widget Wrangler widget.
