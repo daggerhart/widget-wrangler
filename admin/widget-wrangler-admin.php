@@ -260,20 +260,23 @@ class Widget_Wrangler_Admin {
     $i = 1;
     // loop through all widgets looking for those submitted
     foreach($all_widgets as $key => $widget){
-      $weight = $submitted_widget_data[$widget->ID]["weight"];
-      $sidebar_slug = $submitted_widget_data[$widget->ID]["sidebar"];
-  
-      // if something was submitted without a weight, make it neutral
-      if ($weight < 1){
-        $weight = $i;
-      }
-      
-      // add it to the active widgets list
-      if ($sidebar_slug && ($sidebar_slug != 'disabled')){
-        $active_widgets[$sidebar_slug][] = array(
-              'id' => $widget->ID,
-              'weight' => $weight,
-              );
+      if ( isset( $submitted_widget_data[ $widget->ID ] ) ) {
+        $weight = $submitted_widget_data[$widget->ID]["weight"];
+
+        $sidebar_slug = $submitted_widget_data[$widget->ID]["sidebar"];
+
+        // if something was submitted without a weight, make it neutral
+        if ($weight < 1) {
+          $weight = $i;
+        }
+
+        // add it to the active widgets list
+        if ($sidebar_slug && ( $sidebar_slug != 'disabled' )) {
+          $active_widgets[$sidebar_slug][] = array(
+            'id'     => $widget->ID,
+            'weight' => $weight,
+          );
+        }
       }
       $i++;
     }

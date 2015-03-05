@@ -1,12 +1,6 @@
-
 /****************************************************
  * Common
  ****************************************************/
-#content_WWList_text { /* tinymce listbox */
-	font-size: 11px;
-	line-height: 22px;
-	width: 75px;
-}
 #ww-page-top {
 	text-align: right;
 	margin-bottom: 16px;
@@ -596,4 +590,16 @@ div.ww-setting-content {
 }
 .ww-alter-sidebar-field input[type=text] {
   width: 85%;
+}
+
+/*
+ * TinyMCE
+ */
+/* trouble with long lists */
+.mce-widget-wrangler-tinymce-button,
+body.widget-wrangler-tinymce-button .mce-floatpanel.mce-menu.mce-fixed{
+  position: absolute !important;
+}
+i.mce-i-widget-wrangler-button-icon {
+  background: transparent url('../images/wrangler_icon.png') center center no-repeat;
 }
