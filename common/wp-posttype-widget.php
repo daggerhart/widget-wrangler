@@ -319,6 +319,10 @@ class WW_Widget_PostType {
   function meta_box_widget_preview(){
     if ($this->post_id)
     {
+      // queries in widgets can cause problems, even when executed correctly
+      global $post;
+      $tmp = clone $post;
+
       // buffer all of this in case of php errors
       ob_start();
         $widget = $this->ww->get_single_widget($this->post_id);
@@ -382,6 +386,9 @@ class WW_Widget_PostType {
         <div id="ww-preview-html-toggle"><?php _e("View Output HTML"); ?></div><pre id="ww-preview-html-content"><?php
           print htmlentities($preview); ?></pre>
       <?php
+
+      // restore original post
+      $post = $tmp;
     }
   }
 
