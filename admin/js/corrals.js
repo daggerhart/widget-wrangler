@@ -1,8 +1,8 @@
 jQuery(document).ready(function(){          
 
   // open and close widget menu
-  jQuery('.widget-action').click(function(){
-    jQuery(this).parent('div').parent('div').next('.widget-inside').slideToggle();
+  jQuery('.widget-top').click(function(){
+    jQuery(this).closest('.widgets-holder-wrap').find('.widget-inside').slideToggle('fast');
   });
 
   // sorting

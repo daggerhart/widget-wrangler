@@ -37,6 +37,7 @@ class WW_Clone_Admin  {
       exit;
     }
     else {
+      // TODO - move to file
       add_action( "admin_print_footer_scripts", array( $this, 'wp_admin_print_footer_scripts' ) );
       add_action( "admin_head", array( $this->ww->admin, '_admin_css' ) );
       
@@ -102,20 +103,21 @@ class WW_Clone_Admin  {
    */
   function _clone_form()
   {
-    global $wp_widget_factory,$wp_registered_widget_controls,$wp_registered_widget_updates,$wp_registered_widgets;
+    global $wp_widget_factory;
     $total_widgets = count($wp_widget_factory->widgets);
     $half = round($total_widgets/2);
     $i = 0; 
     ?>
     <div class='wrap'>
       <h2><?php _e("Copy a Widget", 'widgetwrangler'); ?></h2>
-      <p><?php _e("Here you can clone an existing WordPress widget into Widget Wrangler.", 'widgetwrangler'); ?></p>
+      <p><?php _e("Here you can copy (instantiate) an existing WordPress widget into Widget Wrangler.", 'widgetwrangler'); ?></p>
+      <p><?php _e("Click on the title of the widget you would like to copy, fill in the widget's form according to your needs and click 'Create'. This will create an instance of the chosen widget in Widget Wrangler.", 'widgetwrangler'); ?></p>
       <ul class='ww-clone-widgets'>
       <?php
         foreach ($wp_widget_factory->widgets as $classname => $widget)
         {
           $posted_array_key = "widget-".$widget->id_base;
-          
+
           // break into 2 columns
           if ($i == $half)
           { ?>
@@ -163,8 +165,8 @@ class WW_Clone_Admin  {
     <script type="text/javascript">
       jQuery(document).ready(function(){
         // open and close widget menu
-        jQuery('.widget-action').click(function(){
-          jQuery(this).parent('div').parent('div').next('.widget-inside').slideToggle();
+        jQuery('.widget-top').click(function(){
+          jQuery(this).closest('.widgets-holder-wrap').find('.widget-inside').slideToggle('fast');
         });
       });
     </script>
