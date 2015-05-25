@@ -153,7 +153,7 @@ class WW_Admin_Sortable {
 			<ul name='<?php print $corral_slug; ?>' id='ww-corral-<?php print $corral_slug; ?>-items' class='inner ww-sortable' width='100%'>
 				<?php
 					foreach ( $corral_widgets as $i => $widget ){
-						print $this->sortable_corral_item( $widget, $i);
+						print $this->sortable_corral_item( $widget, $corral_slug.'-'.$i);
 					}
 				?>
 				<li class='ww-no-widgets' <?php print $no_widgets_style; ?>><?php _e("No Widgets in this corral.", 'widgetwrangler'); ?></li>

@@ -235,7 +235,7 @@ WidgetWrangler.ajax = {
         .replace(/__widget-post_title__/g, widget.post_title )
         .replace(/__widget-corral_slug__/g, corral_slug )
         .replace(/__widget-weight__/g, weight)
-        .replace(/__ROW-INDEX__/g, WidgetWrangler.addWidget.row_index);
+        .replace(/__ROW-INDEX__/g, corral_slug + '-' + WidgetWrangler.addWidget.row_index);
 
       WidgetWrangler.addWidget.row_index--;
 
