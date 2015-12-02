@@ -232,6 +232,7 @@ class WW_Widget_PostType {
       
       // let the widget update itself
       $classname = $_POST['ww-data']['clone']['clone-class'];
+      $classname = implode("\\", array_filter( explode( "\\", $classname )));
       if (class_exists($classname)) {
         $wp_widget = new $classname;
         $instance = $wp_widget->update($instance, $old_instance);
@@ -256,6 +257,7 @@ class WW_Widget_PostType {
     global $wp_widget_factory;
     if (isset($posted['ww-data']['clone'])) {
       $clone_class = $posted['ww-data']['clone']['clone-class'];
+      $clone_class = implode("\\", array_filter( explode( "\\", $clone_class )));
       $option_name = "widget-".$wp_widget_factory->widgets[$clone_class]->control_options['id_base'];
       $instance = array();
     
