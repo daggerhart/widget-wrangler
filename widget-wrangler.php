@@ -26,8 +26,6 @@ License: GPL2
 // versioning for now
 define('WW_VERSION', '2.2.4');
 define('WW_SCRIPT_VERSION', '2.2.4');
-define('WW_PRO_NAME', 'Widget Wrangler Pro' );
-define('WW_PRO_URL', 'http://wranglerplugins.com' ); 
 
 define('WW_PLUGIN_FILE', __FILE__);
 define('WW_PLUGIN_DIR', dirname(WW_PLUGIN_FILE));
