@@ -2,7 +2,7 @@
 Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 3
-Tested up to: 4.2.2
+Tested up to: 4.5
 Stable tag: trunk
 
 A plugin for managing the display of widgets on a page by page basis. Using widgets as a post type.
@@ -15,7 +15,6 @@ Widget Wrangler provides the following features:
 
 * Widgets as a post type
 * PHP in widgets
-* TinyMCE (wysiwyg) for Widgets
 * Custom Widget templates
 * Control Widget visibility on any page (or post type)
 * Control Widget visibility globally (Display Logic)
@@ -103,6 +102,9 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 = 2.2.3 =
 
 * Updating widget constructors to PHP 5
+* Removing licensing concepts which opens the following features to free users: custom presets, manage taxonomies
+* Bug fix: Select box in sortable widgets on Firefox
+* Bug fix: Hiding widgets from wrangler.
 
 = 2.2.2 =
 
@@ -313,4 +315,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.2.3 PHP5 Constructors
+2.2.3 PHP5 Constructors, Custom Presets, Manage widgets on taxonomies. Bug fix select box in sortable widgets. Bug fix hidden widgets in wrangler.
