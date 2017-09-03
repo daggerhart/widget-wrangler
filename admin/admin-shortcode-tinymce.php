@@ -12,7 +12,11 @@ function ww_shortcode_tinymce_admin_addon($addons){
 
 class WW_Shortcode_Tinymce_Admin  {
 
+	public $settings = array();
+
   function __construct(){
+	  $s = new WidgetWranglerSettings();
+	  $this->settings = $s->values;
     add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
   }
 
@@ -21,7 +25,7 @@ class WW_Shortcode_Tinymce_Admin  {
    */
   function wp_admin_init(){
     // shortcode inserter
-    if ($this->ww->settings['shortcode_tinymce'] &&
+    if ($this->settings['shortcode_tinymce'] &&
         $this->ww->admin->_is_editing_enabled_post_type())
     {
       add_action('admin_head', array($this, 'wp_admin_head'));

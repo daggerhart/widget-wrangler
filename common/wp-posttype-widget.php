@@ -29,20 +29,25 @@ class WW_Widget_PostType {
   var $widget_type;
   var $post_id;
   var $widget_meta = array();
+
+  public $settings = array();
   
   //
-  function __construct(){
-    global $widget_wrangler;
-    $this->ww = $widget_wrangler;
-    
-    add_action( 'init', array( $this, 'wp_init' ) );
+  function __construct($settings){
+    $this->settings = $settings;
+  }
+
+  public static function register( $settings ){
+      $plugin = new self($settings);
+
+	  add_action( 'init', array( $plugin, 'wp_init' ) );
   }
   
   /*
    * hook_init
    */
   function wp_init(){
-    $settings = $this->ww->settings;
+    $settings = $this->settings;
     $capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced_capability'])) ? $settings['advanced_capability'] : "post";
     
     $supports = array(
@@ -327,7 +332,7 @@ class WW_Widget_PostType {
 
       // buffer all of this in case of php errors
       ob_start();
-        $widget = $this->ww->get_single_widget($this->post_id);
+        $widget = WidgetWranglerWidgets::get($this->post_id);
         $widget->in_preview = TRUE;
         $preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
         
@@ -405,12 +410,12 @@ class WW_Widget_PostType {
           
           // make sure that if an element is later changed, we can still retain the current value
           if (!empty($trimmed_value) &&
-              !in_array($fields[$key]['value'], $this->ww->settings['override_elements']))
+              !in_array($fields[$key]['value'], $this->settings['override_elements']))
           {
-            $this->ww->settings['override_elements'][] = $fields[$key]['value'];
+            $this->settings['override_elements'][] = $fields[$key]['value'];
           }
-          
-          foreach ($this->ww->settings['override_elements'] as $element){
+
+          foreach ($this->settings['override_elements'] as $element){
             $selected = ($fields[$key]['value'] == $element) ? 'selected="selected"': '';
             ?>
             <option value="<?php print $element; ?>" <?php print $selected; ?>><?php print strtoupper($element); ?></option>
@@ -469,7 +474,7 @@ class WW_Widget_PostType {
           </div>
         </div>
 
-        <?php if ($this->ww->settings['override_elements_enabled']) { ?>
+        <?php if ($this->settings['override_elements_enabled']) { ?>
           <hr />
           <h4><?php _e("Override HTML Output", 'widgetwrangler'); ?></h4>
           <p class="description"><?php _e("Alter the html output of a templated widget.  Doesn't apply to advanced parsing unless templating is selected.", 'widgetwrangler'); ?></p>
@@ -546,7 +551,7 @@ class WW_Widget_PostType {
 	 */
 	function meta_box_advanced_help()
 	{
-		if ($widget = $this->ww->get_single_widget($this->post_id)){
+		if ($widget = WidgetWranglerWidgets::get($this->post_id)){
       
 			$preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
       if ($preview_corral_slug){

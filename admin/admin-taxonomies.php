@@ -13,7 +13,11 @@ function ww_taxonomies_admin_addon($addons){
  */
 class WW_Taxonomies_Admin {
 
+    public $settings = array();
+
   function __construct(){
+	  $s = new WidgetWranglerSettings();
+	  $this->settings = $s->values;
     add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
     add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
   }
@@ -32,7 +36,7 @@ class WW_Taxonomies_Admin {
       $taxonomy = $_GET['taxonomy'];
       
       // see if it's enabled for ww
-      if (isset($this->ww->settings['taxonomies']) && isset($this->ww->settings['taxonomies'][$taxonomy]))
+      if (isset($this->settings['taxonomies']) && isset($this->settings['taxonomies'][$taxonomy]))
       {
         // add js and css
         $this->ww->admin->init_sortable_widgets();
@@ -84,7 +88,7 @@ class WW_Taxonomies_Admin {
   // 
   function _taxonomy_form( $taxonomy ) {
     
-    if (isset($this->ww->settings['taxonomies'][$taxonomy]) &&
+    if (isset($this->settings['taxonomies'][$taxonomy]) &&
         $taxonomies = get_taxonomies(array('name' => $taxonomy), 'objects'))
     {
       $tax = array_pop($taxonomies);
@@ -97,7 +101,7 @@ class WW_Taxonomies_Admin {
       );
       
        // allow for presets
-      if ($tax_data = $this->ww->_extras_get($where))
+      if ($tax_data = WidgetWranglerExtras::get($where))
       {
         if ( isset( $tax_data->data['override_default'] ) ){
           $override_default_checked = 'checked="checked"';
@@ -170,7 +174,7 @@ class WW_Taxonomies_Admin {
   // widget form on taxonomy_term edit screen
   // 
   function _taxonomy_term_form( $tag, $taxonomy ) {
-    $settings = $this->ww->settings;
+    $settings = $this->settings;
     
     if (isset($settings['taxonomies'][$tag->taxonomy])){
       $where = array(
@@ -179,7 +183,7 @@ class WW_Taxonomies_Admin {
         'extra_key' => $tag->term_id,
       );
       // allow for presets
-      if ($term_data = $this->ww->_extras_get($where)){
+      if ($term_data = WidgetWranglerExtras::get($where)){
         if (isset($term_data->data['preset_id']) && $term_data->data['preset_id'] != 0) {
           $preset = $this->ww->presets->get_preset($term_data->data['preset_id']);
           $widgets = $preset->widgets;
@@ -258,9 +262,9 @@ class WW_Taxonomies_Admin {
     }
     
     // doesn't exist, create it before update
-    if (!$this->ww->_extras_get($where)){
+    if (!WidgetWranglerExtras::get($where)){
       $values['data'] = serialize($values['data']);
-      $this->ww->_extras_insert($values);
+      WidgetWranglerExtras::insert($values);
     }
     
     if ($widgets) {
@@ -277,7 +281,7 @@ class WW_Taxonomies_Admin {
     }
     
     $values['data'] = serialize($values['data']);
-    $this->ww->_extras_update($values, $where); 
+    WidgetWranglerExtras::update($values, $where);
   }
 
   // override the preset ajax op
@@ -319,7 +323,7 @@ class WW_Taxonomies_Admin {
               'extra_key' => $tag_id,
             );
             
-            if ($term_data = $this->ww->_extras_get($where)){
+            if ($term_data = WidgetWranglerExtras::get($where)){
               $this->ww->page_widgets = $term_data->widgets;  
             }
             else {
@@ -356,7 +360,7 @@ class WW_Taxonomies_Admin {
               'extra_key' => $taxonomy,
             );
             
-            if ($term_data = $this->ww->_extras_get($where)){
+            if ($term_data = WidgetWranglerExtras::get($where)){
               $this->ww->page_widgets = $term_data->widgets;  
             }
             else {

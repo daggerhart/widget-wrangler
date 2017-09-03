@@ -13,8 +13,12 @@ function ww_sidebars_admin_addon($addons){
  */
 class WW_Sidebars_Admin  {
   public $page_hook;
-  
+
+  public $settings = array();
+
   function __construct(){
+	  $s = new WidgetWranglerSettings();
+	  $this->settings = $s->values;
     add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
   }
 
@@ -22,7 +26,7 @@ class WW_Sidebars_Admin  {
    * Implements action 'admin_menu'
    */
   function wp_admin_menu(){
-    if ($this->ww->settings['theme_compat']) {
+    if ($this->settings['theme_compat']) {
       $page_title = 'Sidebars';
 
       $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'sidebars', array( $this, '_menu_router' ));

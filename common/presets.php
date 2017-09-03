@@ -55,7 +55,7 @@ class WW_Presets {
   function wp_admin_init(){
     // make sure our core presets are installed
     if (!$this->get_core_preset('default')){
-      $this->ww->_handle_extras_table();
+      WidgetWranglerExtras::ensureTable();
       $this->_install_core_presets();
     }
   }
@@ -137,7 +137,7 @@ class WW_Presets {
     $where = array(
       'type' => 'preset',
     );
-    return $this->ww->_extras_get($where, 'all');
+    return WidgetWranglerExtras::get($where, 'all');
   }
     
   /*
@@ -152,7 +152,7 @@ class WW_Presets {
       'type' => 'preset',
     );
     
-    return $this->ww->_extras_get($where);
+    return WidgetWranglerExtras::get($where);
   }  
   
   /*
@@ -169,7 +169,7 @@ class WW_Presets {
       'extra_key' => $preset_key,
     );
     
-    return $this->ww->_extras_get($where);
+    return WidgetWranglerExtras::get($where);
   }  
   
   /*
@@ -191,26 +191,26 @@ class WW_Presets {
     );
     
     // default widgets
-    if (!$row = $this->ww->_extras_get($where)) {
+    if (!$row = WidgetWranglerExtras::get($where)) {
       $data['extra_key'] = $where['extra_key'];
       $data['data'] = serialize(array('name' => 'Default'));
       
-      $existing_widgets = $existing_widgets = $this->ww->admin->_cleanup_serialized_widgets(get_option('ww_default_widgets', array()));
+      $existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_default_widgets', array()));
       $data['widgets'] = serialize($existing_widgets);
       
-      $this->ww->_extras_insert($data);
+      WidgetWranglerExtras::insert($data);
     }
   
     // postspage widgets
     $where['extra_key'] = 'postspage';
-    if (!$row = $this->ww->_extras_get($where)) {
+    if (!$row = WidgetWranglerExtras::get($where)) {
       $data['extra_key'] = $where['extra_key'];
       $data['data'] = serialize(array('name' => 'Posts Page'));
 
-      $existing_widgets = $this->ww->admin->_cleanup_serialized_widgets(get_option('ww_postspage_widgets', array()));
+      $existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_postspage_widgets', array()));
       $data['widgets'] = serialize($existing_widgets);
       
-      $this->ww->_extras_insert($data);
+      WidgetWranglerExtras::insert($data);
     }
   }
 }

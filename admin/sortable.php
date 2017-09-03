@@ -10,7 +10,7 @@ class WW_Admin_Sortable {
 
 		global $widget_wrangler;
 		$this->all_corrals = $widget_wrangler->corrals;
-		$this->all_widgets = $widget_wrangler->get_all_widgets(array('publish', 'draft'));
+		$this->all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
 	}
 
 	/**

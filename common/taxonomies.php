@@ -38,7 +38,7 @@ class WW_Taxonomies {
         'variety' => 'term',
         'extra_key' => $term->term_id,
       );
-      if ($term_data = $this->ww->_extras_get($where)){
+      if ($term_data = WidgetWranglerExtras::get($where)){
         // look for explicitly set preset
         if (isset($term_data->data['preset_id']) && $term_data->data['preset_id'] != 0){
           $preset = $this->ww->presets->get_preset($term_data->data['preset_id']);
@@ -53,7 +53,7 @@ class WW_Taxonomies {
         // see if the taxonomy is overriding
         $where['variety'] = 'taxonomy';
         $where['extra_key'] = $term->taxonomy;
-        if ($tax_data = $this->ww->_extras_get($where)){
+        if ($tax_data = WidgetWranglerExtras::get($where)){
           if (isset($tax_data->data['override_default'])){
             $widgets = $this->_find_taxonomy_widgets($tax_data);
           }

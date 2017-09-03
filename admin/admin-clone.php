@@ -14,7 +14,11 @@ function ww_clone_admin_addon($addons){
 class WW_Clone_Admin  {
   public $page_hook;
 
+  public $settings = array();
+
   function __construct(){
+	  $s = new WidgetWranglerSettings();
+	  $this->settings = $s->values;
     add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
   }
 

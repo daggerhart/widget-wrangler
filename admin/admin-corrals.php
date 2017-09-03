@@ -13,8 +13,12 @@ function ww_corrals_admin_addon($addons){
  */
 class WW_Corrals_Admin  {
   public $page_hook;
-  
+
+  public $settings = array();
+
   function __construct(){
+	  $s = new WidgetWranglerSettings();
+	  $this->settings = $s->values;
     add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
   }
   
@@ -81,7 +85,7 @@ class WW_Corrals_Admin  {
   function _corrals_insert($posted = array())
   {
     $new_corral = strip_tags($posted['ww-new-corral']);
-    $slug_name = $this->ww->admin->_make_slug($new_corral); 
+    $slug_name = WidgetWranglerUtils::makeSlug($new_corral);
     $corrals_array = get_option('ww_sidebars', array());
      
     // add new sidebar
@@ -112,7 +116,7 @@ class WW_Corrals_Admin  {
   function _corrals_update($posted = array())
   {
     $update_corral = strip_tags($posted['ww-update-corral']);
-    $update_slug = $this->ww->admin->_make_slug($posted['ww-update-slug']);
+    $update_slug = WidgetWranglerUtils::makeSlug($posted['ww-update-slug']);
     $corrals_array = get_option('ww_sidebars', array());
     $old_slug = $posted['ww-update-old-slug'];
     

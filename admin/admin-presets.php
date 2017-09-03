@@ -22,7 +22,11 @@ class WW_Presets_Admin  {
   public $current_preset_id = 0;
   public $new_preset_id = FALSE;
 
+  public $settings = array();
+
   function __construct(){
+	  $s = new WidgetWranglerSettings();
+	  $this->settings = $s->values;
     add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
     add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
   }
@@ -114,18 +118,13 @@ class WW_Presets_Admin  {
    * Delete a Widget Preset
    */
   function _delete_preset(){
-    global $wpdb;
-    $table = $wpdb->ww_extras_table;
-    
     // can't delete defaults
     if(isset($_POST['preset-id']) && isset($_POST['preset-variety']) && $_POST['preset-variety'] != 'core'){
-      $preset_id = $_POST['preset-id'];
-      $preset_variety = $_POST['preset-variety'];
-    
-      $sql = "DELETE FROM ".$table." WHERE `type` = 'preset' AND `variety` = '%s' AND `id` = '%s' LIMIT 1";
-      $prepared = $wpdb->prepare($sql,$preset_variety, $preset_id);
-      
-      $wpdb->query($prepared);
+        WidgetWranglerExtras::delete(array(
+	        'type' => 'preset',
+	        'variety' => $_POST['preset-variety'],
+	        'id' => $_POST['preset-id'],
+        ));
     }
   }
 
@@ -156,7 +155,7 @@ class WW_Presets_Admin  {
       );
       
       // save the widgets
-      $this->ww->_extras_update($data, $where);
+      WidgetWranglerExtras::update($data, $where);
       $this_preset_variety = $this->ww->preset_varieties[$preset_variety];
 
       return $preset_id;
@@ -179,7 +178,7 @@ class WW_Presets_Admin  {
             'widgets' => serialize(array()),
           );
           
-          return $this->ww->_extras_insert($data);
+          return WidgetWranglerExtras::insert($data);
           break;
       }
     }

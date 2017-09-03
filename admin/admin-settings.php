@@ -80,9 +80,13 @@ class WW_Settings_Admin  {
   public $settings_form_tabs = array();
   public $settings_form_items = array();
   public $current_settings_form_tab = array();
+
+  public $settings = array();
   
   // hook into the settings form items and tabs
   function __construct(){
+      $s = new WidgetWranglerSettings();
+      $this->settings = $s->values;
     add_filter('ww_settings_form_items', array( $this, '_default_settings_form_items' ) );
     add_filter('ww_settings_form_tabs', array( $this, '_default_settings_form_tabs' ) );
     add_action( 'init', array( $this, 'wp_init' ) );
@@ -179,7 +183,7 @@ class WW_Settings_Admin  {
     $settings['taxonomies'] = array(
       'title' => __('Taxonomies', 'widgetwrangler'),
       'description' => __('Select which taxonomies can control widgets individually.', 'widgetwrangler'),
-      'empty_value' => $this->ww->settings['taxonomies'],
+      'empty_value' => $this->settings['taxonomies'],
       'form_action' => array( $this, '_default_settings_form_action' ),
       'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
@@ -206,7 +210,7 @@ class WW_Settings_Admin  {
 
     // deprecated
     // only allow people currently using this feature to see it.
-    if ( $this->ww->settings['previously_pro'] ||  $this->ww->settings['override_elements_enabled']){
+    if ( $this->settings['previously_pro'] ||  $this->settings['override_elements_enabled']){
       $settings['override_elements_enabled'] = array(
         'title' => __('Deprecated: Enable overriding widget HTML from the Post UI.', 'widgetwrangler'),
         'description' => __( 'This is a deprecated feature that is only here for legacy systems.' ).
@@ -219,7 +223,7 @@ class WW_Settings_Admin  {
       $settings['override_elements'] = array(
           'title' => __('Deprecated: HTML Override Elements', 'widgetwrangler'),
           'description' => __('Allowed elements for override a widget\'s html output.  Place one element per line.', 'widgetwrangler'),
-          'empty_value' => $this->ww->settings['override_elements'],
+          'empty_value' => $this->settings['override_elements'],
           'form_action' => array( $this, '_default_settings_form_action' ),
           'execute_action' => array( $this, '_default_settings_execute_action' ),
       );
@@ -227,7 +231,7 @@ class WW_Settings_Admin  {
 
     // deprecated
     // only allow people currently using shortcode tinymce to see this old feature
-    if ( $this->ww->settings['previously_pro'] || $this->ww->settings['shortcode_tinymce'] ) {
+    if ( $this->settings['previously_pro'] || $this->settings['shortcode_tinymce'] ) {
       $settings['shortcode_tinymce'] = array(
           'title' => __('Deprecated: tinyMCE Shortcode Button', 'widgetwrangler'),
           'description' => __( 'This is a deprecated feature that is only here for legacy systems.' ).
@@ -350,8 +354,8 @@ class WW_Settings_Admin  {
           }
           
           // get default form values from settings array
-          if (isset($this->ww->settings[$key])){
-            $setting['form_values'][$key] = $this->ww->settings[$key];
+          if (isset($this->settings[$key])){
+            $setting['form_values'][$key] = $this->settings[$key];
           }
           // fall back to empty value if missing (or disabled)
           else {
@@ -400,7 +404,8 @@ class WW_Settings_Admin  {
         break;
       
       case 'reset_settings':
-        update_option('ww_settings', $this->ww->default_settings);
+        $settings = new WidgetWranglerSettings();
+        update_option('ww_settings', $settings->default_settings);
         break;
       
       case 'theme_setup':
@@ -648,7 +653,7 @@ class WW_Settings_Admin  {
       
       <div class="ww-admin-tab">
         <?php
-          if ( isset($_GET['debug']) ) { $this->ww->__d($this->ww->settings); }
+          if ( isset($_GET['debug']) ) { $this->ww->__d($this->settings); }
           foreach ($this->settings_form_items as $setting_key => $setting){
             // only settings on this tab
             if ($setting['tab'] == $this->current_settings_form_tab['tab_key']){
@@ -697,7 +702,7 @@ class WW_Settings_Admin  {
   // Save the Widget Wrangler Settings page
   //
   function _save_settings(){
-    $settings = $this->ww->settings;
+    $settings = $this->settings;
     
     // loop through all settings_items looking for submitted values
     foreach ($this->current_settings_form_tab['items'] as $setting_key => $setting){
@@ -721,7 +726,7 @@ class WW_Settings_Admin  {
     
     // save
     update_option('ww_settings', $settings);
-    $this->ww->settings = $settings;    
+    $this->settings = $settings;
   }
 
   //
@@ -744,7 +749,7 @@ class WW_Settings_Admin  {
     
     $i = 0;
     foreach ($wp_registered_sidebars as $sidebar_id => $sidebar_details){
-      $corral_slug = $this->ww->admin->_make_slug($sidebar_details['name']);
+      $corral_slug = WidgetWranglerUtils::makeSlug($sidebar_details['name']);
       
       // see if corral exists
       if (!isset($corrals[$corral_slug])){

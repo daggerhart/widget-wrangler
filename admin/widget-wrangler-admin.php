@@ -21,8 +21,10 @@ class Widget_Wrangler_Admin {
   public $parent_slug = 'edit.php?post_type=widget';
   public $capability = 'manage_options';
   public $editing_post_id = FALSE;
-  
-  function __construct(){
+
+  public $settings = array();
+
+  function __construct($settings){
     include_once WW_PLUGIN_DIR.'/admin/admin-clone.php';
     include_once WW_PLUGIN_DIR.'/admin/admin-presets.php';
     include_once WW_PLUGIN_DIR.'/admin/admin-corrals.php';
@@ -34,15 +36,19 @@ class Widget_Wrangler_Admin {
     
     global $widget_wrangler;
     $this->ww = $widget_wrangler;
+
+    $this->settings = $settings;
     
     // get all our admin addons
     $this->_gather_addons();
+  }
 
-    add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
+  public static function register($settings) {
+      $plugin = new self($settings);
 
-    // this is the best hook i could find that ensures we're editing a post
-    // and the global $post object is available
-    add_action( 'add_meta_boxes', array( $this->ww, 'find_all_page_widgets' ), -99 );
+	  add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
+
+	  return $plugin;
   }
   
   //
@@ -50,7 +56,7 @@ class Widget_Wrangler_Admin {
     global $widget_wrangler;
     
     // get all addons
-    $addons = apply_filters( 'Widget_Wrangler_Admin_Addons', $this->addons );
+    $addons = apply_filters( 'Widget_Wrangler_Admin_Addons', $this->addons, $this->settings );
     
     // give access to the ww object
     if ( ! empty( $addons ) ){
@@ -67,8 +73,8 @@ class Widget_Wrangler_Admin {
     add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
           
     // Add metabox to enabled post_types
-    if (!empty($this->ww->settings['post_types'])){
-      foreach($this->ww->settings['post_types'] as $enabled_post_type){
+    if (!empty($this->settings['post_types'])){
+      foreach($this->settings['post_types'] as $enabled_post_type){
         add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />Widget Wrangler'), array( $this, '_sortable_widgets_meta_box'), $enabled_post_type, 'normal', 'high');
         // Add some CSS to the admin header on the widget wrangler pages, and edit pages
         if ($this->_is_editing_enabled_post_type()){
@@ -206,7 +212,7 @@ class Widget_Wrangler_Admin {
   function _serialize_widgets($submitted_widget_data){
     // OK, we're authenticated:
     // we need to find and save the data
-    $all_widgets = $this->ww->get_all_widgets(array('publish', 'draft'));
+    $all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
     $active_widgets = array();
 
     if ( ! empty( $submitted_widget_data ) ) {
@@ -265,7 +271,7 @@ class Widget_Wrangler_Admin {
     }
     
     // Ensure this is an enabled post_type and user can edit it
-    $settings = $this->ww->settings;  
+    $settings = $this->settings;  
     if (!in_array($_POST['post_type'], $settings['post_types']) || !current_user_can('edit_post', $post_id)){
       return $post_id;
     }
@@ -306,28 +312,12 @@ class Widget_Wrangler_Admin {
     if((isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit') && isset($_REQUEST['post'])) {
       $current_post_type = get_post_type($_REQUEST['post']);
         
-      if (in_array($current_post_type, $this->ww->settings['post_types'])){
+      if (in_array($current_post_type, $this->settings['post_types'])){
         $this->editing_post_id = $_REQUEST['post'];
         return TRUE;
       }
     }
     return FALSE;
-  }
-
-  
-  //
-  // Helper function for making sidebar slugs
-  //
-  function _make_slug($string){
-    return stripcslashes(preg_replace('/[\s_\'\"]/','_', strtolower(strip_tags($string))));
-  }
-  
-  // usort callback by 'weight' property or key
-  function _sort_by_weight($a, $b){
-    $a = (object) $a;
-    $b = (object) $b;
-    if ($a->weight == $b->weight) return 0;
-    return ($a->weight > $b->weight) ? 1 : -1;
   }
 
   //
@@ -388,27 +378,8 @@ class Widget_Wrangler_Admin {
     $WidgetWrangler = array();
     $WidgetWrangler['data'] = array(
       'ajaxURL' => admin_url( 'admin-ajax.php' ),
-      'allWidgets' => $this->ww->get_all_widgets(),
+      'allWidgets' => WidgetWranglerWidgets::all(),
     );
     return json_encode($WidgetWrangler);
-  }
-  
-  // cleanup previously serialized widgets
-  function _cleanup_serialized_widgets($existing_widgets){
-    // problem with over serialized options
-    $existing_widgets = maybe_unserialize($existing_widgets);
-    $existing_widgets = maybe_unserialize($existing_widgets);
-    
-    if (isset($existing_widgets['disabled'])){
-      unset($existing_widgets['disabled']);
-    }
-    foreach ($existing_widgets as $corral_slug => $corral_widgets){
-      foreach ($corral_widgets as $i => $widget){
-        if (isset($widget['name'])){
-          unset($existing_widgets[$corral_slug][$i]['name']);
-        }
-      }
-    }
-    return $existing_widgets;
   }
 }

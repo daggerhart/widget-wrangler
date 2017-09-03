@@ -11,6 +11,8 @@
  *  - widget-wrangler-display-corral-output-alter
  */
 class Widget_Wrangler_Display {
+
+	public $settings = array();
   
   var $theme_compat = 0;
   
@@ -30,8 +32,9 @@ class Widget_Wrangler_Display {
    *  - load backwards compatibility functions
    *  - prepare display object for WordPress
    */
-  function __construct(){
+  function __construct( $settings ){
     include_once WW_PLUGIN_DIR.'/common/backwards-compat-functions.inc';
+    $this->settings = $settings;
     $this->add_hooks();
   }
   
@@ -60,7 +63,7 @@ class Widget_Wrangler_Display {
    *  - need theme compatibility check to happen a little later
    */ 
   function wp_loaded(){
-    $this->theme_compat = (isset($this->ww->settings['theme_compat']) && $this->ww->settings['theme_compat']) ? 1 : 0;
+    $this->theme_compat = (isset($this->settings['theme_compat']) && $this->settings['theme_compat']) ? 1 : 0;
   }
   
   /*
@@ -133,7 +136,7 @@ class Widget_Wrangler_Display {
     );
   */
   
-    if ($this->ww->settings['legacy_template_suggestions']){
+    if ($this->settings['legacy_template_suggestions']){
       // remove the default widget.php
       array_pop($templates['ww_widget']['files']);
       // add the legacy template suggestion patterns
@@ -183,12 +186,12 @@ class Widget_Wrangler_Display {
       $this->doing_corral_wp_widget_args = $wp_widget_args;
       
       // ensure widgets are sorted correctly
-      usort($this->ww->page_widgets[$corral_slug], array( $this->ww, '_sort_by_weight') );
+      usort($this->ww->page_widgets[$corral_slug], 'WidgetWranglerUtils::sortByWeight' );
       
       $i = 0;
       $total = count($this->ww->page_widgets[$corral_slug]);
       while($i < $total) {
-        if($widget = $this->ww->get_single_widget($this->ww->page_widgets[$corral_slug][$i]['id'], 'publish'))
+        if($widget = WidgetWranglerWidgets::get($this->ww->page_widgets[$corral_slug][$i]['id'], 'publish'))
         {
           // include theme compatibility data
           $widget->wp_widget_args = $this->doing_corral_wp_widget_args;
@@ -461,7 +464,7 @@ class Widget_Wrangler_Display {
     $wp_widget = $wp_widget_factory->widgets[$wp_widget_class];
 
     // get as much ww widget data as possible 
-    $ww_widget = (isset($instance['ww_widget'])) ? $instance['ww_widget'] : $this->ww->get_single_widget($instance['ID']);
+    $ww_widget = (isset($instance['ww_widget'])) ? $instance['ww_widget'] : WidgetWranglerWidgets::get($instance['ID']);
 
     if (!isset($instance['hide_title'])){
       $instance['hide_title'] = 0;
@@ -523,7 +526,7 @@ class Widget_Wrangler_Display {
       }
     }
     
-    if ($widget = $this->ww->get_single_widget($args['id'], 'publish')){
+    if ($widget = WidgetWranglerWidgets::get($args['id'], 'publish')){
       if (!empty($this->doing_corral_wp_widget_args)){
         $widget->wp_widget_args = $this->doing_corral_wp_widget_args;
       }
