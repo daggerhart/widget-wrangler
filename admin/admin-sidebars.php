@@ -8,84 +8,79 @@ function ww_sidebars_admin_addon($addons, $settings){
   return $addons;
 }
 
-/*
- *
+/**
+ * Class WW_Sidebars_Admin
  */
-class WW_Sidebars_Admin  {
-  public $page_hook;
+class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 
-
-	public $settings = array();
-
-	function __construct($settings){
-		$this->settings = $settings;
+	/**
+	 * @see WidgetWranglerAdminPage::title()
+	 */
+	function title() {
+		return __('Modify the WordPress theme sidebar templates');
 	}
 
 	/**
-	 * Register hooks.
-	 *
-	 * @param $settings
-	 *
-	 * @return \WW_Sidebars_Admin
+	 * @see WidgetWranglerAdminPage::menuTitle()
 	 */
-	public static function register( $settings ) {
-		$plugin = new self($settings);
-
-		add_action( 'admin_menu', array( $plugin, 'wp_admin_menu' ) );
-
-		return $plugin;
+	function menuTitle() {
+		return __('Sidebars');
 	}
 
-  /**
-   * Implements action 'admin_menu'
-   */
-  function wp_admin_menu(){
-    if ($this->settings['theme_compat']) {
-      $page_title = 'Sidebars';
+	/**
+	 * @see WidgetWranglerAdminPage::slug()
+	 */
+	function slug() {
+		return 'sidebars';
+	}
 
-      $this->page_hook = add_submenu_page(Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'sidebars', array( $this, '_menu_router' ));
-      add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
-    }
-  }
+	/**
+	 * @see WidgetWranglerAdminPage::actions()
+	 */
+	function actions() {
+		return array(
+			'update' => array( $this, 'actionUpdate' ),
+		);
+	}
 
-  /*
-   * Handles settings pages
-   *   - all settings pages submit to this execute_action
-   */
-  function _menu_router(){
-    if (isset($_GET['ww_action'])){
-      switch($_GET['ww_action']){
-        case 'update':
-          if (isset($_POST['ww-data']['sidebars'])) {
-            // clean up a little
-            $sidebars = array();
-            foreach ($_POST['ww-data']['sidebars'] as $slug => $sidebar){
-              $sidebars[$slug] = array();
-              foreach ($sidebar as $k => $v){
-                $sidebars[$slug][$k] = str_replace("\\", '', $v);
-              }
-            }
-            update_option('ww_alter_sidebars', $sidebars);
-          }
-          break;
-      }
-      
-      wp_redirect($_SERVER['HTTP_REFERER']);
-      exit;
-    }
-    else {
-      $this->_manage_sidebars_form();
-    }
-  }
-  
-  /*
-   * Build the form 
-   */
-  function _manage_sidebars_form()
+	function menu() {
+		parent::menu();
+
+		if ( !$this->settings['theme_compat']) {
+			remove_submenu_page($this->parent(), $this->slug());
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	function actionUpdate() {
+		if ( isset($_POST['ww-data']['sidebars'] ) ) {
+			// clean up a little
+			$sidebars = array();
+			foreach ($_POST['ww-data']['sidebars'] as $slug => $sidebar){
+				$sidebars[$slug] = array();
+				foreach ($sidebar as $k => $v){
+					$sidebars[$slug][$k] = str_replace("\\", '', $v);
+				}
+			}
+			update_option('ww_alter_sidebars', $sidebars);
+			return $this->result(__('Sidebars modified.'));
+		}
+
+		return $this->error(__('Something went wrong...'));
+	}
+
+	/**
+	 *
+	 */
+  function page()
   {
+
     //delete_option('ww_alter_sidebars');
     global $wp_registered_sidebars;
-    
+
+	  add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
     $altered_sidebars = WidgetWranglerUtils::alteredSidebars(true);
 
     ob_start();

@@ -11,100 +11,86 @@ function ww_settings_admin_addon($addons, $settings){
 /**
  * Class WW_Settings_Admin
  */
-class WW_Settings_Admin  {
+class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	public $urlbase = 'edit.php?post_type=widget&page=settings';
-	public $settings_form_tabs = array();
-	public $settings_form_items = array();
-	public $current_settings_form_tab = array();
 
-	public $settings = array();
-
-	function __construct($settings){
-		$this->settings = $settings;
+	/**
+	 * @see WidgetWranglerAdminPage::title()
+	 */
+	function title() {
+		return __('Settings');
 	}
 
 	/**
-     * Register hooks.
-     *
-	 * @param $settings
-	 *
-	 * @return \WW_Settings_Admin
+	 * @see WidgetWranglerAdminPage::menuTitle()
 	 */
-	public static function register( $settings ) {
-		$plugin = new self($settings);
-
-		add_action( 'admin_menu', array( $plugin, 'wp_admin_menu' ) );
-
-		return $plugin;
+	function menuTitle() {
+		return __('Settings');
 	}
 
 	/**
-	 * Implements action 'admin_menu'
+	 * @see WidgetWranglerAdminPage::slug()
 	 */
-	function wp_admin_menu(){
-		$page_title = 'Settings';
-		add_submenu_page(Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'settings', array( $this, '_menu_router' ));
+	function slug() {
+		return 'settings';
+	}
+
+	/**
+	 * @see WidgetWranglerAdminPage::actions()
+	 */
+	function actions() {
+		return array(
+			'save' => array( $this, 'actionSave' ),
+			'reset' => array( $this, 'actionResetWidgets' ),
+			'reset_settings' => array( $this, 'actionResetSettings' ),
+			'theme_setup' => array( $this, 'actionThemeSetup' ),
+		);
+	}
+
+	/**
+	 * @see \WidgetWranglerAdminPage::page()
+	 */
+	function page() {
 		add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
-	}
-
-	/**
-	 * Route settings page actions
-	 */
-	function _menu_router(){
-		if (isset($_GET['ww_action'])){
-			switch($_GET['ww_action']){
-				case 'save':
-					$this->saveSettings();
-					break;
-
-				case 'reset':
-					$this->resetWidgets();
-					break;
-
-				case 'reset_settings':
-					$settings = new WidgetWranglerSettings();
-					$settings->values = $settings->default_settings;
-					$settings->save();
-					break;
-
-				case 'theme_setup':
-					$this->setupTheme();
-					break;
-			}
-			wp_redirect($_SERVER['HTTP_REFERER']);
-			exit;
-		}
-
 		$sections = $this->processedSections();
 		$form = array(
-            'title' => 'Settings',
-            'description' => '',
-            'content' => '',
-            'attributes' => array(
-                'action' => $this->urlbase . '&ww_action=save&noheader=true',
-            )
-        );
+			'title' => 'Settings',
+			'description' => '',
+			'content' => '',
+			'attributes' => array(
+				'action' => $this->urlbase . '&ww_action=save&noheader=true',
+			)
+		);
 		$form['content'] .= $this->templateSection($sections['settings']);
 		$form['content'] .= $this->templateSection($sections['widget']);
 
-        print WidgetWranglerAdminUi::form($form);
-        print $this->templateSection($sections['tools']);
-        //var_dump($this->settings);
-	}
+		print WidgetWranglerAdminUi::form($form);
+		print $this->templateSection($sections['tools']);
+		//var_dump($this->settings);
+    }
 
 	/**
 	 * Reset all pages to use the default widget settings
 	 */
-	private function resetWidgets(){
+	function actionResetWidgets(){
 		global $wpdb;
 		$query = "DELETE FROM `".$wpdb->prefix."postmeta` WHERE `meta_key` = 'ww_post_widgets' OR `meta_key` = 'ww_post_preset_id'";
 		$wpdb->query($query);
 	}
 
 	/**
+	 * Reset Widget Wrangler settings values back to default.
+	 */
+	function actionResetSettings() {
+		$settings = new WidgetWranglerSettings();
+		$settings->values = $settings->default_settings;
+		$settings->save();
+    }
+
+	/**
 	 * Save the Widget Wrangler Settings page
 	 */
-	private function saveSettings() {
+	function actionSave() {
 		$settings = new WidgetWranglerSettings();
 
 		// loop through all settings_items looking for submitted values
@@ -136,7 +122,7 @@ class WW_Settings_Admin  {
 	 *  - create a corral for each wp sidebar,
 	 *  - place corral widget inside of each wp sidebar
 	 */
-	private function setupTheme(){
+	function actionThemeSetup(){
 		global $wp_registered_sidebars;
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 		$corrals = WidgetWranglerCorrals::all();

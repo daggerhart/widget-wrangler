@@ -8,92 +8,120 @@ function ww_corrals_admin_addon($addons, $settings){
   return $addons;
 }
 
-/*
- *
+/**
+ * Class WW_Corrals_Admin
  */
-class WW_Corrals_Admin  {
-  public $page_hook;
+class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 
-	public $settings = array();
+	/**
+	 * @see WidgetWranglerAdminPage::title()
+	 */
+    function title() {
+        return __('Widget Corrals');
+    }
 
-	function __construct($settings){
-		$this->settings = $settings;
+	/**
+	 * @see WidgetWranglerAdminPage::menuTitle()
+	 */
+    function menuTitle() {
+	    return __('Corrals');
+    }
+
+	/**
+	 * @see WidgetWranglerAdminPage::slug()
+	 */
+    function slug() {
+        return 'corrals';
+    }
+
+	/**
+	 * @see WidgetWranglerAdminPage::actions()
+	 */
+	function actions() {
+        return array(
+            'insert' => array( $this, 'actionInsert' ),
+            'delete' => array( $this, 'actionDelete' ),
+            'update' => array( $this, 'actionUpdate' ),
+            'sort' => array( $this, 'actionReorder' ),
+        );
+    }
+
+	/**
+     * Create a new corral.
+     *
+	 * @return array
+	 */
+	function actionInsert() {
+		if ( !empty( $_POST['ww-new-corral'] ) ) {
+			WidgetWranglerCorrals::add( $_POST['ww-new-corral'] );
+
+			return $this->result(__(sprintf('New corral %s created.', $_POST['ww-new-corral'])));
+		}
+
+		return $this->error();
 	}
 
 	/**
-	 * Register hooks.
+	 * Delete an existing corral.
 	 *
-	 * @param $settings
-	 *
-	 * @return \WW_Corrals_Admin
+	 * @return array
 	 */
-	public static function register( $settings ) {
-		$plugin = new self($settings);
+	function actionDelete() {
+		if ( !empty( $_POST['ww-delete-slug'] ) ) {
+			WidgetWranglerCorrals::remove( $_POST['ww-delete-slug'] );
 
-		add_action( 'admin_menu', array( $plugin, 'wp_admin_menu' ) );
+			return $this->result(__(sprintf('Corral %s deleted.', $_POST['ww-delete-slug'])));
+		}
 
-		return $plugin;
+		return $this->error();
 	}
 
+	/**
+	 * Update an existing corral.
+	 *
+	 * @return array
+	 */
+	function actionUpdate() {
+		if ( isset( $_POST['ww-update-old-slug'], $_POST['ww-update-corral'], $_POST['ww-update-slug'] ) ) {
+			WidgetWranglerCorrals::update( $_POST['ww-update-old-slug'], $_POST['ww-update-slug'], $_POST['ww-update-corral'] );
 
-	function wp_admin_menu(){
-    $page_title = 'Corrals';
+			return $this->result(__(sprintf('New corral %s created.', $_POST['ww-new-corral'])));
+		}
 
-    $this->page_hook = add_submenu_page(Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'corrals', array( $this, '_menu_router' ));
-    add_action( "admin_print_scripts-".$this->page_hook, array( $this, '_corrals_form_js' ) );
-    add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
-  }
+		return $this->error();
+	}
 
-  /*
-   * Handles settings pages
-   *   - all settings pages submit to this execute_action
-   */
-  function _menu_router(){
-    if (isset($_GET['ww_action'])){
-      switch($_GET['ww_action']){
-        case 'insert':
-          if ( !empty( $_POST['ww-new-corral'] ) ) {
-              WidgetWranglerCorrals::add( $_POST['ww-new-corral'] );
-          }
-          break;
+	/**
+	 * Reorder the corrals.
+	 *
+	 * @return array
+	 */
+	function actionReorder() {
+		if ( isset( $_POST['weight'] ) && is_array( $_POST['weight'] ) ) {
+			WidgetWranglerCorrals::reorder($_POST['weight']);
 
-        case 'delete':
-            if ( !empty( $_POST['ww-delete-slug'] ) ) {
-                WidgetWranglerCorrals::remove( $_POST['ww-delete-slug'] );
-            }
-          break;
+			return $this->result(__('Corrals have been reordered.'));
+		}
 
-        case 'update':
-	        if ( isset( $_POST['ww-update-old-slug'], $_POST['ww-update-corral'], $_POST['ww-update-slug'] ) ) {
-		        WidgetWranglerCorrals::update( $_POST['ww-update-old-slug'], $_POST['ww-update-slug'], $_POST['ww-update-corral'] );
-	        }
-          break;
-
-        case 'sort':
-            if ( is_array( $_POST['weight'] ) ) {
-	            WidgetWranglerCorrals::reorder($_POST['weight']);
-            }
-          break;
-      }
-      
-      wp_redirect($_SERVER['HTTP_REFERER']);
-      exit;
-    }
-    else {
-      $this->_corrals_form();
-    }
-  }
+		return $this->error();
+	}
   
-  /*
-   * Build the form 
+  /**
+   * Build the various forms
+   *
+   * @see \WidgetWranglerAdminPage::page()
    */
-  function _corrals_form()
+  function page()
   {
-    $corrals = WidgetWranglerCorrals::all();
-    $sorting_items = '';
+	  add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
+      wp_enqueue_script('ww-corrals-js',
+          plugins_url('js/corrals.js', __FILE__ ),
+          array('jquery-ui-core', 'jquery-ui-sortable'),
+          false);
+
+	  $corrals = WidgetWranglerCorrals::all();
+	  $sorting_items = '';
     ?>
-    <div class='wrap'>
-      <h2><?php _e("Widget Corrals", 'widgetwrangler'); ?></h2>
       <p>
         <?php _e("A Corral is an arbitrary group of widgets. WordPress and previous Widget Wrangler versions call them 'sidebars', but they are ultimately not limited by that terminology.", 'widgetwrangler'); ?>
       </p>
@@ -197,18 +225,7 @@ class WW_Corrals_Admin  {
         </div>
       </div>
     </div>
-    </div>
     <?php
-  }
-
-  //
-  // Javascript for drag and drop sidebar sorting
-  //
-  function _corrals_form_js(){
-    wp_enqueue_script('ww-corrals-js',
-                      plugins_url('js/corrals.js', __FILE__ ),
-                      array('jquery-ui-core', 'jquery-ui-sortable'),
-                      false);
   }
     
 }

@@ -17,6 +17,7 @@ class WidgetWranglerAdminUi {
 	 * @return string
 	 */
 	public static function page($page = array()) {
+
 		$default_page = array(
 			'title' => 'Page Title',
 			'description' => '',
@@ -26,10 +27,11 @@ class WidgetWranglerAdminUi {
 		ob_start();
 		?>
 		<div class="wrap">
-			<div class="ww-admin-top">
-				<h2><?php printf( __('%s', 'widgetwrangler'), $page['title']); ?></h2>
-				<p class="description"><?php printf( __('%s', 'widgetwrangler'), $page['description']); ?></p>
-			</div>
+            <h2><?php printf( __('%s', 'widgetwrangler'), $page['title']); ?></h2>
+            <?php
+                print self::messages();
+                print self::description($page['description']);
+	        ?>
 			<div>
 				<?php print $page['content']; ?>
 			</div>
@@ -97,7 +99,10 @@ class WidgetWranglerAdminUi {
 
 					<h2 class="ww-admin-title"><?php print $form['title']; ?></h2>
 					<div class="ww-clear-gone">&nbsp;</div>
-					<p class="description"><?php print $form['description']; ?></p>
+					<?php
+                        print self::messages();
+                        print self::description($form['description']);
+					?>
 				</div>
 				<div>
 					<?php print $form['content']; ?>
@@ -115,4 +120,52 @@ class WidgetWranglerAdminUi {
 		<?php
 		return ob_get_clean();
 	}
+
+	/**
+     * Template messages.
+     *
+	 * @return string
+	 */
+	public static function messages() {
+		$messages = WidgetWranglerAdminMessages::instance()->get();
+
+	    ob_start();
+		if ( !empty( $messages ) ) {
+			foreach ( $messages as $message ) {
+				?>
+                <p class="message <?php print $message['type']; ?>">
+					<?php print $message['message']; ?>
+                </p>
+				<?php
+			}
+		}
+
+        return ob_get_clean();
+    }
+
+	/**
+     * Template descriptions.
+     *
+	 * @param $descriptions array
+	 *
+	 * @return string
+	 */
+	public static function description( $descriptions ) {
+	    ob_start();
+		if ( !empty( $descriptions ) ) {
+		    if ( !is_array($descriptions) ){
+		        $descriptions = array($descriptions);
+            }
+            
+			foreach ( $descriptions as $description ) {
+				?>
+                <p class="description">
+					<?php print $description; ?>
+                </p>
+				<?php
+			}
+		}
+
+        return ob_get_clean();
+    }
 }

@@ -242,7 +242,7 @@ class WW_Widget_PostType {
     }
     
     // update clone instance
-    if ($this->widget_type == "clone"){
+    if ($this->widget_type == "clone" && !empty($_POST['ww-data']) ){
       $instance = $this->make_clone_instance($_POST);
       $old_instance = get_post_meta($post_id, 'ww-clone-instance', true);
       

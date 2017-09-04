@@ -24,6 +24,11 @@ class Widget_Wrangler_Admin {
 	public $settings = array();
 
 	function __construct($settings){
+
+		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminMessages.php';
+		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminUi.php';
+		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminPage.php';
+
 		include_once WW_PLUGIN_DIR.'/admin/admin-clone.php';
 		include_once WW_PLUGIN_DIR.'/admin/admin-presets.php';
 		include_once WW_PLUGIN_DIR.'/admin/admin-corrals.php';
@@ -32,8 +37,6 @@ class Widget_Wrangler_Admin {
 		include_once WW_PLUGIN_DIR.'/admin/admin-shortcode-tinymce.php';
 		include_once WW_PLUGIN_DIR.'/admin/admin-taxonomies.php';
 		include_once WW_PLUGIN_DIR.'/admin/sortable.php';
-
-		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminUi.php';
 
 		$this->settings = $settings;
 

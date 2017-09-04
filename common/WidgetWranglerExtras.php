@@ -45,7 +45,8 @@ class WidgetWranglerExtras extends WidgetWranglerDb {
 			$data['widgets'] = serialize($data['widgets']);
 		}
 
-		return $db->insert( $db->ww_extras_table, $data );
+		$db->insert( $db->ww_extras_table, $data );
+		return $db->insert_id;
 	}
 
 	/**
