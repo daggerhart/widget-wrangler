@@ -22,8 +22,8 @@ function ww_the_widget($wp_widget_class, $instance = array()){
  * @TODO: Not exactly a backwards compatibility function. Temporarily placed here.
  */
 function ww_is_active_corral($corral_slug) {
-  global $widget_wrangler;
-  return ( isset($widget_wrangler->page_widgets[$corral_slug]) && !empty($widget_wrangler->page_widgets[$corral_slug]) );
+  $page_widgets = WidgetWranglerUtils::pageWidgets();
+  return ( isset($page_widgets[$corral_slug]) && !empty($page_widgets[$corral_slug]) );
 }
 
 /*

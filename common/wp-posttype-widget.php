@@ -137,7 +137,7 @@ class WW_Widget_PostType {
    */
   function wp_admin_init()
   {
-    add_action('admin_enqueue_scripts', array( $this->ww->admin, '_editing_widget_js' ));
+    add_action('admin_enqueue_scripts', array( $this, '_editing_widget_js' ));
     
     // Clone Instance
     if ($this->widget_type == "clone") {
@@ -152,6 +152,17 @@ class WW_Widget_PostType {
     add_meta_box("ww-adv-help", __("Advanced Help", 'widgetwrangler'), array(&$this, "meta_box_advanced_help"), "widget", "normal", "high");
     add_meta_box("ww-widget-preview", __("Widget Preview", 'widgetwrangler'), array(&$this, "meta_box_widget_preview"), "widget", "side", "default");
   }
+
+	//
+	// Javascript for editing a widget
+	//
+	function _editing_widget_js(){
+		wp_enqueue_script('ww-editing-widget',
+			WW_PLUGIN_URL.'admin/js/editing-widget.js',
+			array('jquery'),
+			WW_SCRIPT_VERSION,
+			true);
+	}
   
   /*
    * Custom columns for the main Widgets management page
@@ -329,6 +340,8 @@ class WW_Widget_PostType {
       // queries in widgets can cause problems, even when executed correctly
       global $post;
       $tmp = clone $post;
+	    $settings = new WidgetWranglerSettings();
+	    $display = new Widget_Wrangler_Display($settings->values);
 
       // buffer all of this in case of php errors
       ob_start();
@@ -339,7 +352,7 @@ class WW_Widget_PostType {
         // set some data so the preview is as accurate as possible
         if ($preview_corral_slug){
           global $wp_registered_sidebars;
-          $corral_sidebar_map = $this->ww->display->corrals_to_wpsidebars_map();
+          $corral_sidebar_map = $display->corrals_to_wpsidebars_map();
           
           // get the sidebar widget args if context is set
           if (isset($corral_sidebar_map[$preview_corral_slug]) && isset($wp_registered_sidebars[$corral_sidebar_map[$preview_corral_slug]])){
@@ -353,16 +366,17 @@ class WW_Widget_PostType {
             $widget->wp_widget_args = $this_sidebar;
             $widget->wp_widget_args['before_widget'] = sprintf($this_sidebar['before_widget'], $corral_widgets[0], 'widget-wrangler-widget-classname');
             // replace id and classes as done during output
-            $widget = $this->ww->display->_replace_wp_widget_args($widget);
+            $widget = $display->_replace_wp_widget_args($widget);
           }
           
-          $this->ww->display->doing_corral = TRUE;
-          $this->ww->display->doing_corral_slug = $preview_corral_slug;
+          $display->doing_corral = TRUE;
+          $display->doing_corral_slug = $preview_corral_slug;
         }
-        print $this->ww->display->theme_single_widget($widget);
+        print $display->theme_single_widget($widget);
       $preview = ob_get_clean();
       
 			$preview_balance = balanceTags($preview, true);
+	    $corrals = WidgetWranglerCorrals::all();
       ?>
         <div id="ww-preview">
           <label><strong><?php _e("Preview Corral Context", 'widgetwrangler'); ?>:</strong></label>
@@ -370,9 +384,9 @@ class WW_Widget_PostType {
           <select id="ww-preview-corral" name="ww-data[ww-preview-corral-slug]" class="widefat" style="width:100%;">
             <option value='0'>- <?php _e("No Corral", 'widgetwrangler'); ?> -</option>
               <?php
-                foreach($this->ww->corrals as $corral_slug => $corral)
+                foreach($corrals as $corral_slug => $corral)
                 {
-                  $selected = (isset($this->ww->display->doing_corral_slug) && $corral_slug == $this->ww->display->doing_corral_slug) ? 'selected="selected"': "";
+                  $selected = (isset($display->doing_corral_slug) && $corral_slug == $display->doing_corral_slug) ? 'selected="selected"': "";
                   ?>
                   <option <?php print $selected; ?> value="<?php print $corral_slug; ?>"><?php print $corral; ?></option>
                   <?php
@@ -551,39 +565,42 @@ class WW_Widget_PostType {
 	 */
 	function meta_box_advanced_help()
 	{
+		$settings = new WidgetWranglerSettings();
+		$display = new Widget_Wrangler_Display($settings->values);
+
 		if ($widget = WidgetWranglerWidgets::get($this->post_id)){
-      
+
 			$preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
-      if ($preview_corral_slug){
-        $this->ww->display->doing_corral = TRUE;
-        $this->ww->display->doing_corral_slug = $preview_corral_slug;
-      }
-      
-      $args = array(
-        'widget' => $widget, // needed in final template
-        'widget_id' => $widget->ID,
-        'post_name' => $widget->post_name,
-        'widget_type' => $widget->widget_type,
-        //'corral_id' => (isset($widget->widget_data) && isset($widget->widget_data['preview-corral-id'])) ? $widget->widget_data['preview-corral-id'] : 0,
-        'tw_action'  => 'find_only',
-      );
-      
-      if ($preview_corral_slug){
-        $args['corral_slug'] = $preview_corral_slug;
-      }
-      
-      $a = theme('ww_widget', $args);
-    
-      $suggestions = "";
-      if (isset($a['suggestions'])){
-        foreach($a['suggestions'] as $i => $suggestion) {
-          // we can't detect corral here
-          //$suggestion = str_replace("corral_0", "corral_[corral_id]", $suggestion);
-          $class = (isset($a['found_suggestion']) && $suggestion == $a['found_suggestion']) ? "ww-template-suggestion found" : "ww-template-suggestion";
-          $suggestions.= "<li class='$class'>".$suggestion."</li>";
-        }
-      }
-    }
+			if ($preview_corral_slug){
+				$display->doing_corral = TRUE;
+				$display->doing_corral_slug = $preview_corral_slug;
+			}
+
+			$args = array(
+				'widget' => $widget, // needed in final template
+				'widget_id' => $widget->ID,
+				'post_name' => $widget->post_name,
+				'widget_type' => $widget->widget_type,
+				//'corral_id' => (isset($widget->widget_data) && isset($widget->widget_data['preview-corral-id'])) ? $widget->widget_data['preview-corral-id'] : 0,
+				'tw_action'  => 'find_only',
+			);
+
+			if ($preview_corral_slug){
+				$args['corral_slug'] = $preview_corral_slug;
+			}
+
+			$a = theme('ww_widget', $args);
+
+			$suggestions = "";
+			if (isset($a['suggestions'])){
+				foreach($a['suggestions'] as $i => $suggestion) {
+					// we can't detect corral here
+					//$suggestion = str_replace("corral_0", "corral_[corral_id]", $suggestion);
+					$class = (isset($a['found_suggestion']) && $suggestion == $a['found_suggestion']) ? "ww-template-suggestion found" : "ww-template-suggestion";
+					$suggestions.= "<li class='$class'>".$suggestion."</li>";
+				}
+			}
+		}
 			?>
       <div class="adv-parse-description">
         <div id="ww-advanced-help">

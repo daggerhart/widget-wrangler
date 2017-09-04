@@ -25,14 +25,19 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
     global $widget_wrangler;
     $this->ww = $widget_wrangler;
   }
-  
-  /**
-   * How to display the widget on the screen.
-   */
+
+	/**
+	 * Output a single themed widget.
+	 *
+	 * @param array $args
+	 * @param array $instance
+	 */
   function widget( $args, $instance )
   {
     if ($widget = WidgetWranglerWidgets::get($instance['post_id'])){
-      print $this->ww->display->theme_single_widget($widget, $args);
+	    $settings = new WidgetWranglerSettings();
+	    $display = new Widget_Wrangler_Display($settings->values);
+	    print $display->theme_single_widget($widget, $args);
     }
   }
   

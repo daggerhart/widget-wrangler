@@ -42,7 +42,7 @@ class WW_Presets_Admin  {
     if ( isset($_GET['post_type']) && 'widget' == $_GET['post_type'] &&
          isset($_GET['page']) && $_GET['page'] == 'presets' )
     {
-      $this->ww->admin->init_sortable_widgets();
+      WW_Admin_Sortable::init();
     }
   }
 
@@ -50,7 +50,7 @@ class WW_Presets_Admin  {
   function wp_admin_menu(){
     $page_title = 'Presets';
 
-    $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'presets', array( $this, '_menu_router' ));
+    $this->page_hook = add_submenu_page(Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'presets', array( $this, '_menu_router' ));
   }
 
   //
@@ -60,7 +60,7 @@ class WW_Presets_Admin  {
     $new_preset_widgets = NULL;
     
     // attempt to load that new preset
-    if ($new_preset_id && $new_preset = $this->ww->presets->get_preset($new_preset_id)){
+    if ($new_preset_id && $new_preset = WW_Presets::get($new_preset_id)){
       $new_preset_widgets = serialize($new_preset->widgets);
     }
     
@@ -76,7 +76,7 @@ class WW_Presets_Admin  {
       $widgets = false;
     }
     // set the new preset id for other plugins or addons to use
-    $this->ww->presets->new_preset_id = $new_preset_id;
+    WW_Presets::$new_preset_id = $new_preset_id;
     
     return $widgets;
   }
@@ -137,18 +137,21 @@ class WW_Presets_Admin  {
     if (isset($_POST['preset-id']) && isset($_POST['preset-variety']) && isset($_POST['data']) && isset($_POST['ww-data']['widgets'])) 
     {
       $submitted_widget_data = $_POST['ww-data']['widgets'];
-      $active_widgets = $this->ww->admin->_serialize_widgets($submitted_widget_data);
+      $active_widgets = WidgetWranglerUtils::serializeWidgets($submitted_widget_data);
+//	    $varieties = WW_Presets::varieties();
       
       $preset_id = $_POST['preset-id'];
-      $preset_variety = $_POST['preset-variety'];
+//      $preset_variety = $_POST['preset-variety'];
+//	    $this_preset_variety = $varieties[$preset_variety];
       $preset_data = $_POST['data'];
-      $preset_widgets = (!empty($active_widgets)) ? $active_widgets : serialize(array());    
-      
-      // update the ww_presets db
-      $data = array(
-        'data' => serialize($preset_data),
-        'widgets' => $preset_widgets,
-      );
+      $preset_widgets = (!empty($active_widgets)) ? $active_widgets : serialize(array());
+
+	    // update the ww_presets db
+	    $data = array(
+		    'data' => serialize($preset_data),
+		    'widgets' => $preset_widgets,
+	    );
+
       $where = array(
         'id' => $preset_id,
         'type' => 'preset',
@@ -156,7 +159,6 @@ class WW_Presets_Admin  {
       
       // save the widgets
       WidgetWranglerExtras::update($data, $where);
-      $this_preset_variety = $this->ww->preset_varieties[$preset_variety];
 
       return $preset_id;
     }
@@ -173,7 +175,7 @@ class WW_Presets_Admin  {
         case 'standard':
           $data = array(
             'type' => 'preset',
-            'variety' => $_POST['create']['variety'],
+            'variety' => WidgetWranglerUtils::makeSlug( $_POST['create']['variety'] ),
             'data' => serialize(array('name' => ucfirst($_POST['create']['variety']))),
             'widgets' => serialize(array()),
           );
@@ -199,22 +201,19 @@ class WW_Presets_Admin  {
           $preset_id = $_POST['preset_id'];
         }
         
-        // setup the admin editing_post_id variable 
-        $this->ww->admin->editing_post_id = $post_id;
-        
         // if we changed to a preset, load those widgets
-        if ($preset_id && $preset = $this->ww->presets->get_preset($preset_id)){
-          $this->ww->presets->current_preset_id = $preset_id;
-          $this->ww->page_widgets = $preset->widgets;
+        if ($preset_id && $preset = WW_Presets::get($preset_id)){
+          WW_Presets::$current_preset_id = $preset_id;
+          $widgets = $preset->widgets;
         }
         // else, attempt to load page widgets
         else {
           $page_widgets = get_post_meta($post_id, 'ww_post_widgets', TRUE);
-          $this->ww->page_widgets = ($page_widgets != '') ? maybe_unserialize($page_widgets) : array();
+          $widgets = ($page_widgets != '') ? maybe_unserialize($page_widgets) : array();
         }
         
         ob_start();
-          $this->ww->admin->_sortable_widgets_meta_box(NULL);
+          WW_Admin_Sortable::metaBox( $widgets );
         $output = ob_get_clean();
 
         print $output;
@@ -230,16 +229,16 @@ class WW_Presets_Admin  {
     // allow other addons to manage their own ajax
     $preset_ajax_op = apply_filters('widget_wrangler_preset_ajax_op', $preset_ajax_op);
     
-    $all_presets = $this->ww->presets->get_all_presets();
-    $current_preset_id = $this->ww->presets->current_preset_id;
+    $all_presets = WW_Presets::all();
+    $current_preset_id = WW_Presets::$current_preset_id;
     $current_preset = NULL;
     $current_preset_message = "No preset selected. This page is wrangling widgets on its own.";
     
     // we have a preset to load
-    if ($current_preset_id && $current_preset = $this->ww->presets->get_preset($current_preset_id)){
-      $current_preset_message = "This page is currently using the <a href='".$this->ww->admin->parent_slug."&page=presets&preset_id=".$current_preset->id."'>".$current_preset->data['name']."</a>  Widgets.";                
+    if ($current_preset_id && $current_preset = WW_Presets::get($current_preset_id)){
+      $current_preset_message = "This page is currently using the <a href='".Widget_Wrangler_Admin::$page_slug."&page=presets&preset_id=".$current_preset->id."'>".$current_preset->data['name']."</a>  Widgets.";
     }
-    
+
     ?>
     <div id='ww-post-preset'>
       <input type="hidden" name="widget_wrangler_preset_ajax_op" id="widget_wrangler_preset_ajax_op" value="<?php print $preset_ajax_op; ?>" />
@@ -284,9 +283,10 @@ class WW_Presets_Admin  {
       }
     }
     
-    $all_presets     = $this->ww->presets->get_all_presets();
-    $this_preset     = $this->ww->presets->get_preset($preset_id);
-    $preset_variety  = $this->ww->presets->preset_varieties[$this_preset->variety];
+    $all_presets = WW_Presets::all();
+    $this_preset = WW_Presets::get($preset_id);
+    $varieties  = WW_Presets::varieties();
+    $preset_variety  = $varieties[$this_preset->variety];
 
 
 	  // themes draggable widgets
@@ -334,7 +334,7 @@ class WW_Presets_Admin  {
                 <p>
                   <select name="create[variety]">
                   <?php
-                    foreach($this->ww->presets->preset_varieties as $key => $pstype)
+                    foreach($varieties as $key => $pstype)
                     {
                       if ($key != 'core')
                       { ?>

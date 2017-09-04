@@ -119,13 +119,13 @@ class WW_Settings_Admin  {
    */
   function wp_admin_menu(){
     $page_title = 'Settings';
-    $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'settings', array( $this, '_menu_router' ));
+    $this->page_hook = add_submenu_page(Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'settings', array( $this, '_menu_router' ));
     
     foreach( $this->settings_form_tabs as $menu_slug => $tab){
       $title = $tab['title'].' '.$page_title;
-      $this->tab_pages[$menu_slug]['page_hook'] = add_submenu_page(null, $title, $title, $this->ww->admin->capability, $menu_slug, array( $this, '_menu_router' ) );
+      $this->tab_pages[$menu_slug]['page_hook'] = add_submenu_page(null, $title, $title, Widget_Wrangler_Admin::$capability, $menu_slug, array( $this, '_menu_router' ) );
       
-      add_action( "admin_head", array( $this->ww->admin, '_admin_css' ) );
+      add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
     }
   }
   
@@ -602,31 +602,30 @@ class WW_Settings_Admin  {
   }
 
   //
-  // General settings forms use the ww->admin->_form  wrapper
+  // General settings forms
   //
   function _settings_general_form(){
     $form = array(
       'title' => sprintf( __('Widget Wrangler %s Settings', 'widgetwrangler'), $this->current_settings_form_tab['title']),
       'description' => $this->current_settings_form_tab['description'],
+      'content' =>  $this->_settings_form_content(),
       'attributes' => array(
         'action' => $this->current_settings_form_tab['tab_url'].'&ww_action=save&noheader=true',
         ),
       );
     
-    print $this->ww->admin->_form($form, $this->_settings_form_content());
+    print WidgetWranglerAdminUi::form($form);
   }
   
   //
   // Tools settings forms include special button and stuff that don't fit into a generic form
-  //  - uses ww->admin->_page  wrapper
   //
-  function _settings_tools_form(){
-    $page = array(
-      'title' => sprintf( __('Widget Wrangler %s', 'widgetwrangler'), $this->current_settings_form_tab['title']),
-      'description' => $this->current_settings_form_tab['description'],
-      );
-    
-    print $this->ww->admin->_page($page, $this->_settings_form_content());
+  function _settings_tools_form() {
+    print WidgetWranglerAdminUi::page(array(
+	    'title' => sprintf( __('Widget Wrangler %s', 'widgetwrangler'), $this->current_settings_form_tab['title']),
+	    'description' => $this->current_settings_form_tab['description'],
+	    'content' => $this->_settings_form_content(),
+    ));
   }
   
   //
@@ -653,7 +652,6 @@ class WW_Settings_Admin  {
       
       <div class="ww-admin-tab">
         <?php
-          if ( isset($_GET['debug']) ) { $this->ww->__d($this->settings); }
           foreach ($this->settings_form_items as $setting_key => $setting){
             // only settings on this tab
             if ($setting['tab'] == $this->current_settings_form_tab['tab_key']){
@@ -738,7 +736,7 @@ class WW_Settings_Admin  {
     global $wp_registered_sidebars;
     $sidebars_widgets = get_option( 'sidebars_widgets' );
     $widget_ww_sidebar = get_option('widget_widget-wrangler-sidebar');
-    $corrals = $this->ww->corrals;
+	  $corrals = WidgetWranglerCorrals::all();
     
     // new options 
     $new_sidebars_widgets = array(

@@ -25,13 +25,18 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
     global $widget_wrangler;
     $this->ww = $widget_wrangler;
   }
-  
-  /**
-   * How to display the widget on the screen.
-   */
+
+	/**
+	 * Output the configured corral's widgets.
+	 *
+	 * @param array $args
+	 * @param array $instance
+	 */
   function widget( $args, $instance )
   {
-    $this->ww->display->dynamic_corral($instance['sidebar'], $args);
+      $settings = new WidgetWranglerSettings();
+      $display = new Widget_Wrangler_Display($settings->values);
+      $display->dynamic_corral($instance['sidebar'], $args);
   }
   
 	/**
@@ -55,17 +60,17 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
     // Set up some default widget settings. 
     $defaults = array( 'title' => __('Widget Wrangler Corral', 'widgetwrangler'), 'sidebar' => '' );
     $instance = wp_parse_args( (array) $instance, $defaults );
-    $sidebars = $this->ww->corrals;
+	  $corrals = WidgetWranglerCorrals::all();
     ?>
     <?php // Widget Title: Hidden Input ?>
-    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $sidebars[$instance['sidebar']]; ?>" style="width:100%;" />
+    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $corrals[$instance['sidebar']]; ?>" style="width:100%;" />
     
     <?php // Sidebar: Select Box ?>
     <p>
      <label for="<?php echo $this->get_field_id( 'sidebar' ); ?>"><?php _e('Corral', 'widgetwrangler'); ?>:</label>
      <select id="<?php echo $this->get_field_id( 'sidebar' ); ?>" name="<?php echo $this->get_field_name( 'sidebar' ); ?>" class="widefat" style="width:100%;">
       <?php
-        foreach($sidebars as $slug => $name)
+        foreach($corrals as $slug => $name)
         {
           ?>
           <option <?php if ($instance['sidebar'] == $slug){ print 'selected="selected"'; }?> value="<?php print $slug; ?>"><?php print $name; ?></option>

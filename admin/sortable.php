@@ -2,16 +2,52 @@
 
 class WW_Admin_Sortable {
 
-	private $all_corrals = array();
 	private $all_widgets = array();
 
 	function __construct( $page_widgets = array() ){
 		add_action( 'widget_wrangler_form_top', array( $this, 'add_new_widget' ) );
 
-		global $widget_wrangler;
-		$this->all_corrals = $widget_wrangler->corrals;
 		$this->all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
 	}
+
+	public static function init() {
+		add_action( 'admin_enqueue_scripts', 'WW_Admin_Sortable::js' );
+		add_action( 'admin_head', 'WidgetWranglerAdminUi::css' );
+	}
+
+	//
+	// Javascript drag and drop for sorting
+	//
+	public static function js(){
+		wp_enqueue_script('ww-sortable-widgets',
+			WW_PLUGIN_URL.'admin/js/sortable-widgets.js',
+			array('jquery-ui-core', 'jquery-ui-sortable', 'wp-util'),
+			WW_SCRIPT_VERSION,
+			true);
+
+		$data = array(
+            'data' => array(
+	            'ajaxURL' => admin_url( 'admin-ajax.php' ),
+	            'allWidgets' => WidgetWranglerWidgets::all(),
+            )
+        );
+		wp_localize_script( 'ww-sortable-widgets', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
+	}
+
+	/**
+	 * Output the sortable wrangler meta box.
+	 *
+	 * @param null $widgets
+	 */
+	public static function metaBox( $widgets = null ) {
+	    if ( !$widgets ){
+		    $widgets = WidgetWranglerUtils::pageWidgets();
+	    }
+
+		$sortable = new self();
+
+		print $sortable->box_wrapper( $widgets );
+    }
 
 	/**
 	 * Create an admin interface for wrangling widgets
@@ -60,7 +96,7 @@ class WW_Admin_Sortable {
 	function theme_sortable_corrals( $page_widgets ){
 		$output = '';
 
-		foreach ( $this->all_corrals as $corral_slug => $corral_name ){
+		foreach ( WidgetWranglerCorrals::all() as $corral_slug => $corral_name ){
 			// ensure an array exists
 			if ( ! isset( $page_widgets[ $corral_slug ] ) ){
 				$page_widgets[ $corral_slug ] = array();
@@ -97,7 +133,7 @@ class WW_Admin_Sortable {
 					'status' => $widget->post_status,
 					'display_logic' => $widget->display_logic_enabled,
 					'corral' => array(
-						'title' => $this->all_corrals[ $corral_slug ],
+						'title' => WidgetWranglerCorrals::all()[ $corral_slug ],
 						'slug' => $corral_slug,
 					),
 					'notes' => array(),
@@ -143,7 +179,7 @@ class WW_Admin_Sortable {
 	 */
 	function sortable_corral( $corral_widgets, $corral_slug ){
 		// todo
-		$corral_name = $this->all_corrals[ $corral_slug ];
+		$corral_name = WidgetWranglerCorrals::all()[ $corral_slug ];
 		$no_widgets_style = count( $corral_widgets ) ? 'style="display:none"' : '';
 
 		ob_start();
@@ -189,7 +225,7 @@ class WW_Admin_Sortable {
 			<input  name='ww-data[widgets][<?php print $row_index; ?>][id]' type='hidden' class='ww-widget-id' value='<?php print $widget_details['id']; ?>' />
 			<select name='ww-data[widgets][<?php print $row_index; ?>][sidebar]'>
 				<option value='disabled'><?php _e('Remove', 'widgetwrangler'); ?></option>
-				<?php foreach( $this->all_corrals as $this_corral_slug => $corral_name ){ ?>
+				<?php foreach( WidgetWranglerCorrals::all() as $this_corral_slug => $corral_name ){ ?>
 					<option name='<?php print $this_corral_slug; ?>'
 					        value='<?php print $this_corral_slug; ?>'
 						    <?php selected( $this_corral_slug, $corral_slug ); ?>>
@@ -223,7 +259,7 @@ class WW_Admin_Sortable {
 				</select>
 				<select id="ww-add-new-widget-corral">
 					<option value="0">-- <?php _e('Select a Corral', 'widgetwrangler'); ?> --</option>
-					<?php foreach($this->all_corrals as $corral_slug => $corral_name) { ?>
+					<?php foreach(WidgetWranglerCorrals::all() as $corral_slug => $corral_name) { ?>
 						<option value="<?php print esc_attr( $corral_slug ); ?>"><?php print $corral_name; ?></option>
 					<?php } ?>
 				</select>

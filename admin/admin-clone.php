@@ -28,7 +28,7 @@ class WW_Clone_Admin  {
   function wp_admin_menu(){
     $page_title = 'Copy WP Widget';
 
-    add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'clone', array( $this, '_menu_router' ));
+    add_submenu_page( Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'clone', array( $this, '_menu_router' ));
   }
 
   /*
@@ -50,7 +50,7 @@ class WW_Clone_Admin  {
     else {
       // TODO - move to file
       add_action( "admin_print_footer_scripts", array( $this, 'wp_admin_print_footer_scripts' ) );
-      add_action( "admin_head", array( $this->ww->admin, '_admin_css' ) );
+      add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
 
       $this->_clone_form();
     }

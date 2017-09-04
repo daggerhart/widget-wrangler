@@ -47,22 +47,12 @@ $widget_wrangler = Widget_Wrangler::register();
 class Widget_Wrangler {
   // addons
   var $addons = array();
-
-  // global storage for found page widgets
-  // defaults to NULL so that we know if widgets were found
-  public $page_widgets = NULL;
     
   // context for current page being viewed on front end
   var $page_context = NULL;
 
   // theme compatiblity is a global option
   var $theme_compat = 0;
-  
-  // all corrals
-  var $corrals = array();
-  
-  // altered sidebars
-  var $altered_sidebars = array();
   
   // ww
   var $settings = array();
@@ -97,6 +87,7 @@ class Widget_Wrangler {
 	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerSettings.php';
 	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerDB.php';
 	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerExtras.php';
+	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerCorrals.php';
 	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerWidgets.php';
 	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUpdate.php';
 	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUtils.php';
@@ -127,16 +118,9 @@ class Widget_Wrangler {
 	// let all plugins load before gathering addons
 	add_action( 'plugins_loaded' , array( $plugin, 'wp_plugins_loaded' ) );
 
-	// widget wrangler hooks
-	add_action( 'wp', array( $plugin, 'find_all_page_widgets' ), 10000 );
-
 	// singular page widget detection
 	add_filter( 'widget_wrangler_find_all_page_widgets', array( $plugin, '_find_singular_page_widgets' ), 10 );
 
-
-	  // this is the best hook i could find that ensures we're editing a post
-	  // and the global $post object is available
-	  add_action( 'add_meta_boxes', array( $plugin, 'find_all_page_widgets' ), -99 );
 
 	return $plugin;
   }
@@ -165,11 +149,9 @@ class Widget_Wrangler {
 
 	// initialize core
 	  $this->settings = new WidgetWranglerSettings();
-	$this->_get_corrals();
-    $this->_gather_addons();
-    $this->display = new Widget_Wrangler_Display( $this->settings->values );
-    $this->display->ww = $this;
-    $this->presets = new WW_Presets();
+    $this->addons = apply_filters( 'Widget_Wrangler_Addons', array() );
+    $this->display = Widget_Wrangler_Display::register( $this->settings->values );
+    $this->presets = WW_Presets::register();
 
     // init the post type
     WW_Widget_PostType::register($this->settings->values);
@@ -183,64 +165,18 @@ class Widget_Wrangler {
       WidgetWranglerUpdate::update();
     }
   }
-  
-  /*
-   * WordPress wp_loaded hook
-   *
-   *  - Handle altered sidebar definitions
-   */
-  function wp_loaded(){
-    if ( !is_admin()) {
-      global $wp_registered_sidebars;
-      $wp_registered_sidebars = $this->get_altered_sidebars();
-    }
-  }
-    
-  /*
-   * Apply the filter so all addons can help find the appropriate page_widgets
-   */
-  function find_all_page_widgets(){
-    $this->_set_page_context();
-    // gather page widgets by allowing anything to look for them
-    $this->page_widgets = apply_filters('widget_wrangler_find_all_page_widgets', $this->page_widgets);
-  }
 
-  /*
-   * Alter WP Sidebars
-   *
-   * @param (bool) - Force sidebar alterations
-   *
-   * @return (array) - Array of sidebar definitions
-   */
-  function get_altered_sidebars($force_alter = false){
-    global $wp_registered_sidebars;
-    $ww_alter_sidebars = get_option('ww_alter_sidebars', array());
-    $combined = array();
-    
-    // altered sidebars
-    foreach ($wp_registered_sidebars as $slug => $sidebar){
-      
-      // use original
-      if ($force_alter || isset($ww_alter_sidebars[$slug]['ww_alter'])){
-        $combined[$slug] = $wp_registered_sidebars[$slug];
-        if ( isset($ww_alter_sidebars[$slug]) && is_array($ww_alter_sidebars[$slug]) ){
-          foreach ($ww_alter_sidebars[$slug] as $k => $v){
-            if (isset($v)) {
-              $combined[$slug][$k] = $v;
-            }
-          }
-        }
-      }
-      else {
-        $combined[$slug] = $wp_registered_sidebars[$slug];
-      }
-      $combined[$slug]['ww_created'] = FALSE;
-    }
-    
-    $this->altered_sidebars = $combined;
-    
-    return $combined;
-  }
+	/**
+	 * WordPress wp_loaded hook
+	 *
+	 *  - Handle altered sidebar definitions
+	 */
+	function wp_loaded(){
+		if ( !is_admin()) {
+			global $wp_registered_sidebars;
+			$wp_registered_sidebars = WidgetWranglerUtils::alteredSidebars();
+		}
+	}
   
   /*
    * Detect if the current page being viewed is wrangling own widgets
@@ -260,146 +196,22 @@ class Widget_Wrangler {
     }
     return $widgets;
   }
-    
-  /*
-   * Get WW Addons and apply common actions/filters for them
-   */
-  function _gather_addons(){
-    // get all addons
-    $addons = apply_filters( 'Widget_Wrangler_Addons', $this->addons );
-    
-    // give access to the ww object
-    foreach ($addons as $addon_name => $addon){
-      $addon->ww = $this;
-    }
-    
-    $this->addons = $addons;
-  }
-  
-  /*
-   * Get all corrals and store them in the ww object
-   *
-   * @return (array) - Widget Wrangler corrals
-   */
-  function _get_corrals() {
-    $corrals = get_option('ww_sidebars', array());
-    $this->corrals = maybe_unserialize($corrals);
-    return $this->corrals;
-  }
 
-  /**
-   * Returns all published widgets
-   * @deprecated
-   * @see \WidgetWranglerWidgets::all()
-   */
-  function get_all_widgets($post_status = array('publish')) {
-    return WidgetWranglerWidgets::all($post_status);
-  }
-  
-  /**
-   * Retrieve and return a single widget by its ID
-   * @deprecated
-   * @see WidgetWranglerWidgets::get()
-   */
-  function get_single_widget($post_id, $widget_status = false) {
-  	return WidgetWranglerWidgets::get($post_id, $widget_status);
-  }
-  
-  /**
-   * Get data from the ww_extras table
-   * @deprecated
-   * @see WidgetWranglerExtras::get()
-   */
-  function _extras_get($where, $limit = 1){
-    return WidgetWranglerExtras::get($where, $limit);
-  }
-  
-  /**
-   * Wrapper for wpdb->insert
-   * @deprecated
-   * @see WidgetWranglerExtras::insert()
-   */ 
-  function _extras_insert($data){
-  	return WidgetWranglerExtras::insert($data);
-  }
-  
-  /**
-   * Wrapper for wpdb->update
-   * @deprecated
-   * @see WidgetWranglerExtras::update()
-   */
-  function _extras_update($data, $where){
-    return WidgetWranglerExtras::update($data, $where);
-  }
-  
-  /**
-   * Wrapper for wpdb->delete
-   * @deprecated
-   * @see WidgetWranglerExtras::delete()
-   */ 
-  function _extras_delete($where){
-  	return WidgetWranglerExtras::delete($where);
-  }
-  
-  /*
-   *  Wrapper function to handle the dynamics of capability checking
-   */ 
-  function _current_user_can_edit($post_id){
-    if ($post_type = get_post_type($post_id)){
-      $post_types = get_post_types(array('public' => true, '_builtin' => true), 'objects', 'and');
-      $post_types+= get_post_types(array('public' => true, '_builtin' => false), 'objects', 'and');
-      if (isset($post_types[$post_type]) && isset($post_types[$post_type]->capability_type)){
-        $this_capability_type = $post_types[$post_type]->capability_type;
-        return current_user_can('edit_'.$this_capability_type, $post_id);
-      }
-    }
-    return FALSE;
-  }
-    
-  /*
-   * Gather some often-needed data
-   *   - Provide some useful information to help determine the current screen
-   */ 
-  function _set_page_context(){
-    $context = false;
-    
-    if (is_singular()){
-      global $post;
-      if (isset($post->ID)){
-        $context['id'] = $post->ID;
-        $context['context'] = 'post';
-        $context['object'] = $post;
-      }
-    }
-    else if ((is_tax() || is_category() || is_tag()) &&
-             $term = get_queried_object())
-    {
-      $context['id'] = $term->term_id;
-      $context['context'] = 'term';
-      $context['object'] = $term;
-    }
-    
-    $context = apply_filters('widget-wrangler-set-page-context', $context);
-    
-    if ($context){
-      $this->page_context = $context;
-    }
-  }
+	/**
+	 * Returns all published widgets
+	 * @deprecated
+	 * @see \WidgetWranglerWidgets::all()
+	 */
+	function get_all_widgets($post_status = array('publish')) {
+		return WidgetWranglerWidgets::all($post_status);
+	}
 
-  /*
-   * Simple debugging function
-   *
-   * @param (mixed) - $data to output
-   * @param (bool) - $return the output
-   *
-   * @return (void|string) - depending on $return parameter
-   */ 
-  function __d($v, $return = false){
-    $d ='<pre>'.htmlentities(print_r($v,1)).'</pre>';
-    if (!$return) {
-      print $d;
-    } else {
-      return $d;
-    }
-  }  
+	/**
+	 * Retrieve and return a single widget by its ID
+	 * @deprecated
+	 * @see WidgetWranglerWidgets::get()
+	 */
+	function get_single_widget($post_id, $widget_status = false) {
+		return WidgetWranglerWidgets::get($post_id, $widget_status);
+	}
 }

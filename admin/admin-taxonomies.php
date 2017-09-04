@@ -39,7 +39,7 @@ class WW_Taxonomies_Admin {
       if (isset($this->settings['taxonomies']) && isset($this->settings['taxonomies'][$taxonomy]))
       {
         // add js and css
-        $this->ww->admin->init_sortable_widgets();
+	      WW_Admin_Sortable::init();
           
         // editing a term
         if (isset($_GET['action']) && isset($_GET['tag_ID'])){
@@ -57,7 +57,7 @@ class WW_Taxonomies_Admin {
   //
   function wp_admin_menu(){
     // need a hook for saving taxonomy defaults
-    add_submenu_page(null, 'title', 'title', $this->ww->admin->capability, 'ww_save_taxonomy_form', array( $this, '_menu_router' ) );
+    add_submenu_page(null, 'title', 'title', Widget_Wrangler_Admin::$capability, 'ww_save_taxonomy_form', array( $this, '_menu_router' ) );
   }
   
   //
@@ -108,7 +108,7 @@ class WW_Taxonomies_Admin {
         }
         
         if (isset($tax_data->data['preset_id']) && $tax_data->data['preset_id'] != 0) {
-          $preset = $this->ww->presets->get_preset($tax_data->data['preset_id']);
+          $preset = WW_Presets::get($tax_data->data['preset_id']);
           $widgets = $preset->widgets;
         }
         else {
@@ -116,20 +116,21 @@ class WW_Taxonomies_Admin {
         }
       }
       else {
-        $preset = $this->ww->presets->get_core_preset('default');
+        $preset = WW_Presets::getCore('default');
         $widgets = $preset->widgets;
       }
       
-      $this->ww->page_widgets = $widgets;
+      $page_widgets = $widgets;
+
       if (isset($preset)){
-        $this->ww->presets->current_preset_id = $preset->id;
+        WW_Presets::$current_preset_id = $preset->id;
       }
       
       $form = array(
         'title' => __('Widget Wrangler', 'widgetwrangler'),
         'description' => __('Here you can override the default widgets for all terms in this taxonomy.', 'widgetwrangler'),
         'attributes' => array(
-          'action' => $this->ww->admin->parent_slug.'&page=ww_save_taxonomy_form&noheader=true',
+          'action' => Widget_Wrangler_Admin::$page_slug . '&page=ww_save_taxonomy_form&noheader=true',
           ),
         'submit_button' => array(
           'attributes' => array(
@@ -137,8 +138,7 @@ class WW_Taxonomies_Admin {
             ),
           ),
         );
-      
-      $form_content = '';
+
       ob_start();
         ?>
         <input type="hidden" name="taxonomy" value="<?php print $taxonomy; ?>" />
@@ -147,13 +147,13 @@ class WW_Taxonomies_Admin {
             <p>
               <label><input type="checkbox" name="override_default" <?php print $override_default_checked; ?> /> - <?php _e('Enable these widgets as the default widgets for terms in this taxonomy.', 'widgetwrangler'); ?></label>
             </p>
-            <?php $this->ww->admin->_sortable_widgets_meta_box(); ?>
+            <?php WW_Admin_Sortable::metaBox( $page_widgets ); ?>
           </div>
         </div>
         <?php
-      $form_content = ob_get_clean();
+      $form['content'] = ob_get_clean();
       
-      print $this->ww->admin->_form($form, $form_content );
+      print WidgetWranglerAdminUi::form($form);
     }
   }
 
@@ -185,7 +185,7 @@ class WW_Taxonomies_Admin {
       // allow for presets
       if ($term_data = WidgetWranglerExtras::get($where)){
         if (isset($term_data->data['preset_id']) && $term_data->data['preset_id'] != 0) {
-          $preset = $this->ww->presets->get_preset($term_data->data['preset_id']);
+          $preset = WW_Presets::get($term_data->data['preset_id']);
           $widgets = $preset->widgets;
         }
         else {
@@ -193,22 +193,21 @@ class WW_Taxonomies_Admin {
         }
       }
       else {
-        $preset = $this->ww->presets->get_core_preset('default');
+        $preset = WW_Presets::getCore('default');
         $widgets = $preset->widgets;
       }
-      
-      $this->ww->page_widgets = $widgets;
+
       if (isset($preset)){
-        $this->ww->presets->current_preset_id = $preset->id;
+        WW_Presets::$current_preset_id = $preset->id;
       }
-      
+
       ?>
       <tr class="form-field">
         <th scope="row" valign="top"><label><?php _e('Widget Wrangler', 'widgetwrangler'); ?></label><br/><em><small>(<?php _e('for this term only', 'widgetwrangler'); ?>)</small></em></th>
         <td>
           <div class="postbox">
             <div class="ww-setting-content">
-              <?php $this->ww->admin->_sortable_widgets_meta_box(); ?>
+              <?php WW_Admin_Sortable::metaBox( $widgets ); ?>
             </div>
           </div>
         </td>
@@ -216,39 +215,39 @@ class WW_Taxonomies_Admin {
       <?php
     }
   }
-  
+
   //
   // save taxonomy_term widget data
   //
   function _taxonomy_term_form_save( $term_id ) {
     if (isset($_POST['taxonomy']) &&
         isset($_POST['tag_ID']) &&
-        is_numeric($_POST['tag_ID']) && 
+        is_numeric($_POST['tag_ID']) &&
         isset($_POST['ww-data']['widgets']))
     {
       $this->_update_posted_taxonomy_widgets('term', $_POST['tag_ID']);
     }
   }
-  
+
   //
   //
   //
   function _update_posted_taxonomy_widgets($variety, $extra_key, $additional_data = array()){
     //
-    $widgets = $this->ww->admin->_serialize_widgets($_POST['ww-data']['widgets']);
-    
+    $widgets = WidgetWranglerUtils::serializeWidgets($_POST['ww-data']['widgets']);
+
     // let presets addon do it's stuff
     $widgets = apply_filters('widget_wrangler_save_widgets_alter', $widgets);
-    
+
     // get the new preset id, if set
-    $new_preset_id = ($this->ww->presets->new_preset_id !== FALSE) ? (int) $this->ww->presets->new_preset_id : 0;
-    
+    $new_preset_id = (WW_Presets::$new_preset_id !== FALSE) ? (int) WW_Presets::$new_preset_id : 0;
+
     $where = array(
       'type' => 'taxonomy',
       'variety' => $variety,
       'extra_key' => $extra_key,
     );
-    
+
     $values = array(
       'type' => 'taxonomy',
       'variety' => $variety,
@@ -256,30 +255,30 @@ class WW_Taxonomies_Admin {
       'data' => array('preset_id' => $new_preset_id),
       'widgets' => $widgets,
     );
-    
+
     if (!empty($additional_data)){
       $values['data'] += $additional_data;
     }
-    
+
     // doesn't exist, create it before update
     if (!WidgetWranglerExtras::get($where)){
       $values['data'] = serialize($values['data']);
       WidgetWranglerExtras::insert($values);
     }
-    
+
     if ($widgets) {
       // no preset, save widgets
       $values['widgets'] = $widgets;
-      
+
       // force the 'zero' preset because these widgets are custom
       $values['data']['preset_id'] = 0;
     }
-    
+
     if ($new_preset_id) {
       // don't save widgets because they are preset widgets
       unset($values['widgets']);
     }
-    
+
     $values['data'] = serialize($values['data']);
     WidgetWranglerExtras::update($values, $where);
   }
@@ -292,10 +291,10 @@ class WW_Taxonomies_Admin {
     else if (isset($_GET['taxonomy']) || (isset($_POST['op']) && $_POST['op'] == 'replace_edit_taxonomy_widgets')) {
       $op = 'replace_edit_taxonomy_widgets';
     }
-    
+
     return $op;
   }
-  
+
   //
   function ww_form_ajax(){
     if (isset($_POST['op'])) {
@@ -305,15 +304,15 @@ class WW_Taxonomies_Admin {
         {
           $tag_id = $_POST['context_id'];
           $preset_id = 0;
-          
+
           if (isset($_POST['preset_id']) && is_numeric($_POST['preset_id'])){
             $preset_id = $_POST['preset_id'];
           }
-          
+
           // if we changed to a preset, load those widgets
-          if ($preset_id && $preset = $this->ww->presets->get_preset($preset_id)){
-            $this->ww->presets->current_preset_id = $preset_id;
-            $this->ww->page_widgets = $preset->widgets;
+          if ($preset_id && $preset = WW_Presets::get($preset_id)){
+            WW_Presets::$current_preset_id = $preset_id;
+            $widgets = $preset->widgets;
           }
           // else, attempt to load tag widgets
           else {
@@ -322,18 +321,18 @@ class WW_Taxonomies_Admin {
               'variety' => 'term',
               'extra_key' => $tag_id,
             );
-            
+
             if ($term_data = WidgetWranglerExtras::get($where)){
-              $this->ww->page_widgets = $term_data->widgets;  
+              $widgets = $term_data->widgets;
             }
             else {
-              $this->ww->page_widgets = $this->ww->presets->get_core_preset('default')->widgets;
+              $widgets = WW_Presets::getCore('default')->widgets;
             }
           }
           ob_start();
-            $this->ww->admin->_sortable_widgets_meta_box();
+            WW_Admin_Sortable::metaBox( $widgets );
           $output = ob_get_clean();
-  
+
           print $output;
         }
         exit;
@@ -342,15 +341,15 @@ class WW_Taxonomies_Admin {
         if (isset($_POST['context_id'])) {
           $taxonomy = $_POST['context_id'];
           $preset_id = 0;
-          
+
           if (isset($_POST['preset_id']) && is_numeric($_POST['preset_id'])){
             $preset_id = $_POST['preset_id'];
           }
-          
+
           // if we changed to a preset, load those widgets
-          if ($preset_id && $preset = $this->ww->presets->get_preset($preset_id)){
-            $this->ww->presets->current_preset_id = $preset_id;
-            $this->ww->page_widgets = $preset->widgets;
+          if ($preset_id && $preset = WW_Presets::get($preset_id)){
+            WW_Presets::$current_preset_id = $preset_id;
+            $widgets = $preset->widgets;
           }
           // else, attempt to load tag widgets
           else {
@@ -359,16 +358,16 @@ class WW_Taxonomies_Admin {
               'variety' => 'taxonomy',
               'extra_key' => $taxonomy,
             );
-            
+
             if ($term_data = WidgetWranglerExtras::get($where)){
-              $this->ww->page_widgets = $term_data->widgets;  
+              $widgets = $term_data->widgets;
             }
             else {
-              $this->ww->page_widgets = $this->ww->presets->get_core_preset('default')->widgets;
+              $widgets = WW_Presets::getCore('default')->widgets;
             }
           }
           ob_start();
-            $this->ww->admin->_sortable_widgets_meta_box();
+            WW_Admin_Sortable::metaBox( $widgets );
           $output = ob_get_clean();
   
           print $output;          

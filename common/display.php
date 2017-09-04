@@ -35,27 +35,29 @@ class Widget_Wrangler_Display {
   function __construct( $settings ){
     include_once WW_PLUGIN_DIR.'/common/backwards-compat-functions.inc';
     $this->settings = $settings;
-    $this->add_hooks();
   }
   
   /*
    * Assign WordPress hooks for display object
    */
-  function add_hooks(){
+  public static function register( $settings ){
+    $plugin = new self( $settings );
     
     // shortcodes
-    add_shortcode( 'ww_widget', array( $this, 'single_widget_shortcode' ) );
-    add_shortcode( 'ww_corral', array( $this, 'single_corral_shortcode' ) );
+    add_shortcode( 'ww_widget', array( $plugin, 'single_widget_shortcode' ) );
+    add_shortcode( 'ww_corral', array( $plugin, 'single_corral_shortcode' ) );
     
     // template wrangler hook
-    add_filter( 'tw_templates', array( $this, '_tw_templates' ) );
-    add_filter( 'tw_pre_process_template', array( $this, '_tw_pre_process_template' ) );
+    add_filter( 'tw_templates', array( $plugin, '_tw_templates' ) );
+    add_filter( 'tw_pre_process_template', array( $plugin, '_tw_pre_process_template' ) );
      
     // wordpress sidebar hooks
-    add_action( 'dynamic_sidebar_before', array( $this, 'dynamic_sidebar_before'), -10, 2 );
-    add_action( 'dynamic_sidebar_after', array( $this, 'dynamic_sidebar_after'), 10, 2 );
+    add_action( 'dynamic_sidebar_before', array( $plugin, 'dynamic_sidebar_before'), -10, 2 );
+    add_action( 'dynamic_sidebar_after', array( $plugin, 'dynamic_sidebar_after'), 10, 2 );
     
-    add_action( 'wp', array( $this, 'wp_loaded'));
+    add_action( 'wp', array( $plugin, 'wp_loaded'));
+
+    return $plugin;
   }
   
   /*
@@ -174,28 +176,29 @@ class Widget_Wrangler_Display {
    */
   function dynamic_corral($corral_slug = 'default', $wp_widget_args = array('before_widget' => '', 'before_title' => '', 'after_title' => '', 'after_widget' => ''))
   {
+  	$page_widgets = WidgetWranglerUtils::pageWidgets();
     $corral_html = '';
     
     // only if page_widgets were found
     if (!is_null($corral_slug) &&
-        $this->ww->page_widgets &&
-        isset($this->ww->page_widgets[$corral_slug]))
+        $page_widgets &&
+        isset($page_widgets[$corral_slug]))
     {
       $this->doing_corral = TRUE;
       $this->doing_corral_slug = $corral_slug;
       $this->doing_corral_wp_widget_args = $wp_widget_args;
       
       // ensure widgets are sorted correctly
-      usort($this->ww->page_widgets[$corral_slug], 'WidgetWranglerUtils::sortByWeight' );
+      usort($page_widgets[$corral_slug], 'WidgetWranglerUtils::sortByWeight' );
       
       $i = 0;
-      $total = count($this->ww->page_widgets[$corral_slug]);
+      $total = count($page_widgets[$corral_slug]);
       while($i < $total) {
-        if($widget = WidgetWranglerWidgets::get($this->ww->page_widgets[$corral_slug][$i]['id'], 'publish'))
+        if($widget = WidgetWranglerWidgets::get($page_widgets[$corral_slug][$i]['id'], 'publish'))
         {
           // include theme compatibility data
           $widget->wp_widget_args = $this->doing_corral_wp_widget_args;
-          $widget->current_weight = $this->ww->page_widgets[$corral_slug][$i]['weight'];
+          $widget->current_weight = $page_widgets[$corral_slug][$i]['weight'];
           
           // Theme compatiblity
           if (!$widget->override_output_html &&

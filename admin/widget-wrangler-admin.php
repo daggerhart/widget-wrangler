@@ -17,241 +17,76 @@ actions
  * Class Widget_Wrangler_Admin
  */
 class Widget_Wrangler_Admin {
-  public $addons = array();
-  public $parent_slug = 'edit.php?post_type=widget';
-  public $capability = 'manage_options';
-  public $editing_post_id = FALSE;
+	public $addons = array();
+	public static $page_slug = 'edit.php?post_type=widget';
+	public static $capability = 'manage_options';
 
-  public $settings = array();
+	public $settings = array();
 
-  function __construct($settings){
-    include_once WW_PLUGIN_DIR.'/admin/admin-clone.php';
-    include_once WW_PLUGIN_DIR.'/admin/admin-presets.php';
-    include_once WW_PLUGIN_DIR.'/admin/admin-corrals.php';
-    include_once WW_PLUGIN_DIR.'/admin/admin-sidebars.php';
-    include_once WW_PLUGIN_DIR.'/admin/admin-settings.php';
-    include_once WW_PLUGIN_DIR.'/admin/admin-shortcode-tinymce.php';
-    include_once WW_PLUGIN_DIR.'/admin/admin-taxonomies.php';
-    include_once WW_PLUGIN_DIR.'/admin/sortable.php';
-    
-    global $widget_wrangler;
-    $this->ww = $widget_wrangler;
+	function __construct($settings){
+		include_once WW_PLUGIN_DIR.'/admin/admin-clone.php';
+		include_once WW_PLUGIN_DIR.'/admin/admin-presets.php';
+		include_once WW_PLUGIN_DIR.'/admin/admin-corrals.php';
+		include_once WW_PLUGIN_DIR.'/admin/admin-sidebars.php';
+		include_once WW_PLUGIN_DIR.'/admin/admin-settings.php';
+		include_once WW_PLUGIN_DIR.'/admin/admin-shortcode-tinymce.php';
+		include_once WW_PLUGIN_DIR.'/admin/admin-taxonomies.php';
+		include_once WW_PLUGIN_DIR.'/admin/sortable.php';
 
-    $this->settings = $settings;
-    
-    // get all our admin addons
-    $this->_gather_addons();
-  }
+		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminUi.php';
 
-  public static function register($settings) {
-      $plugin = new self($settings);
+		$this->settings = $settings;
 
-	  add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
+		// get all our admin addons
+		$this->addons = apply_filters( 'Widget_Wrangler_Admin_Addons', array(), $this->settings );
+	}
 
-	  return $plugin;
-  }
-  
-  //
-  function _gather_addons(){
-    global $widget_wrangler;
-    
-    // get all addons
-    $addons = apply_filters( 'Widget_Wrangler_Admin_Addons', $this->addons, $this->settings );
-    
-    // give access to the ww object
-    if ( ! empty( $addons ) ){
-      foreach ($addons as $addon_name => $addon){
-        $addon->ww = $widget_wrangler;
-      }
-    }
+	public static function register($settings) {
+		$plugin = new self($settings);
 
-    $this->addons = $addons;
-  }
-  
-  // WordPress hook 'admin_init'
-  function wp_admin_init(){
-    add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
-          
-    // Add metabox to enabled post_types
-    if (!empty($this->settings['post_types'])){
-      foreach($this->settings['post_types'] as $enabled_post_type){
-        add_meta_box('ww_admin_meta_box', __('<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />Widget Wrangler'), array( $this, '_sortable_widgets_meta_box'), $enabled_post_type, 'normal', 'high');
-        // Add some CSS to the admin header on the widget wrangler pages, and edit pages
-        if ($this->_is_editing_enabled_post_type()){
-          $this->init_sortable_widgets();
+		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
+
+		return $plugin;
+	}
+
+
+    // WordPress hook 'admin_init'
+    function wp_admin_init() {
+        add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
+
+        // Add metabox to enabled post_types
+        if (!empty($this->settings['post_types'])){
+            foreach($this->settings['post_types'] as $enabled_post_type){
+                add_meta_box('ww_admin_meta_box',
+                    '<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />' . __('Widget Wrangler'),
+                    'WW_Admin_Sortable::metaBox',
+                    $enabled_post_type,
+                    'normal',
+                    'high');
+
+                // Add some CSS to the admin header on the widget wrangler pages, and edit pages
+                if (WidgetWranglerUtils::editingEnabledPostType()){
+                    WW_Admin_Sortable::init();
+                }
+
+                if (isset($_POST['post_type']) && $_POST['post_type'] == $enabled_post_type){
+                    add_action( 'save_post', array( $this, '_save_post_widgets' ) );   // admin/sortable-widgets-metabox.inc
+                }
+            }
         }
-        
-        if (isset($_POST['post_type']) && $_POST['post_type'] == $enabled_post_type){
-          add_action( 'save_post', array( $this, '_save_post_widgets' ) );   // admin/sortable-widgets-metabox.inc
-        }
-      }
-    }
-  }
-   
-  // add js and css for sortable widgets
-  function init_sortable_widgets(){
-    add_action( 'admin_enqueue_scripts', array( $this, '_sortable_widgets_js' ) );
-    add_action( 'admin_head', array( $this, '_admin_css' ) );
-  }
-
-  //
-  function _array_merge_recursive($default, $new){
-    foreach ($default as $k => $v){
-      if (isset($new[$k])) {
-        if (is_array($v)){
-          $default[$k] = $this->_array_merge_recursive($default[$k], $new[$k]);
-        }
-        else {
-          $default[$k] = $new[$k];
-        }
-      }
-    }
-    return $default;
-  }
-  
-  //
-  // Generic admin form output
-  //
-  function _form($form = array(), $content = ''){
-    $default_form = array(
-      'title' => 'Form Title',
-      'description' => 'Form Description',
-      'submit_button' => array(
-        'attributes' => array(
-          'value' => 'Save Settings',
-          'class' => 'button button-primary button-large',
-          ),
-        'location' => 'top',
-      ),
-      'attributes' => array(
-        'class' => 'ww-form',
-        'action' => '',
-        'method' => 'post'
-        ),
-      );
-    
-    $form = $this->_array_merge_recursive($default_form, $form);
-    $form_attributes = '';
-    $submit_button_attributes = '';
-    
-    // make form attributes attributes
-    foreach ($form['attributes'] as $name => $value){
-      $form_attributes.= " {$name}='{$value}'";
-    }
-    
-    // make submit button element attributes
-    foreach ($form['submit_button']['attributes'] as $name => $value){
-      $submit_button_attributes.= " {$name}='{$value}'";
-    }
-    
-    $form['attributes']['output'] = $form_attributes;
-    $form['submit_button']['attributes']['output'] = $submit_button_attributes;
-    
-    ob_start();
-    ?>
-      <a id="widget-wrangler"></a><br />
-      <div class="wrap">
-        <form <?php print $form['attributes']['output']; ?>>
-          <div class="ww-admin-top">
-            
-            <?php if ($form['submit_button']['location'] == "top") { ?>
-              <p class="ww-top-right-save">
-                <input type="submit" <?php print $form['submit_button']['attributes']['output']; ?> />
-              </p>
-            <?php } ?>
-            
-            <h2 class="ww-admin-title"><?php print $form['title']; ?></h2>
-            <div class="ww-clear-gone">&nbsp;</div>
-            <p class="description"><?php print $form['description']; ?></p>
-          </div>
-          <div>
-            <?php print $content; ?>
-          </div>
-          <div class="ww-clear-gone">&nbsp;</div>
-          
-          <?php if ($form['submit_button']['location'] == "bottom") { ?>
-            <p class="ww-top-right-save">
-              <input type="submit" <?php print $form['submit_button']['attributes']['output']; ?> />
-            </p>
-          <?php } ?>
-        
-        </form>
-      </div>
-    <?php
-    return ob_get_clean();
-  }
-
-  //
-  // generic admin page output
-  //
-  function _page($page = array(), $content = ''){
-    $default_page = array(
-      'title' => 'Page Title',
-      'description' => '',
-      );
-    $page = array_merge($default_page, $page);
-    ob_start();
-    ?>
-      <div class="wrap">
-        <div class="ww-admin-top">
-          <h2><?php printf( __('%s', 'widgetwrangler'), $page['title']); ?></h2>
-          <p class="description"><?php printf( __('%s', 'widgetwrangler'), $page['description']); ?></p>
-        </div>
-        <div>
-          <?php print $content; ?>
-        </div>
-        <div class="ww-clear-gone">&nbsp;</div>
-      </div>
-    <?php
-    return ob_get_clean();
-  }  
-  
-  //
-  // Take data from $_POST submit and convert in to serialized array as string
-  //
-  function _serialize_widgets($submitted_widget_data){
-    // OK, we're authenticated:
-    // we need to find and save the data
-    $all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
-    $active_widgets = array();
-
-    if ( ! empty( $submitted_widget_data ) ) {
-      foreach ( $submitted_widget_data as $key => $details ) {
-        // get rid of any hashes
-        if ( isset( $all_widgets[ $details['id'] ] ) && isset( $details['weight'] ) && isset( $details['sidebar'] ) ) {
-          // if something was submitted without a weight, make it neutral
-          if ( $details['weight'] < 1 ) {
-            $details['weight'] = $key;
-          }
-
-          $active_widgets[ $details['sidebar'] ][] = array(
-            'id'     => $details['id'],
-            'weight' => $details['weight'],
-          );
-        }
-      }
     }
 
-    return serialize($active_widgets);
-  }
-  
-  /* -------------------------------------------- Sortable Widgets --------------------------*/
-  
-  /*
-   * Provide Widget Wrangler selection when editing a page
-   */
-  function _sortable_widgets_meta_box($post = NULL){
-	$sortable = new WW_Admin_Sortable();
-	print $sortable->box_wrapper( $this->ww->page_widgets );
-  }
-    
-  //
+	/* -------------------------------------------- Sortable Widgets --------------------------*/
+
+
+
+	//
   function ww_form_meta(){
     // add the post_id hidden input when editing an enabled post
     // for ajax handling
-    if ($this->editing_post_id)
+    if (WidgetWranglerUtils::editingEnabledPostType())
     { ?>
-      <input value="<?php print $this->editing_post_id; ?>" type="hidden" id="ww_ajax_context_id" /> 
+      <input value="<?php print get_the_ID(); ?>" type="hidden" id="ww_ajax_context_id" />
       <?php
     }
   }
@@ -289,16 +124,16 @@ class Widget_Wrangler_Admin {
 
     // OK, we're authenticated:
     // we need to find and save the data
-    $widgets = $this->_serialize_widgets($_POST['ww-data']['widgets']);
+    $widgets = WidgetWranglerUtils::serializeWidgets($_POST['ww-data']['widgets']);
 
     // allow other plugins to modify the widgets or save other things
     $widgets = apply_filters('widget_wrangler_save_widgets_alter', $widgets);
+
+	  if ($widgets){
+		  update_post_meta( $post_id, 'ww_post_widgets', $widgets);
+	  }
     
-    $new_preset_id = $this->ww->presets->new_preset_id;
-    
-    if ($widgets){
-      update_post_meta( $post_id, 'ww_post_widgets', $widgets);
-    }
+    $new_preset_id = WW_Presets::$new_preset_id;
     
     if ($new_preset_id !== FALSE){
       update_post_meta( $post_id, 'ww_post_preset_id', (int) $new_preset_id);
@@ -306,80 +141,5 @@ class Widget_Wrangler_Admin {
   }
 
   /* ==================================== HELPER FUNCTIONS ================================ */
-  
-  //
-  function _is_editing_enabled_post_type(){
-    if((isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit') && isset($_REQUEST['post'])) {
-      $current_post_type = get_post_type($_REQUEST['post']);
-        
-      if (in_array($current_post_type, $this->settings['post_types'])){
-        $this->editing_post_id = $_REQUEST['post'];
-        return TRUE;
-      }
-    }
-    return FALSE;
-  }
 
-  //
-  // recursive array search
-  // 
-  function _array_searchRecursive( $needle, $haystack, $strict=false, $path=array() )
-  {
-    if( !is_array($haystack) ) {
-      return false;
-    }
-    foreach( $haystack as $key => $val ) {
-      if( is_array($val) && $subPath = $this->_array_searchRecursive($needle, $val, $strict, $path) ) {
-          $path = array_merge($path, array($key), $subPath);
-          return $path;
-      } elseif( (!$strict && $val == $needle) || ($strict && $val === $needle) ) {
-          $path[] = $key;
-          return $path;
-      }
-    }
-    return false;
-  }
-  
-  //
-  // Javascript drag and drop for sorting
-  //
-  function _sortable_widgets_js(){
-    wp_enqueue_script('ww-sortable-widgets',
-                    WW_PLUGIN_URL.'admin/js/sortable-widgets.js',
-                    array('jquery-ui-core', 'jquery-ui-sortable', 'wp-util'),
-                    WW_SCRIPT_VERSION,
-                    true);
-    $data = $this->_json_data();
-    wp_localize_script( 'ww-sortable-widgets', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.$data.';') );	
-  }
-  
-  //
-  // Javascript for editing a widget
-  // 
-  function _editing_widget_js(){
-    wp_enqueue_script('ww-editing-widget',
-                    WW_PLUGIN_URL.'admin/js/editing-widget.js',
-                    array('jquery'),
-                    WW_SCRIPT_VERSION,
-                    true);
-  }
-  
-  //
-  // Add css to admin interface
-  //
-  function _admin_css(){
-    print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/admin/css/admin.css" />';
-  }
-
-  //
-  // json data for ww admin
-  //
-  function _json_data() {
-    $WidgetWrangler = array();
-    $WidgetWrangler['data'] = array(
-      'ajaxURL' => admin_url( 'admin-ajax.php' ),
-      'allWidgets' => WidgetWranglerWidgets::all(),
-    );
-    return json_encode($WidgetWrangler);
-  }
 }

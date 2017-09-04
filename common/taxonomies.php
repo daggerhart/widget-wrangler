@@ -41,8 +41,8 @@ class WW_Taxonomies {
       if ($term_data = WidgetWranglerExtras::get($where)){
         // look for explicitly set preset
         if (isset($term_data->data['preset_id']) && $term_data->data['preset_id'] != 0){
-          $preset = $this->ww->presets->get_preset($term_data->data['preset_id']);
-          $this->ww->presets->current_preset_id = $preset->id;
+          $preset = WW_Presets::get($term_data->data['preset_id']);
+          WW_Presets::$current_preset_id = $preset->id;
           $widgets = $preset->widgets;
         }
         else {
@@ -74,8 +74,8 @@ class WW_Taxonomies {
    */
   function _find_taxonomy_widgets($tax_data){
     if (isset($tax_data->data['preset_id']) && $tax_data->data['preset_id'] != 0){
-      $preset = $this->ww->presets->get_preset($tax_data->data['preset_id']);
-      $this->ww->presets->current_preset_id = $preset->id;
+      $preset = WW_Presets::get($tax_data->data['preset_id']);
+      WW_Presets::$current_preset_id = $preset->id;
       $widgets = $preset->widgets;
     }
     else {

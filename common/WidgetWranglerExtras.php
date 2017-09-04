@@ -51,10 +51,10 @@ class WidgetWranglerExtras extends WidgetWranglerDb {
 	/**
 	 * Get data from the ww_extras table
 	 *
-	 * @params array
+	 * @param array $where
 	 *   - key value pairs for extras database table
 	 *
-	 * @params int|'all'
+	 * @param int|string $limit
 	 *   - number of items to return
 	 *   - can be 'all' to set no limit
 	 *

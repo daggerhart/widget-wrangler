@@ -26,7 +26,7 @@ class WW_Shortcode_Tinymce_Admin  {
   function wp_admin_init(){
     // shortcode inserter
     if ($this->settings['shortcode_tinymce'] &&
-        $this->ww->admin->_is_editing_enabled_post_type())
+        WidgetWranglerUtils::editingEnabledPostType())
     {
       add_action('admin_head', array($this, 'wp_admin_head'));
 

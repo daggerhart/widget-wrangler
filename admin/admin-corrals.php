@@ -25,9 +25,9 @@ class WW_Corrals_Admin  {
   function wp_admin_menu(){
     $page_title = 'Corrals';
 
-    $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'corrals', array( $this, '_menu_router' ));
+    $this->page_hook = add_submenu_page(Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'corrals', array( $this, '_menu_router' ));
     add_action( "admin_print_scripts-".$this->page_hook, array( $this, '_corrals_form_js' ) );
-    add_action( "admin_head", array( $this->ww->admin, '_admin_css' ) );
+    add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
   }
 
   /*
@@ -38,16 +38,27 @@ class WW_Corrals_Admin  {
     if (isset($_GET['ww_action'])){
       switch($_GET['ww_action']){
         case 'insert':
-          $new_corral_id = $this->_corrals_insert($_POST);
+          if ( !empty( $_POST['ww-new-corral'] ) ) {
+              WidgetWranglerCorrals::add( $_POST['ww-new-corral'] );
+          }
           break;
+
         case 'delete':
-          $this->_corrals_delete($_POST);
+            if ( !empty( $_POST['ww-delete-slug'] ) ) {
+                WidgetWranglerCorrals::remove( $_POST['ww-delete-slug'] );
+            }
           break;
+
         case 'update':
-          $this->_corrals_update($_POST);
+	        if ( isset( $_POST['ww-update-old-slug'], $_POST['ww-update-corral'], $_POST['ww-update-slug'] ) ) {
+		        WidgetWranglerCorrals::update( $_POST['ww-update-old-slug'], $_POST['ww-update-slug'], $_POST['ww-update-corral'] );
+	        }
           break;
+
         case 'sort':
-          $this->_corrals_sort($_POST);
+            if ( is_array( $_POST['weight'] ) ) {
+	            WidgetWranglerCorrals::reorder($_POST['weight']);
+            }
           break;
       }
       
@@ -60,82 +71,11 @@ class WW_Corrals_Admin  {
   }
   
   /*
-   * Handle sorting of sidebars
-   */
-  function _corrals_sort($posted = array())
-  {
-    $all_sidebars = $this->ww->corrals;
-    $new_order_array = array();
-    
-    if (is_array($posted['weight'])){
-      $i = 1;
-      $total = count($posted['weight']);
-      while($i <= $total){
-        $new_order_array[$posted['weight'][$i]] = $all_sidebars[$posted['weight'][$i]];
-        $i++;
-      }
-      
-      update_option('ww_sidebars',$new_order_array);
-    }
-  }
-  
-  /*
-   * Add a new sidebar
-   */
-  function _corrals_insert($posted = array())
-  {
-    $new_corral = strip_tags($posted['ww-new-corral']);
-    $slug_name = WidgetWranglerUtils::makeSlug($new_corral);
-    $corrals_array = get_option('ww_sidebars', array());
-     
-    // add new sidebar
-    $corrals_array[$slug_name] = $new_corral;
-    
-    // save
-    update_option('ww_sidebars',$corrals_array);
-  }
-  
-  /*
-   * Delete a sidebar
-   */
-  function _corrals_delete($posted = array())
-  {
-    $old_slug = $posted['ww-delete-slug'];
-    $corrals_array = get_option('ww_sidebars', array());
-    
-    if (isset($corrals_array[$old_slug])){
-      unset($corrals_array[$old_slug]);
-    }
-    
-    update_option('ww_sidebars', $corrals_array);
-  }
-  
-  /*
-   * Update/Edit a sidebar
-   */
-  function _corrals_update($posted = array())
-  {
-    $update_corral = strip_tags($posted['ww-update-corral']);
-    $update_slug = WidgetWranglerUtils::makeSlug($posted['ww-update-slug']);
-    $corrals_array = get_option('ww_sidebars', array());
-    $old_slug = $posted['ww-update-old-slug'];
-    
-    if (isset($corrals_array[$old_slug])){
-      // delete old one
-      unset($corrals_array[$old_slug]);
-      // add new one
-      $corrals_array[$update_slug] = $update_corral;
-    }
-    
-    update_option('ww_sidebars', $corrals_array);
-  }
-  
-  /*
    * Build the form 
    */
   function _corrals_form()
   {
-    $corrals = $this->ww->corrals;
+    $corrals = WidgetWranglerCorrals::all();
     $sorting_items = '';
     ?>
     <div class='wrap'>

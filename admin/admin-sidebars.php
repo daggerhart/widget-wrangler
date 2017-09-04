@@ -29,8 +29,8 @@ class WW_Sidebars_Admin  {
     if ($this->settings['theme_compat']) {
       $page_title = 'Sidebars';
 
-      $this->page_hook = add_submenu_page($this->ww->admin->parent_slug, $page_title, $page_title, $this->ww->admin->capability, 'sidebars', array( $this, '_menu_router' ));
-      add_action( "admin_head", array( $this->ww->admin, '_admin_css' ) );
+      $this->page_hook = add_submenu_page(Widget_Wrangler_Admin::$page_slug, $page_title, $page_title, Widget_Wrangler_Admin::$capability, 'sidebars', array( $this, '_menu_router' ));
+      add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
     }
   }
 
@@ -72,7 +72,7 @@ class WW_Sidebars_Admin  {
     //delete_option('ww_alter_sidebars');
     global $wp_registered_sidebars;
     
-    $altered_sidebars = $this->ww->get_altered_sidebars(true);
+    $altered_sidebars = WidgetWranglerUtils::alteredSidebars(true);
 
     ob_start();
     ?>
@@ -135,6 +135,7 @@ class WW_Sidebars_Admin  {
     $form = array(
       'title' => __('Wordpress Sidebars', 'widgetwrangler'),
       'description' => __('Alter existing sidebars registered by the current theme.', 'widgetwrangler'),
+      'content' => $form_content,
       'attributes' => array(
         'action' => 'edit.php?post_type=widget&page=sidebars&ww_action=update&noheader=true',
         ),
@@ -144,6 +145,6 @@ class WW_Sidebars_Admin  {
           ),
         ),
       );
-    print $this->ww->admin->_form($form, $form_content);
+    print WidgetWranglerAdminUi::form($form);
   }
 }
