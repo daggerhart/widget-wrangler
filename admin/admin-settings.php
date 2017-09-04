@@ -36,6 +36,15 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
+	 * @see WidgetWranglerAdminPage::description()
+	 */
+	function description() {
+		return array(
+			__('Site settings for Widget Wrangler'),
+		);
+	}
+
+	/**
 	 * @see WidgetWranglerAdminPage::actions()
 	 */
 	function actions() {

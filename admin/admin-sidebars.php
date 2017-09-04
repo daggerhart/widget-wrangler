@@ -17,7 +17,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 	 * @see WidgetWranglerAdminPage::title()
 	 */
 	function title() {
-		return __('Modify the WordPress theme sidebar templates');
+		return __('Theme Sidebars');
 	}
 
 	/**
@@ -32,6 +32,15 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 	 */
 	function slug() {
 		return 'sidebars';
+	}
+
+	/**
+	 * @see WidgetWranglerAdminPage::description()
+	 */
+	function description() {
+		return array(
+            __('Modify the sidebar output registered by the current theme.'),
+		);
 	}
 
 	/**
@@ -96,44 +105,48 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 
     ob_start();
     ?>
-      <div id='ww-alter-sidebar-page'>
+      <div>
       <?php
         foreach ($altered_sidebars as $slug => $sidebar)
         {
           $original = (isset($wp_registered_sidebars[$slug])) ? $wp_registered_sidebars[$slug] : FALSE;
           ?>
-          <div class="postbox">
-            <h2 class="ww-setting-title"><?php print $sidebar['name']; ?> <sup><em>(<?php print $slug; ?>)</em></sup></h2>
-            <div class="ww-setting-content">
+          <div class="ww-box">
+            <h3><?php print $sidebar['name']; ?> <sup><em>(<?php print $slug; ?>)</em></sup></h3>
               <p class="description"><?php print $sidebar['description']; ?></p>
-              <hr />
               <input type="hidden" name="ww-data[sidebars][<?php print $slug; ?>][slug]" value="<?php print $slug; ?>" />
-              <div class="ww-alter-sidebar-field">
-                <label><?php _e('Alter Sidebar', 'widgetwrangler'); ?></label>
-                <input type="checkbox" name="ww-data[sidebars][<?php print $slug; ?>][ww_alter]" <?php if (isset($sidebar['ww_alter'])) { print "checked='checked'"; } ?> />
-              </div>
-              <div class="ww-alter-sidebar-field">
-                <label><?php _e('Before Widget', 'widgetwrangler'); ?></label>
-                <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][before_widget]" value="<?php print htmlentities($sidebar['before_widget']); ?>" />
-              </div>
-              <div class="ww-alter-sidebar-field">
-                <label><?php _e('Before Title', 'widgetwrangler'); ?></label>
-                <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][before_title]" value="<?php print htmlentities($sidebar['before_title']); ?>" />
-              </div>
-              <div class="ww-alter-sidebar-field">
-                <label><?php _e('After Title', 'widgetwrangler'); ?></label>
-                <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][after_title]" value="<?php print htmlentities($sidebar['after_title']); ?>" />
-              </div>
-              <div class="ww-alter-sidebar-field">
-                <label><?php _e('After Widget', 'widgetwrangler'); ?></label>
-                <input type="text" name="ww-data[sidebars][<?php print $slug; ?>][after_widget]" value="<?php print htmlentities($sidebar['after_widget']); ?>" />
-              </div>
-              
-              <div class="ww-alter-sidebar-original">
-                <a class="toggle"><?php _e('View Original', 'widgetwrangler'); ?></a>
-                <div class="content"><pre><?php print htmlentities(print_r($original,1)); ?></pre></div>
-              </div>
+
+            <div>
+            <table class="form-table">
+            <tbody>
+              <tr>
+                <th scope="row"><label><?php _e('Alter Sidebar', 'widgetwrangler'); ?></label></th>
+                <td><input type="checkbox" name="ww-data[sidebars][<?php print $slug; ?>][ww_alter]" <?php if (isset($sidebar['ww_alter'])) { print "checked='checked'"; } ?> /></td>
+              </tr>
+              <tr>
+                <th scope="row"><label><?php _e('Before Widget', 'widgetwrangler'); ?></label></th>
+                <td><input type="text" class="regular-text code" name="ww-data[sidebars][<?php print $slug; ?>][before_widget]" value="<?php print htmlentities($sidebar['before_widget']); ?>" /></td>
+              </tr>
+              <tr>
+                <th scope="row"><label><?php _e('Before Title', 'widgetwrangler'); ?></label></th>
+                <td><input type="text" class="regular-text code" name="ww-data[sidebars][<?php print $slug; ?>][before_title]" value="<?php print htmlentities($sidebar['before_title']); ?>" /></td>
+              </tr>
+              <tr>
+                <th scope="row"><label><?php _e('After Title', 'widgetwrangler'); ?></label></th>
+                <td><input type="text" class="regular-text code" name="ww-data[sidebars][<?php print $slug; ?>][after_title]" value="<?php print htmlentities($sidebar['after_title']); ?>" /></td>
+              </tr>
+              <tr>
+                <th scope="row"><label><?php _e('After Widget', 'widgetwrangler'); ?></label></th>
+                <td><input type="text" class="regular-text code" name="ww-data[sidebars][<?php print $slug; ?>][after_widget]" value="<?php print htmlentities($sidebar['after_widget']); ?>" /></td>
+              </tr>
+              </tbody>
+            </table>
             </div>
+
+          <div class="ww-alter-sidebar-original">
+            <a class="toggle"><?php _e('View Original', 'widgetwrangler'); ?></a>
+            <div class="content"><pre><?php print htmlentities(print_r($original,1)); ?></pre></div>
+          </div>
           </div>
           <?php
         }
@@ -142,8 +155,8 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
     
     
     $form = array(
-      'title' => __('Wordpress Sidebars', 'widgetwrangler'),
-      'description' => __('Alter existing sidebars registered by the current theme.', 'widgetwrangler'),
+      'title' => '',
+      'description' => '',
       'content' => $form_content,
       'attributes' => array(
         'action' => 'edit.php?post_type=widget&page=sidebars&ww_action=update&noheader=true',

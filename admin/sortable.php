@@ -245,7 +245,7 @@ class WW_Admin_Sortable {
 		?>
 		<div id="ww-add-new-widget">
 			<h2><?php _e('Add Widget', 'widgetwrangler'); ?></h2>
-			<div class="ww-inner">
+			<div class="">
 				<select id="ww-add-new-widget-widget">
 					<option value="0">-- <?php _e('Select a Widget', 'widgetwrangler'); ?> --</option>
 					<?php foreach ( $this->all_widgets as $widget ){ ?>
@@ -262,7 +262,7 @@ class WW_Admin_Sortable {
 				</select>
 				<span id="ww-add-new-widget-button" class="button button-large"><?php _e('Add Widget to Corral', 'widgetwrangler'); ?></span>
 			</div>
-			<p class="description ww-inner"><?php _e('Select a widget you would like to add, and the corral where you would like to add it. Click the button Add Widget to Corral.', 'widgetwrangler'); ?></p>
+			<p class="description"><?php _e('Select a widget you would like to add, and the corral where you would like to add it. Click the button Add Widget to Corral.', 'widgetwrangler'); ?></p>
 
 			<script type="text/html" id="tmpl-add-widget">
 				<?php

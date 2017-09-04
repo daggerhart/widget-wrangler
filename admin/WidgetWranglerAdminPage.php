@@ -55,7 +55,7 @@ class WidgetWranglerAdminPage {
 	/**
 	 * This page's description.
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	function description() {
 		return '';
@@ -219,7 +219,7 @@ class WidgetWranglerAdminPage {
 	 *
 	 * @return array
 	 */
-	function result( $message, $redirect = null, $type = 'success') {
+	function result( $message, $redirect = null, $type = 'updated') {
 		$result = array(
 			'message' => $message,
 			'type' => $type,

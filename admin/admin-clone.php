@@ -35,6 +35,16 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
     }
 
 	/**
+	 * @see WidgetWranglerAdminPage::description()
+	 */
+    function description() {
+        return array(
+            __("Here you can copy (instantiate) an existing WordPress widget into Widget Wrangler.", 'widgetwrangler'),
+            __("Click on the title of the widget you would like to copy, fill in the widget's form according to your needs and click 'Create'. This will create an instance of the chosen widget in Widget Wrangler.", 'widgetwrangler')
+        );
+    }
+
+	/**
 	 * @see WidgetWranglerAdminPage::actions()
 	 */
     function actions() {
@@ -49,7 +59,7 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
 	function enqueue() {
 		if ( $this->onPage() ){
 			wp_enqueue_style('ww-admin');
-			wp_enqueue_script('ww-clone');
+			wp_enqueue_script('ww-box-toggle');
 		}
 	}
 
@@ -64,44 +74,34 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
 		$half = round($total_widgets/2);
 		$i = 0;
 		?>
-        <p><?php _e("Here you can copy (instantiate) an existing WordPress widget into Widget Wrangler.", 'widgetwrangler'); ?></p>
-        <p><?php _e("Click on the title of the widget you would like to copy, fill in the widget's form according to your needs and click 'Create'. This will create an instance of the chosen widget in Widget Wrangler.", 'widgetwrangler'); ?></p>
-        <ul class='ww-clone-widgets'>
+        <ul class='ww-column'>
 		<?php
 		foreach ($wp_widget_factory->widgets as $classname => $widget)
 		{
-			$posted_array_key = "widget-".$widget->id_base;
-
 			// break into 2 columns
 			if ($i == $half)
-			{ ?>
-                </ul><ul class='ww-clone-widgets'>
+			{
+				?>
+                </ul><ul class='ww-column'>
 				<?php
 			}
+
+			$posted_array_key = "widget-".$widget->id_base;
 
 			ob_start();
 			$wp_widget = new $classname;
 			$wp_widget->form(array());
 			$new_class_form = ob_get_clean();
 			?>
-            <li class="ww-widgets-holder-wrap">
-                <div class='widget widgets-holder-wrap closed'>
-                    <div class='widget-top'>
-                        <div class='widget-title-action sidebar-name'>
-                            <div class='widget-action sidebar-name-arrow handlediv'></div>
-                        </div>
-                        <div class="widget-title">
-                            <h4><?php print $widget->name; ?></h4>
-                        </div>
-                    </div>
-                    <div class='widget-inside'>
-                        <form action='edit.php?post_type=widget&page=clone&ww_action=insert&noheader=true' method='post'>
-                            <input type='hidden' name='ww-classname' value='<?php print $classname; ?>' />
-                            <input type='hidden' name='ww-keyname' value='<?php print $posted_array_key; ?>' />
-							<?php print $new_class_form; ?>
-                            <input class='ww-clone-submit button button-primary button-large' type='submit' value='Create' />
-                        </form>
-                    </div>
+            <li class="ww-box ww-box-toggle">
+                <h3><?php print $widget->name; ?></h3>
+                <div class='ww-box-toggle-content'>
+                    <form action='edit.php?post_type=widget&page=clone&ww_action=insert&noheader=true' method='post'>
+                        <input type='hidden' name='ww-classname' value='<?php print $classname; ?>' />
+                        <input type='hidden' name='ww-keyname' value='<?php print $posted_array_key; ?>' />
+                        <?php print $new_class_form; ?>
+                        <input class='button button-primary button-large' type='submit' value='Create' />
+                    </form>
                 </div>
             </li>
 			<?php
@@ -157,6 +157,7 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
 		$new_widget['pinged']         = '';
 		$new_widget['post_content_filtered'] = '';
 
+		// insert new widget into db
 		// insert new widget into db
 		$new_post_id = wp_insert_post($new_widget);
 		$instance['ID'] = $new_post_id;

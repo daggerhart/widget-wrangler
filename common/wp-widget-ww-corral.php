@@ -61,9 +61,10 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
     $defaults = array( 'title' => __('Widget Wrangler Corral', 'widgetwrangler'), 'sidebar' => '' );
     $instance = wp_parse_args( (array) $instance, $defaults );
 	  $corrals = WidgetWranglerCorrals::all();
+	  $corral_title = !empty($instance['sidebar']) && !empty($corrals[$instance['sidebar']]) ? $corrals[$instance['sidebar']] : '';
     ?>
     <?php // Widget Title: Hidden Input ?>
-    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $corrals[$instance['sidebar']]; ?>" style="width:100%;" />
+    <input type="hidden" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $corral_title; ?>" style="width:100%;" />
     
     <?php // Sidebar: Select Box ?>
     <p>

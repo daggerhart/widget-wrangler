@@ -58,6 +58,7 @@ class Widget_Wrangler_Admin {
         add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
 
         wp_register_style('ww-admin', plugins_url('css/admin.css', __FILE__), array(), WW_SCRIPT_VERSION );
+        wp_register_style('ww-corrals', plugins_url('css/corrals.css', __FILE__), array(), WW_SCRIPT_VERSION );
         wp_register_style('ww-sortable', plugins_url('css/sortable.css', __FILE__),array(), WW_SCRIPT_VERSION );
         wp_register_style('ww-presets', plugins_url('css/presets.css', __FILE__), array(), WW_SCRIPT_VERSION );
 
@@ -78,14 +79,14 @@ class Widget_Wrangler_Admin {
             WW_SCRIPT_VERSION,
             true
         );
-        wp_register_script('ww-clone',
-            plugins_url('js/clone.js', __FILE__),
-	        array('jquery'),
+        wp_register_script('ww-widget-edit',
+            plugins_url('js/editing-widget.js', __FILE__),
+            array('jquery'),
             WW_SCRIPT_VERSION,
             true
         );
-        wp_register_script('ww-widget-edit',
-            plugins_url('js/editing-widget.js', __FILE__),
+        wp_register_script('ww-box-toggle',
+            plugins_url('js/box-toggle.js', __FILE__),
             array('jquery'),
             WW_SCRIPT_VERSION,
             true

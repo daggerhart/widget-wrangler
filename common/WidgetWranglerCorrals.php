@@ -3,7 +3,6 @@
 class WidgetWranglerCorrals {
 
 	/**
-	 * Get all corrals
 	 *
 	 * @return mixed
 	 */

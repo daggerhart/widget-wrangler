@@ -131,13 +131,19 @@ class WidgetWranglerAdminUi {
 
 	    ob_start();
 		if ( !empty( $messages ) ) {
-			foreach ( $messages as $message ) {
-				?>
-                <p class="message <?php print $message['type']; ?>">
-					<?php print $message['message']; ?>
-                </p>
-				<?php
-			}
+			?>
+            <div id="message">
+			<?php
+                foreach ( $messages as $message ) {
+                    ?>
+                    <div class="<?php print $message['type']; ?> notice is-dismissible">
+                        <p><?php print $message['message']; ?></p>
+                    </div>
+                    <?php
+                }
+			?>
+            </div>
+			<?php
 		}
 
         return ob_get_clean();
@@ -156,14 +162,17 @@ class WidgetWranglerAdminUi {
 		    if ( !is_array($descriptions) ){
 		        $descriptions = array($descriptions);
             }
-            
+            ?>
+            <div class="ww-box description">
+            <?php
 			foreach ( $descriptions as $description ) {
 				?>
-                <p class="description">
-					<?php print $description; ?>
-                </p>
+                <p><?php print $description; ?></p>
 				<?php
 			}
+			?>
+            </div>
+            <?php
 		}
 
         return ob_get_clean();
