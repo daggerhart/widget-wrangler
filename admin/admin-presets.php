@@ -75,13 +75,18 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 		add_action( 'wp_ajax_ww_form_ajax', array( $this, 'ww_form_ajax' ) );
 		add_action( 'widget_wrangler_save_widgets_alter', array( $this, 'ww_save_widgets_alter' ) );
 
-		if ( isset($_GET['post_type']) && 'widget' == $_GET['post_type'] &&
-		     isset($_GET['page']) && $_GET['page'] == 'presets' )
-		{
-			WW_Admin_Sortable::init();
-		}
 	}
 
+	/**
+	 * @see WidgetWranglerAdminPage::actions()
+	 */
+	function enqueue() {
+	    if ($this->onPage()) {
+		    wp_enqueue_style('ww-admin');
+		    wp_enqueue_style('ww-presets');
+		    WW_Admin_Sortable::init();
+        }
+    }
 
 	/**
 	 * Delete a Widget Preset

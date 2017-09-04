@@ -99,6 +99,10 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.2.5 =
+
+* Bug fix: Warning on activation
+
 = 2.2.4 =
 
 * Removing licensing concepts which opens the following features to free users: custom presets, manage taxonomies

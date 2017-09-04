@@ -1,0 +1,49 @@
+
+.ww-admin-tab-links {
+    width: 20%;
+    float: left;
+    margin-right: 1%;
+}
+.ww-admin-tab-links .ww-admin-tab-list {
+    float: none;
+    width: 100%;
+    border-top: 1px solid #eee;
+    background: #fff;
+}
+.ww-admin-tab-links a {
+}
+.ww-admin-tab-links .active a {
+    background: none repeat scroll 0 0 #1E8CBE;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+}
+.ww-admin-tab {
+    float: left;
+    width: 74%;
+}
+.ww-admin-tab .ww-admin-tab-inner {
+    padding: 0 2% 16px;
+}
+ul.ww-admin-tab-list {
+    float: left;
+    width: 20%;
+    margin: 0 1% 0 0;
+}
+ul.ww-admin-tab-list li {
+    padding: 0px;
+    margin: 0px;
+}
+ul.ww-admin-tab-list li a {
+    display: block;
+    padding: 0px 6px;
+    line-height: 24px;
+    border-bottom: 1px solid #bbb;
+}
+ul.ww-admin-tab-list li.ui-state-active a {
+    background-color: #fff;
+}
+ul.ww-admin-tab-list .ww-admin-tab-list-title {
+    margin: 0;
+    padding: 0px;
+}

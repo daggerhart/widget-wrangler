@@ -157,11 +157,7 @@ class WW_Widget_PostType {
 	// Javascript for editing a widget
 	//
 	function _editing_widget_js(){
-		wp_enqueue_script('ww-editing-widget',
-			WW_PLUGIN_URL.'admin/js/editing-widget.js',
-			array('jquery'),
-			WW_SCRIPT_VERSION,
-			true);
+		wp_enqueue_script('ww-widget-edit');
 	}
   
   /*

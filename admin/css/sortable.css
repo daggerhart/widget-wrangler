@@ -1,0 +1,102 @@
+
+/******************************************************
+ * Sortable Widgets
+ *****************************************************/
+#ww-active-items,
+#ww-disabled-items {
+    margin: 8px 0px;
+}
+#ww-active-items li {
+    background: #fff;
+}
+#ww-disabled-items li {
+    background: linear-gradient(to top, #E9E9E9, #EFEFEF) repeat scroll 0 0 #EFEFEF;
+    background-image: url('../images/drag_handle.png');
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+.ww-sortable-corral-wrapper{
+
+}
+.ww-sortable-corral-wrapper h4 {
+
+}
+.ww-sortable-widgets-corral-title {
+    margin-bottom: 12px;
+}
+li.ww-item,
+li.ww-corral-sort-item{
+    background: linear-gradient(to top, #F9F9F9, #FFFFFF) repeat scroll 0 0 #FFFFFF;
+    background-image: url('../images/drag_handle.png');
+    background-repeat: no-repeat;
+    background-position: 4px center;
+    font-size: 12px;
+    line-height: 34px;
+    font-weight: bold;
+    height: 34px;
+    padding: 0px 12px 0px 30px;
+    margin: 0px;
+    overflow: hidden;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 0 1px 0 #FFFFFF inset;
+    cursor: move;
+    color: #222222;
+    box-shadow: 0 1px 0 #FFFFFF;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+li.ww-item:hover {
+    background-color: #f9f9f9;
+}
+
+.ww-widget-weight {
+    display: none;
+    float: right;
+    margin-top: 5px;
+}
+#ww-disabled-items .ww-widget-weight {
+    display: none;
+}
+#ww-active-items li:hover {
+    cursor: n-resize;
+}
+#ww-disabled-items,
+.ww-sortable {
+    min-height: 20px;
+    height: auto !important;
+    height: 20px;
+    border: 2px dashed #eee;
+    background: #eee url('../images/empty-bg.png') repeat;
+    margin-top: 4px;
+}
+
+li.ww-item.ww-dragging,
+#ww-disabled-items li.ww-item.ww-dragging {
+    background: #ffffe5;
+    background-image: url('../images/drag_handle.png');
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+
+.ww-item select {
+    display: block;
+    float: right;
+    margin: 3px 0 0 0;
+}
+.ww-no-widgets {
+    font-size: 12px;
+    line-height: 32px;
+    font-weight: bold;
+    height: 32px;
+    padding: 0px 12px 0px 30px;
+    margin: 0px;
+    background: transparent url('../images/empty-bg.png') repeat;
+}
+h4.ww-sortable-widgets-corral-title{
+    margin: 0;
+    padding: 12px 6px 6px;
+    border-bottom: 1px solid #bbb;
+    font-family: "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
+    font-size: 1.1em;
+}

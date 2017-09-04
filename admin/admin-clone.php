@@ -44,15 +44,21 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
     }
 
 	/**
+	 * @see WidgetWranglerAdminPage::enqueue()
+	 */
+	function enqueue() {
+		if ( $this->onPage() ){
+			wp_enqueue_style('ww-admin');
+			wp_enqueue_script('ww-clone');
+		}
+	}
+
+	/**
 	 * Display widgets available for cloning.
 	 *
 	 * @see \WidgetWranglerAdminPage::page()
 	 */
 	function page() {
-	    // TODO - move to file
-	    add_action( "admin_print_footer_scripts", array( $this, 'wp_admin_print_footer_scripts' ) );
-	    add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
-
 		global $wp_widget_factory;
 		$total_widgets = count($wp_widget_factory->widgets);
 		$half = round($total_widgets/2);
@@ -105,22 +111,6 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
         </ul>
 		<?php
     }
-
-	/**
-	 *
-	 */
-	function wp_admin_print_footer_scripts()
-	{ ?>
-        <script type="text/javascript">
-            jQuery(document).ready(function(){
-                // open and close widget menu
-                jQuery('.widget-top').click(function(){
-                    jQuery(this).closest('.widgets-holder-wrap').find('.widget-inside').slideToggle('fast');
-                });
-            });
-        </script>
-		<?php
-	}
 
 	/**
 	 * Inserts a cloned WP widget as a WW widget

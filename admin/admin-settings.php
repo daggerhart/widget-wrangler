@@ -48,10 +48,18 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
+	 * @see WidgetWranglerAdminPage::enqueue()
+	 */
+	function enqueue() {
+		if ( $this->onPage() ){
+			wp_enqueue_style('ww-admin');
+		}
+	}
+
+	/**
 	 * @see \WidgetWranglerAdminPage::page()
 	 */
 	function page() {
-		add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
 		$sections = $this->processedSections();
 		$form = array(
 			'title' => 'Settings',

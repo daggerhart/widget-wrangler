@@ -43,6 +43,19 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 		);
 	}
 
+	/**
+	 * @see WidgetWranglerAdminPage::enqueue()
+	 */
+	function enqueue() {
+		if ( $this->onPage() ){
+			wp_enqueue_style('ww-admin');
+			wp_enqueue_script('ww-sidebars');
+		}
+	}
+
+	/**
+	 * @see WidgetWranglerAdminPage::menu()
+	 */
 	function menu() {
 		parent::menu();
 
@@ -79,8 +92,6 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 
     //delete_option('ww_alter_sidebars');
     global $wp_registered_sidebars;
-
-	  add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
     $altered_sidebars = WidgetWranglerUtils::alteredSidebars(true);
 
     ob_start();
@@ -126,18 +137,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
           </div>
           <?php
         }
-      ?>
-      <script type="text/javascript">
-        (function ($) {
-          $(document).ready(function(){
-            $('.ww-alter-sidebar-original .content').hide();
-            $('.ww-alter-sidebar-original .toggle').click(function(){
-              $(this).next('.content').toggle();
-            });
-          });
-        })(jQuery);
-      </script>
-    <?php
+
     $form_content = ob_get_clean();
     
     

@@ -57,6 +57,40 @@ class Widget_Wrangler_Admin {
     function wp_admin_init() {
         add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
 
+        wp_register_style('ww-admin', plugins_url('css/admin.css', __FILE__), array(), WW_SCRIPT_VERSION );
+        wp_register_style('ww-sortable', plugins_url('css/sortable.css', __FILE__),array(), WW_SCRIPT_VERSION );
+        wp_register_style('ww-presets', plugins_url('css/presets.css', __FILE__), array(), WW_SCRIPT_VERSION );
+
+        wp_register_script('ww-sortable',
+            plugins_url('js/sortable-widgets.js', __FILE__),
+            array('jquery-ui-core', 'jquery-ui-sortable', 'wp-util'),
+            WW_SCRIPT_VERSION,
+            true );
+        wp_register_script('ww-corrals',
+            plugins_url('js/corrals.js', __FILE__),
+            array('jquery-ui-core', 'jquery-ui-sortable'),
+            WW_SCRIPT_VERSION,
+            true
+        );
+        wp_register_script('ww-sidebars',
+            plugins_url('js/sidebars.js', __FILE__),
+	        array('jquery'),
+            WW_SCRIPT_VERSION,
+            true
+        );
+        wp_register_script('ww-clone',
+            plugins_url('js/clone.js', __FILE__),
+	        array('jquery'),
+            WW_SCRIPT_VERSION,
+            true
+        );
+        wp_register_script('ww-widget-edit',
+            plugins_url('js/editing-widget.js', __FILE__),
+            array('jquery'),
+            WW_SCRIPT_VERSION,
+            true
+        );
+
         // Add metabox to enabled post_types
         if (!empty($this->settings['post_types'])){
             foreach($this->settings['post_types'] as $enabled_post_type){

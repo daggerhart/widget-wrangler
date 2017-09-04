@@ -47,6 +47,16 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
     }
 
 	/**
+	 * @see WidgetWranglerAdminPage::enqueue()
+	 */
+	function enqueue() {
+		if ( $this->onPage() ){
+		    wp_enqueue_style('ww-admin');
+			wp_enqueue_script('ww-corrals');
+		}
+	}
+
+	/**
      * Create a new corral.
      *
 	 * @return array
@@ -113,12 +123,6 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
    */
   function page()
   {
-	  add_action( "admin_head", 'WidgetWranglerAdminUi::css' );
-      wp_enqueue_script('ww-corrals-js',
-          plugins_url('js/corrals.js', __FILE__ ),
-          array('jquery-ui-core', 'jquery-ui-sortable'),
-          false);
-
 	  $corrals = WidgetWranglerCorrals::all();
 	  $sorting_items = '';
     ?>

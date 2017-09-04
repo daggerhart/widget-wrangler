@@ -19,11 +19,8 @@ class WW_Admin_Sortable {
 	// Javascript drag and drop for sorting
 	//
 	public static function js(){
-		wp_enqueue_script('ww-sortable-widgets',
-			WW_PLUGIN_URL.'admin/js/sortable-widgets.js',
-			array('jquery-ui-core', 'jquery-ui-sortable', 'wp-util'),
-			WW_SCRIPT_VERSION,
-			true);
+		wp_enqueue_script('ww-sortable');
+		wp_enqueue_style('ww-sortable');
 
 		$data = array(
             'data' => array(

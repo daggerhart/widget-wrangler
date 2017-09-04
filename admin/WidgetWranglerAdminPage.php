@@ -3,6 +3,13 @@
 class WidgetWranglerAdminPage {
 
 	/**
+	 * Hook for this specific page.
+	 *
+	 * @var null
+	 */
+	public $page_hook = null;
+
+	/**
 	 * Widget Wrangler settings values array.
 	 *
 	 * @var array
@@ -102,6 +109,7 @@ class WidgetWranglerAdminPage {
 		$plugin = new $class($settings);
 
 		add_action( 'admin_menu', array( $plugin, 'menu' ) );
+		add_action( 'admin_enqueue_scripts', array( $plugin, 'enqueue') );
 
 		return $plugin;
 	}
@@ -111,8 +119,23 @@ class WidgetWranglerAdminPage {
 	 */
 	function menu() {
 		if ($this->parent() && $this->slug()) {
-			add_submenu_page( $this->parent(), $this->title(), $this->menuTitle(), $this->capability(), $this->slug(), array( $this, 'route' ));
+			$this->page_hook = add_submenu_page( $this->parent(), $this->title(), $this->menuTitle(), $this->capability(), $this->slug(), array( $this, 'route' ));
 		}
+	}
+
+	/**
+	 * Override to enqueue styles and scripts
+	 */
+	function enqueue() {}
+
+	/**
+	 * Helper function to determine if the user is on this admin page.
+	 *
+	 * @return bool
+	 */
+	function onPage() {
+		$screen = get_current_screen();
+		return $screen->id == $this->page_hook;
 	}
 
 	/**
