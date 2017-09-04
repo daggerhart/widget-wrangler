@@ -1,10 +1,10 @@
 <?php
 // hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_clone_admin_addon' );
+add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_clone_admin_addon', 10, 2 );
 
 //
-function ww_clone_admin_addon($addons){
-  $addons['Clone'] = new WW_Clone_Admin();
+function ww_clone_admin_addon($addons, $settings){
+  $addons['Clone'] = WW_Clone_Admin::register($settings);
   return $addons;
 }
 
@@ -14,15 +14,28 @@ function ww_clone_admin_addon($addons){
 class WW_Clone_Admin  {
   public $page_hook;
 
-  public $settings = array();
+	public $settings = array();
 
-  function __construct(){
-	  $s = new WidgetWranglerSettings();
-	  $this->settings = $s->values;
-    add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
-  }
+	function __construct($settings){
+		$this->settings = $settings;
+	}
 
-  /**
+	/**
+	 * Register hooks.
+	 *
+	 * @param $settings
+	 *
+	 * @return \WW_Clone_Admin
+	 */
+	public static function register( $settings ) {
+		$plugin = new self($settings);
+
+		add_action( 'admin_menu', array( $plugin, 'wp_admin_menu' ) );
+
+		return $plugin;
+	}
+
+	/**
    * Implements action 'admin_menu'
    */
   function wp_admin_menu(){

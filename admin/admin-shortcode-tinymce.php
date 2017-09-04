@@ -1,11 +1,11 @@
 <?php
 
 // hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_shortcode_tinymce_admin_addon' );
+add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_shortcode_tinymce_admin_addon', 10, 2 );
 
 //
-function ww_shortcode_tinymce_admin_addon($addons){
-  $addons['Shortcode_Tinymce'] = new WW_Shortcode_Tinymce_Admin();
+function ww_shortcode_tinymce_admin_addon($addons, $settings){
+  $addons['Shortcode_Tinymce'] = new WW_Shortcode_Tinymce_Admin($settings);
   return $addons;
 }
 
@@ -14,11 +14,18 @@ class WW_Shortcode_Tinymce_Admin  {
 
 	public $settings = array();
 
-  function __construct(){
-	  $s = new WidgetWranglerSettings();
-	  $this->settings = $s->values;
-    add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
-  }
+	function __construct($settings){
+		$this->settings = $settings;
+		add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
+	}
+
+	public static function register( $settings ) {
+		$plugin = new self($settings);
+
+		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
+
+		return $plugin;
+	}
 
   /**
    * Implements action 'admin_init'

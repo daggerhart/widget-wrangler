@@ -6,11 +6,11 @@ filters
  
  */
 // hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_presets_admin_addon' );
+add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_presets_admin_addon', 10, 2 );
 
 //
-function ww_presets_admin_addon($addons){
-  $addons['Presets_Admin'] = new WW_Presets_Admin();
+function ww_presets_admin_addon($addons, $settings){
+  $addons['Presets_Admin'] = WW_Presets_Admin::register($settings);
   return $addons;
 }
 
@@ -22,14 +22,20 @@ class WW_Presets_Admin  {
   public $current_preset_id = 0;
   public $new_preset_id = FALSE;
 
-  public $settings = array();
+	public $settings = array();
 
-  function __construct(){
-	  $s = new WidgetWranglerSettings();
-	  $this->settings = $s->values;
-    add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
-    add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
-  }
+	function __construct( $settings ){
+		$this->settings = $settings;
+	}
+
+	public static function register( $settings ) {
+		$plugin = new self($settings);
+
+		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
+		add_action( 'admin_menu', array( $plugin, 'wp_admin_menu' ) );
+
+		return $plugin;
+	}
 
   /**
    * Implements action 'admin_init'

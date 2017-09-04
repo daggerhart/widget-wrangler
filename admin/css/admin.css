@@ -557,7 +557,8 @@ h4.ww-sortable-widgets-corral-title{
   margin-right: 3%;
 }
 h2.ww-setting-title{
-  padding: 6px 12px;
+    padding: 12px 24px;
+    margin: 0;
   border-top: 1px solid #bbb;
   border-bottom: 1px solid #bbb;
 }

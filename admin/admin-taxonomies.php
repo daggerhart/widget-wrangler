@@ -1,10 +1,10 @@
 <?php
 // hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_taxonomies_admin_addon' );
+add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_taxonomies_admin_addon', 10, 2 );
 
 //
-function ww_taxonomies_admin_addon($addons){
-  $addons['Taxonomies'] = new WW_Taxonomies_Admin();
+function ww_taxonomies_admin_addon($addons, $settings){
+  $addons['Taxonomies'] = WW_Taxonomies_Admin::register($settings);
   return $addons;
 }
 
@@ -13,14 +13,27 @@ function ww_taxonomies_admin_addon($addons){
  */
 class WW_Taxonomies_Admin {
 
-    public $settings = array();
+	public $settings = array();
 
-  function __construct(){
-	  $s = new WidgetWranglerSettings();
-	  $this->settings = $s->values;
-    add_action( 'admin_init', array( $this, 'wp_admin_init' ) );
-    add_action( 'admin_menu', array( $this, 'wp_admin_menu' ) );
-  }
+	function __construct( $settings ){
+		$this->settings = $settings;
+	}
+
+	/**
+	 * Register hooks.
+	 *
+	 * @param $settings
+	 *
+	 * @return \WW_Taxonomies_Admin
+	 */
+	public static function register( $settings ) {
+		$plugin = new self($settings);
+
+		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
+		add_action( 'admin_menu', array( $plugin, 'wp_admin_menu' ) );
+
+		return $plugin;
+	}
 
   //
   function wp_admin_init(){

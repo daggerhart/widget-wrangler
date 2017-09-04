@@ -38,7 +38,7 @@ class WidgetWranglerSettings {
 		 $this->values = get_option( $this->option_name, $this->default_settings );
 		 // help with over serialization in previous versions
 		 $this->values = maybe_unserialize($this->values);
-		 $this->values = array_replace_recursive( $this->default_settings, $this->values );
+		 $this->values = array_replace( $this->default_settings, $this->values );
 		 return $this;
 	}
 
