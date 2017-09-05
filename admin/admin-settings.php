@@ -375,17 +375,17 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	function templateSection($section) {
 		ob_start();
 		?>
-        <div>
+        <div class="ww-columns">
+            <div class="ww-column col-25">
+                <h2><?php print $section['title']; ?></h2>
+                <p><?php print $section['description']; ?></p>
+            </div>
             <div class="ww-column col-75">
 			<?php
                 foreach( $section['items'] as $field) {
                     print $this->templateField($field);
                 }
 			?>
-            </div>
-            <div class="ww-column col-25">
-                <h2><?php print $section['title']; ?></h2>
-                <p><?php print $section['description']; ?></p>
             </div>
         </div>
 		<?php

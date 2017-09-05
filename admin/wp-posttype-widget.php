@@ -61,6 +61,7 @@ class WW_Widget_PostType {
 		    $this->add_meta_boxes();
 		    wp_enqueue_style('ww-admin');
 		    wp_enqueue_script('ww-widget-edit');
+		    wp_enqueue_script('ww-box-toggle');
         }
 	}
 

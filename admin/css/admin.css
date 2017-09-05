@@ -90,10 +90,17 @@
     margin-top: 11px !important;
     margin-right: 11px !important;
 }
-
+.ww-columns:after {
+    content: ".";
+    visibility: hidden;
+    display: block;
+    height: 0;
+    clear: both;
+}
 .ww-column { width: 48% }
-.ww-column:first-child { float: right; }
-.ww-column:nth-child(2) { float: left; }
+.ww-column:first-child { float: left; }
+.ww-column:nth-child(2) { float: right; }
+
 .ww-column.col-25 { width: 24%; }
 .ww-column.col-75 { width: 74%; }
 

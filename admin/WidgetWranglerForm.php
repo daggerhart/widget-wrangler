@@ -41,9 +41,9 @@ class WidgetWranglerForm {
 	 *      )
 	 *  )
 	 *
-	 * @see QW_Form_Fields::form_open_flat()
-	 * @see QW_Form_Fields::form_close_flat()
-	 * @see QW_Form_Fields::field_wrapper_flat()
+	 * @see WidgetWranglerForm::form_open_flat()
+	 * @see WidgetWranglerForm::form_close_flat()
+	 * @see WidgetWranglerForm::field_wrapper_flat()
 	 *
 	 * @var array
 	 */
@@ -64,7 +64,7 @@ class WidgetWranglerForm {
 	 *
 	 * function my_field_type_callback( $field = array() ) {}
 	 *
-	 * @see QW_Form_Fields::template_textarea()
+	 * @see WidgetWranglerForm::template_textarea()
 	 *
 	 * @var array
 	 */
@@ -106,7 +106,7 @@ class WidgetWranglerForm {
 
 
 	/**
-	 * QW_Form_Fields constructor.
+	 * WidgetWranglerForm constructor.
 	 *
 	 * @param array $form_args
 	 */
@@ -128,10 +128,10 @@ class WidgetWranglerForm {
 				'form_close' => array( $this, 'form_close_flat' ),
 				'field_wrapper' => array( $this, 'field_wrapper_flat' ),
 			),
-			'settings_table' => array(
-				'form_open' => array( $this, 'form_open_settings_table' ),
-				'form_close' => array( $this, 'form_close_settings_table' ),
-				'field_wrapper' => array( $this, 'field_wrapper_settings_table' ),
+			'table' => array(
+				'form_open' => array( $this, 'form_open_table' ),
+				'form_close' => array( $this, 'form_close_table' ),
+				'field_wrapper' => array( $this, 'field_wrapper_table' ),
 			)
 		);
 	}
@@ -293,7 +293,13 @@ class WidgetWranglerForm {
 		if ( !empty( $field['name_prefix'] ) ) {
 			$field['form_name'].= $field['name_prefix'];
 		}
-		$field['form_name'].= '[' . $field['name'] . ']';
+
+		if ( !empty( $field['form_name'] ) ) {
+			$field['form_name'].= '[' . $field['name'] . ']';
+		}
+		else {
+			$field['form_name'].= $field['name'];
+        }
 
 		// gather field classes
 		if ( !is_array( $field['class'] ) ){
@@ -496,11 +502,11 @@ class WidgetWranglerForm {
 	 * @param $field
 	 * @param $field_html
 	 */
-	function field_wrapper_settings_table( $field, $field_html ){
+	function field_wrapper_table( $field, $field_html ){
 		?>
         <tr  id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
              class="ww-field-wrapper">
-            <th>
+            <th scope="row">
                 <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
 					<?php echo $field['title']; ?>
                 </label>
@@ -512,7 +518,7 @@ class WidgetWranglerForm {
                     <p class="description"><?php echo $field['description']; ?></p>
 				<?php endif; ?>
 
-				<?php if ( !empty($field['help']) ) : ?>
+				<?php if ( !empty( $field['help'] ) ) : ?>
                     <p class="description"><?php echo $field['help']; ?></p>
 				<?php endif; ?>
             </td>
@@ -525,7 +531,7 @@ class WidgetWranglerForm {
 	 *
 	 * @return string
 	 */
-	function form_open_settings_table(){
+	function form_open_table(){
 		return '<table class="form-table">';
 	}
 
@@ -534,7 +540,7 @@ class WidgetWranglerForm {
 	 *
 	 * @return string
 	 */
-	function form_close_settings_table(){
+	function form_close_table(){
 		return '</table>';
 	}
 

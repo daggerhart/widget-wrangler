@@ -322,7 +322,37 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
     <?php
   }
 
-	/*
+	/**
+	 * @return string
+	 */
+    function createPresetForm(){
+	    $varieties  = WW_Presets::varieties();
+	    ob_start();
+	    ?>
+        <form action='edit.php?post_type=widget&page=presets&ww_action=create&noheader=true' method='post' name='widget-wrangler-form'>
+            <p>
+                <label for="create[variety]"><?php _e('Variety'); ?></label>
+                <select name="create[variety]">
+				    <?php
+				    foreach($varieties as $key => $pstype)
+				    {
+					    if ($key != 'core')
+					    { ?>
+                            <option value="<?php print $key; ?>"><?php print $pstype['title']; ?></option>
+						    <?php
+					    }
+				    }
+				    ?>
+                </select>
+            </p>
+            <p>
+                <input type="submit" value="<?php _e("Create New Preset", 'widgetwrangler'); ?>" class="button button-primary button-large" />
+            </p>
+        </form>
+        <?php
+	    return ob_get_clean();
+    }
+	/**
 	 * Admin Manage presets form
 	 */
 	function page() {
@@ -335,7 +365,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 			}
 		}
 
-		$all_presets = WW_Presets::all();
+		$all = WW_Presets::all();
 		$this_preset = WW_Presets::get($preset_id);
 		$varieties  = WW_Presets::varieties();
 		$preset_variety  = $varieties[$this_preset->variety];
@@ -349,117 +379,96 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 
 		ob_start();
 		?>
-        <div class="ww-column col-75">
-			<?php
-			// can't change the names of core presets
-			if($preset_variety['slug'] == 'core')
-			{ ?>
+        <div class="ww-columns">
+            <div class="ww-column col-25">
                 <div class="ww-box">
-                    <h3><?php print $this_preset->data['name']; ?></h3>
-                    <input type="hidden" name="data[name]" value="<?php print $this_preset->data['name']; ?>" />
-                </div>
-				<?php
-			}
-			else
-			{ ?>
-                <div class="ww-box ww-box-toggle">
-                    <h3><?php print $this_preset->data['name']; ?></h3>
-                    <div class="ww-box-toggle-content">
-                        <form action='edit.php?post_type=widget&page=presets&ww_action=update_name&noheader=true' method='post' name='widget-wrangler-form'>
-                            <input class='ww-pull-right button button-primary button-large' type='submit' value='Update'>
-                            <input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
-                            <input type="hidden" name="preset-variety" value="<?php print $preset_variety['slug']; ?>" />
-
-                            <table class="form-table">
-                                <tr>
-                                    <th scope="row"><label for="data[name]"><?php _e("Name", 'widgetwrangler'); ?></label></th>
-                                    <td><input size="40" type="text" name="data[name]" value="<?php print $this_preset->data['name']; ?>"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><label><?php _e("Type", 'widgetwrangler'); ?></label></th>
-                                    <td><?php print $preset_variety['slug']; ?></td>
-                                </tr>
-                            </table>
-                        </form>
-
-                        <form action='edit.php?post_type=widget&page=presets&ww_action=delete&noheader=true' method='post' name='widget-wrangler-form'>
-                            <input class='button button-small disabled' type='submit' value='<?php _e("Delete", 'widgetwrangler'); ?>' />
-                            <input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
-                            <input type="hidden" name="preset-variety" value="<?php print $preset_variety['slug']; ?>" />
-                        </form>
-                    </div>
-                </div>
-				<?php
-			}
-			?>
-            <form action='edit.php?post_type=widget&page=presets&ww_action=update&noheader=true' method='post' name='widget-wrangler-form'>
-
-                <input class='ww-pull-right-box-out button button-primary button-large' type='submit' value='Save Preset'>
-                <input type='hidden' name='widget-wrangler-edit' value='true' />
-                <input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
-                <input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
-                <input type="hidden" name="preset-variety" value="<?php print $preset_variety['slug']; ?>" />
-
-                <div class="ww-box">
-                    <h3><?php _e('Widgets'); ?></h3>
-                    <div id="widget_wrangler_form_top">
-						<?php
-						// TODO, dry this action up
-						do_action('widget_wrangler_form_top');
-						?>
-                    </div>
-                    <div id='ww-edited-message'>
-                        <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
-                    </div>
-
-                    <div>
-						<?php print $sortable->theme_sortable_corrals( $this_preset->widgets ); ?>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <div class="ww-column col-25">
-            <div class="ww-box">
-                <h3>Presets</h3>
-                <ul class="ww-list-links">
-					<?php
-					// show all presets, core first, then others
-					if(is_array($all_presets)){
-						foreach($all_presets as $preset)
-						{
-							$classes = ($preset_id == $preset->id) ? 'active' : '';
-							?>
+                    <h3>Presets</h3>
+                    <ul class="ww-list-links">
+                        <?php
+                        foreach($all as $preset)
+                        {
+                            $classes = ($preset_id == $preset->id) ? 'active' : '';
+                            ?>
                             <li class="<?php print $classes; ?>">
                                 <a href="edit.php?post_type=widget&page=presets&preset_id=<?php print $preset->id; ?>"><?php print $preset->data['name']; ?><?php print ($preset->variety == 'core') ? ' <small>('.$preset->variety.')</small>' : ''; ?></a>
                             </li>
-							<?php
-						}
-					}
-					?>
-                </ul>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                </div>
+                <div class="ww-box">
+                    <h3><?php _e('Create New'); ?></h3>
+                    <?php print $this->createPresetForm(); ?>
+                </div>
             </div>
-            <div class="ww-box">
-                <h3><?php _e('Create New'); ?></h3>
-                <form action='edit.php?post_type=widget&page=presets&ww_action=create&noheader=true' method='post' name='widget-wrangler-form'>
-                    <p>
-                        <label for="create[variety]"><?php _e('Variety'); ?></label>
-                        <select name="create[variety]">
-							<?php
-							foreach($varieties as $key => $pstype)
-							{
-								if ($key != 'core')
-								{ ?>
-                                    <option value="<?php print $key; ?>"><?php print $pstype['title']; ?></option>
-									<?php
-								}
-							}
-							?>
-                        </select>
-                    </p>
-                    <p>
-                        <input type="submit" value="<?php _e("Create New Preset", 'widgetwrangler'); ?>" class="button button-primary button-large" />
-                    </p>
+            <div class="ww-column col-75">
+                <?php
+                // can't change the names of core presets
+                if($preset_variety['slug'] == 'core')
+                { ?>
+                    <div class="ww-box">
+                        <h3><?php print $this_preset->data['name']; ?></h3>
+                        <input type="hidden" name="data[name]" value="<?php print $this_preset->data['name']; ?>" />
+                    </div>
+                    <?php
+                }
+                else
+                { ?>
+                    <div class="ww-box ww-box-toggle">
+                        <h3><?php print $this_preset->data['name']; ?></h3>
+                        <div class="ww-box-toggle-content">
+                            <form action='edit.php?post_type=widget&page=presets&ww_action=update_name&noheader=true' method='post' name='widget-wrangler-form'>
+                                <input class='ww-pull-right button button-primary button-large' type='submit' value='Update'>
+                                <input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
+                                <input type="hidden" name="preset-variety" value="<?php print $preset_variety['slug']; ?>" />
+
+                                <table class="form-table">
+                                    <tr>
+                                        <th scope="row"><label for="data[name]"><?php _e("Name", 'widgetwrangler'); ?></label></th>
+                                        <td><input size="40" type="text" name="data[name]" value="<?php print $this_preset->data['name']; ?>"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><label><?php _e("Type", 'widgetwrangler'); ?></label></th>
+                                        <td><?php print $preset_variety['slug']; ?></td>
+                                    </tr>
+                                </table>
+                            </form>
+
+                            <form action='edit.php?post_type=widget&page=presets&ww_action=delete&noheader=true' method='post' name='widget-wrangler-form'>
+                                <input class='button button-small disabled' type='submit' value='<?php _e("Delete", 'widgetwrangler'); ?>' />
+                                <input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
+                                <input type="hidden" name="preset-variety" value="<?php print $preset_variety['slug']; ?>" />
+                            </form>
+                        </div>
+                    </div>
+                    <?php
+                }
+                ?>
+                <form action='edit.php?post_type=widget&page=presets&ww_action=update&noheader=true' method='post' name='widget-wrangler-form'>
+
+                    <input class='ww-pull-right-box-out button button-primary button-large' type='submit' value='Save Preset'>
+                    <input type='hidden' name='widget-wrangler-edit' value='true' />
+                    <input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
+                    <input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
+                    <input type="hidden" name="preset-variety" value="<?php print $preset_variety['slug']; ?>" />
+
+                    <div class="ww-box">
+                        <h3><?php _e('Widgets'); ?></h3>
+                        <div id="widget_wrangler_form_top">
+                            <?php
+                            // TODO, dry this action up
+                            do_action('widget_wrangler_form_top');
+                            ?>
+                        </div>
+                        <div id='ww-edited-message'>
+                            <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
+                        </div>
+
+                        <div>
+                            <?php print $sortable->theme_sortable_corrals( $this_preset->widgets ); ?>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

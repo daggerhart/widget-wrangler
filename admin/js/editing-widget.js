@@ -27,9 +27,5 @@
         })
       }
     });
-
-    $('body').on('click', '.toggle-next-content', function(){
-        $(this).next('.togglable-content').slideToggle('fast');
-    })
   });
 })(jQuery);

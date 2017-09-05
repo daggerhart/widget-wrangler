@@ -74,41 +74,43 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
 		$half = round($total_widgets/2);
 		$i = 0;
 		?>
-        <ul class='ww-column'>
-		<?php
-		foreach ($wp_widget_factory->widgets as $classname => $widget)
-		{
-			// break into 2 columns
-			if ($i == $half)
-			{
-				?>
-                </ul><ul class='ww-column'>
-				<?php
-			}
+        <div class="ww-columns">
+            <ul class='ww-column'>
+            <?php
+            foreach ($wp_widget_factory->widgets as $classname => $widget)
+            {
+                // break into 2 columns
+                if ($i == $half)
+                {
+                    ?>
+                    </ul><ul class='ww-column'>
+                    <?php
+                }
 
-			$posted_array_key = "widget-".$widget->id_base;
+                $posted_array_key = "widget-".$widget->id_base;
 
-			ob_start();
-			$wp_widget = new $classname;
-			$wp_widget->form(array());
-			$new_class_form = ob_get_clean();
-			?>
-            <li class="ww-box ww-box-toggle">
-                <h3><?php print $widget->name; ?></h3>
-                <div class='ww-box-toggle-content'>
-                    <form action='edit.php?post_type=widget&page=clone&ww_action=insert&noheader=true' method='post'>
-                        <input type='hidden' name='ww-classname' value='<?php print $classname; ?>' />
-                        <input type='hidden' name='ww-keyname' value='<?php print $posted_array_key; ?>' />
-                        <?php print $new_class_form; ?>
-                        <input class='button button-primary button-large' type='submit' value='Create' />
-                    </form>
-                </div>
-            </li>
-			<?php
-			$i++;
-		}
-		?>
-        </ul>
+                ob_start();
+                $wp_widget = new $classname;
+                $wp_widget->form(array());
+                $new_class_form = ob_get_clean();
+                ?>
+                <li class="ww-box ww-box-toggle">
+                    <h3><?php print $widget->name; ?></h3>
+                    <div class='ww-box-toggle-content'>
+                        <form action='edit.php?post_type=widget&page=clone&ww_action=insert&noheader=true' method='post'>
+                            <input type='hidden' name='ww-classname' value='<?php print $classname; ?>' />
+                            <input type='hidden' name='ww-keyname' value='<?php print $posted_array_key; ?>' />
+                            <?php print $new_class_form; ?>
+                            <input class='button button-primary button-large' type='submit' value='Create' />
+                        </form>
+                    </div>
+                </li>
+                <?php
+                $i++;
+            }
+            ?>
+            </ul>
+        </div>
 		<?php
     }
 
