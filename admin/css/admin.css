@@ -1,6 +1,27 @@
 /****************************************************
+ * WP overrides
+ ****************************************************/
+
+.wrap > h2:first-child {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 12px;
+}
+.wrap > h2:first-child + .description {
+    margin: 0;
+}
+
+div.notice {
+    border-left-width: 10px;
+}
+div.notice p {
+    font-size: 1.1em;
+}
+
+/****************************************************
  * Common
  ****************************************************/
+
 .ww-danger {
     color: #a00;
     border-color: #a00;
@@ -54,11 +75,6 @@
     font: 400 20px/1 dashicons;
 }
 
-.wrap > h2:first-child {
-    border-bottom: 1px solid #bbb;
-    margin-bottom: 24px;
-}
-
 .ww-clear-gone {
     display: block;
     float: none;
@@ -84,12 +100,14 @@
     display: block;
     float: right;
 }
+
 .ww-pull-right-box-out {
     display: block !important;
     float: right;
     margin-top: 11px !important;
     margin-right: 11px !important;
 }
+
 .ww-columns:after {
     content: ".";
     visibility: hidden;
@@ -108,22 +126,27 @@
     padding: 0;
     margin: 0;
 }
+
 .ww-list-links a {
     display: block;
     padding: 6px 12px;
 }
+
 .ww-list-links a:hover {
     background: #fafafa;
 }
+
 .ww-list-links li.active a {
     background: #0074A2;
     color: #fff;
     font-weight: bold;
 }
+
 .toggle-next-content {
     cursor: pointer;
     text-decoration: underline;
 }
+
 .togglable-content {
     display: none;
 }
@@ -135,22 +158,27 @@ pre.code {
     padding: 6px;
     font-size: 0.9em;
 }
+
 .list {
     list-style: disc;
     padding-left: 16px;
 }
+
 a.anchor {
     position: relative;
     top: -50px;
 }
+
 /******************************************************
  * Corrals
  *****************************************************/
+
 #ww-corrals-sort-list {
     float: none;
     clear: both;
     padding: 12px 0;
 }
+
 /****************************************************
  * Fields
  ****************************************************/
@@ -175,11 +203,13 @@ a.anchor {
     font-family: Consolas,Monaco,monospace;
     border-top: 1px solid #eee;
 }
+
 .template-suggestions .item {
     margin: 0;
     padding: 2px 6px;
     border-bottom: 1px solid #eee;
 }
+
 .template-suggestions .found {
     background: #ffb;
 }
@@ -193,6 +223,7 @@ a.anchor {
   -moz-border-radius: 4px;
   padding: 4px;
 }
+
 .ww-widget-postid span {
   display: block;
   font-size: 22px;
@@ -201,21 +232,16 @@ a.anchor {
   background: #fff;
   padding: 4px 6px;
 }
-.ww-options-group h4 {
-  padding: 6px 12px 6px 0px;
-	margin: 0px;
-}
-.ww-override-html div label {
-  font-weight: bold;
-}
 
 /******************************************************
  * TinyMCE
  *****************************************************/
+
 .mce-widget-wrangler-tinymce-button,
 body.widget-wrangler-tinymce-button .mce-floatpanel.mce-menu.mce-fixed{
   position: absolute !important;
 }
+
 i.mce-i-widget-wrangler-button-icon {
   background: transparent url('../images/wrangler_icon.png') center center no-repeat;
 }

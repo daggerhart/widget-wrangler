@@ -39,7 +39,7 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
 	 */
     function description() {
         return array(
-            __("Here you can copy (instantiate) an existing WordPress widget into Widget Wrangler.", 'widgetwrangler'),
+            __("Here you can copy an existing WordPress widget into Widget Wrangler.", 'widgetwrangler'),
             __("Click on the title of the widget you would like to copy, fill in the widget's form according to your needs and click 'Create'. This will create an instance of the chosen widget in Widget Wrangler.", 'widgetwrangler')
         );
     }
