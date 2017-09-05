@@ -2,7 +2,7 @@
     $(document).ready(function(){
         $('#ww-corrals-sort-list').sortable({
             update: function(event,ui){
-                var all_corrals = $('#ww-corrals-sort-list').children('.ww-corral-sort-item');
+                var all_corrals = $('#ww-corrals-sort-list').children('.ww-item');
 
                 $.each(all_corrals, function(i){
                     var weight_input = $(this).children('input[type=hidden]');

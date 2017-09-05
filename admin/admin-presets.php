@@ -93,9 +93,9 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	function enqueue() {
 	    if ($this->onPage()) {
 		    wp_enqueue_style('ww-admin');
-		    wp_enqueue_style('ww-presets');
+		    wp_enqueue_style('ww-sortable');
 		    wp_enqueue_script('ww-box-toggle');
-		    WW_Admin_Sortable::init();
+		    WW_Admin_Sortable::js();
         }
     }
 
@@ -123,37 +123,39 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	/**
 	 * Update a Widget Preset
 	 */
-	function actionUpdate(){
-		if (isset($_POST['preset-id']) && isset($_POST['preset-variety']) && isset($_POST['data']) && isset($_POST['ww-data']['widgets']))
-		{
-			$submitted_widget_data = $_POST['ww-data']['widgets'];
-			$active_widgets = WidgetWranglerUtils::serializeWidgets($submitted_widget_data);
-//	    $varieties = WW_Presets::varieties();
+	function actionUpdate() {
+	    if ( empty($_POST['preset-id']) ) {
+	        return $this->error(__('Error: No preset id.'));
+        }
 
-			$preset_id = $_POST['preset-id'];
-//      $preset_variety = $_POST['preset-variety'];
-//	    $this_preset_variety = $varieties[$preset_variety];
-			$preset_data = $_POST['data'];
-			$preset_widgets = (!empty($active_widgets)) ? $active_widgets : serialize(array());
+        if ( empty($_POST['preset-variety']) ) {
+	        return $this->error(__('Error: No preset variety.'));
+        }
 
-			// update the ww_presets db
-			$data = array(
-				'data' => serialize($preset_data),
-				'widgets' => $preset_widgets,
-			);
+        if ( empty($_POST['ww-data']) || empty($_POST['ww-data']['widgets']) ) {
+	        return $this->error(__('Error: No widgets.'));
+        }
 
-			$where = array(
-				'id' => $preset_id,
-				'type' => 'preset',
-			);
+        $active_widgets = WidgetWranglerUtils::serializeWidgets($_POST['ww-data']['widgets']);
+        $preset_id = intval( $_POST['preset-id'] );
+        $preset_variety = $_POST['preset-variety'];
+        $preset_widgets = (!empty($active_widgets)) ? $active_widgets : serialize(array());
 
-			// save the widgets
-			WidgetWranglerExtras::update($data, $where);
+        // update the ww_presets db
+        $data = array(
+            'widgets' => $preset_widgets,
+        );
 
-			return $this->result(__('Preset updated.'));
-		}
+        $where = array(
+            'id' => $preset_id,
+            'type' => 'preset',
+            'variety' => $preset_variety,
+        );
 
-		return $this->error();
+        // save the widgets
+        WidgetWranglerExtras::update($data, $where);
+
+        return $this->result(__('Preset updated.'));
 	}
 
 	/**
@@ -406,7 +408,9 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 						do_action('widget_wrangler_form_top');
 						?>
                     </div>
-                    <div id='ww-post-edit-message'>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?>"</div>
+                    <div id='ww-edited-message'>
+                        <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
+                    </div>
 
                     <div>
 						<?php print $sortable->theme_sortable_corrals( $this_preset->widgets ); ?>

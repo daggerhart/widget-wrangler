@@ -3,13 +3,6 @@
 class WidgetWranglerAdminUi {
 
 	/**
-	 * Add css to admin interface.
-	 */
-	public static function css(){
-		print '<link rel="stylesheet" type="text/css" href="'.WW_PLUGIN_URL.'/admin/css/admin.css" />';
-	}
-
-	/**
 	 * Reusable admin page template
 	 *
 	 * @param array $page
@@ -92,7 +85,7 @@ class WidgetWranglerAdminUi {
 				<div class="ww-admin-top">
 
 					<?php if ($form['submit_button']['location'] == "top") { ?>
-						<p class="ww-top-right-save">
+						<p>
 							<input type="submit" <?php print $form['submit_button']['attributes']['output']; ?> />
 						</p>
 					<?php } ?>
@@ -110,7 +103,7 @@ class WidgetWranglerAdminUi {
 				<div class="ww-clear-gone">&nbsp;</div>
 
 				<?php if ($form['submit_button']['location'] == "bottom") { ?>
-					<p class="ww-top-right-save">
+					<p>
 						<input type="submit" <?php print $form['submit_button']['attributes']['output']; ?> />
 					</p>
 				<?php } ?>

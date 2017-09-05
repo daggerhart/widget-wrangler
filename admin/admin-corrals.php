@@ -62,7 +62,6 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	function enqueue() {
 		if ( $this->onPage() ){
 		    wp_enqueue_style('ww-admin');
-		    wp_enqueue_style('ww-corrals');
 			wp_enqueue_script('ww-corrals');
 			wp_enqueue_script('ww-box-toggle');
 		}
@@ -188,7 +187,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
                             </li>
 							<?php
 							// sortable list
-							$sorting_items.= "<li class='ww-corral-sort-item ww-box'>
+							$sorting_items.= "<li class='ww-box ww-item'>
                                     <h4>".$corral." (".$slug.")</h4>
                                     <input type='hidden' name='weight[".$i."]' value='".$slug."' />
                                   </li>";

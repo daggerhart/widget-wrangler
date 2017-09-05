@@ -469,12 +469,12 @@ class WW_Widget_PostType {
         <hr />
         <div>
           <h4><?php _e("Advanced Parsing", 'widgetwrangler'); ?></h4>
-          <div id="ww-advanced-field">
+          <div>
             <p>
               <label><input id="ww-adv-parse-toggle" type="checkbox" name="ww-data[ww-adv-enabled]" <?php print $fields['ww-adv-enabled']['checked']; ?> /> <?php _e("Enable Advanced Parsing", 'widgetwrangler'); ?></label>
             </p>
             <div id="ww-adv-parse-content">
-              <p id="ww-advanced-template">
+              <p>
                 <label><input id="ww-adv-template-toggle" type="checkbox" name="ww-data[ww-adv-template]" <?php print $fields['ww-adv-template']['checked']; ?> /> <?php _e("Template the Advanced Parsing Area", 'widgetwrangler'); ?></label> <em>(<?php _e("Do not use with Cloned Widgets.  Details below", 'widgetwrangler'); ?></em>
               </p>
               <div>
@@ -491,7 +491,7 @@ class WW_Widget_PostType {
           <p>
             <label><input type="checkbox" id="ww-override-html-toggle" name="ww-data[ww-override-output-html]" value="1" <?php print $fields['ww-override-output-html']['checked']; ?> /> <?php _e("Override the HTML output of this widget with the values below.  This will take precendence over theme compatibility.", 'widgetwrangler'); ?></label>
           </p>
-          <div id="ww-override-html-content" class="ww-override-html">
+          <div id="ww-override-html-content">
             <div>
               <label><?php _e("Wrapper Element", 'widgetwrangler'); ?></label>
               <p><?php $this->_make_override_element_select($fields, 'ww-html-wrapper-element'); ?></p>
@@ -598,9 +598,9 @@ class WW_Widget_PostType {
 			}
 		}
 			?>
-      <div class="adv-parse-description">
-        <div id="ww-advanced-help">
-          <div class="ww-advanced-help-description adv-parse-description">
+      <div>
+        <div>
+          <div>
             <?php
               //  only show adv parsing help on standard
               if ($this->widget_type != "clone"){ ?>

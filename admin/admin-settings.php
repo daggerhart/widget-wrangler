@@ -71,7 +71,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	function page() {
 		$sections = $this->processedSections();
 		$form = array(
-			'title' => 'Settings',
+			'title' => '',
 			'description' => '',
 			'content' => '',
 			'attributes' => array(
@@ -223,6 +223,8 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
+     * Settings field definitions.
+     *
 	 * @param array $fields
 	 *
 	 * @return array
@@ -374,13 +376,17 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 		ob_start();
 		?>
         <div>
-            <h2><?php print $section['title']; ?></h2>
-            <p><?php print $section['description']; ?></p>
+            <div class="ww-column col-75">
 			<?php
                 foreach( $section['items'] as $field) {
                     print $this->templateField($field);
                 }
 			?>
+            </div>
+            <div class="ww-column col-25">
+                <h2><?php print $section['title']; ?></h2>
+                <p><?php print $section['description']; ?></p>
+            </div>
         </div>
 		<?php
 		return ob_get_clean();
@@ -406,14 +412,14 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 				unset($post_types['widget']);
 				ksort($post_types);
 				?>
-                <div class="ww-checkboxes">
+                <div>
 					<?php
 					// loop through post types
 					foreach ($post_types as $post_type )
 					{
 						$checked = (in_array($post_type, $field['form_values']['post_types'])) ? 'checked="checked"' : '';
 						?>
-                        <label class="ww-checkbox"><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
+                        <label><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $post_type; ?>]" value="<?php print $post_type; ?>" <?php print $checked; ?> /> - <?php print ucfirst($post_type); ?> </label>
 						<?php
 					}
 					?>
@@ -429,7 +435,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 					$field['form_values']['taxonomies'] = array();
 				}
 				?>
-                <div class="ww-checkboxes">
+                <div>
 					<?php
 					// loop through taxonomies
 					foreach ($taxonomies as $tax_name => $tax ){
@@ -444,7 +450,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 
 							$checked = (in_array($tax_name, $field['form_values']['taxonomies'])) ? 'checked="checked"' : '';
 							?>
-                            <label class="ww-checkbox"><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $tax_name; ?>]" value="<?php print $tax_name; ?>" <?php print $checked; ?> /> - <?php print $tax->label; ?>
+                            <label><input type="checkbox" name="settings[<?php print $setting_key; ?>][<?php print $tax_name; ?>]" value="<?php print $tax_name; ?>" <?php print $checked; ?> /> - <?php print $tax->label; ?>
 								<?php if ($checked) { ?>- <a href="<?php print $edit_link;?>#widget-wrangler">edit widgets</a><?php } ?>
                             </label>
 							<?php
@@ -458,7 +464,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 			case 'theme_compat':
 				$checked = (!empty($field['form_values']['theme_compat'])) ? "checked='checked'" : "";
 				?>
-                <label class="ww-checkbox">
+                <label>
                     <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('If checked, widgets will include WordPress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget. -- Additionally, enabling theme compatibility provides an administration page for managing the current theme\'s registered sidebar html.', 'widgetwrangler'); ?>
                 </label>
 				<?php
@@ -467,7 +473,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 			case 'shortcode_tinymce':
 				$checked = (!empty($field['form_values']['shortcode_tinymce'])) ? "checked='checked'" : "";
 				?>
-                <label class="ww-checkbox">
+                <label>
                     <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('Enable tinyMCE shortcode button', 'widgetwrangler'); ?>
                 </label>
 				<?php
@@ -476,7 +482,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 			case 'legacy_template_suggestions':
 				$checked = (!empty($field['form_values']['legacy_template_suggestions'])) ? "checked='checked'" : "";
 				?>
-                <label class="ww-checkbox">
+                <label>
                     <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('Enable template suggestions from Widget Wrangler 1.x', 'widgetwrangler'); ?>
                 </label>
 				<?php
@@ -485,7 +491,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 			case 'override_elements_enabled':
 				$checked = (!empty($field['form_values']['override_elements_enabled'])) ? "checked='checked'" : "";
 				?>
-                <label class="ww-checkbox">
+                <label>
                     <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('Enable Overriding Widget HTML from the Post UI. Not recommended.', 'widgetwrangler'); ?>
                 </label>
 				<?php
@@ -520,7 +526,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 			case 'exclude_from_search':
 				$checked = (!empty($field['form_values']['exclude_from_search'])) ? "checked='checked'" : "";
 				?>
-                <label class="ww-checkbox">
+                <label>
                     <input name="settings[<?php print $setting_key; ?>]" type="checkbox" <?php print $checked; ?> value="1" /> - <?php _e('If checked, widgets will be excluded from search results.', 'widgetwrangler'); ?>
                 </label>
 				<?php
@@ -592,9 +598,9 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	function templateFieldWrapper($field) {
 	    ob_start();
 		?>
-        <div class="postbox">
-            <h2 class="ww-setting-title"><?php print $field['title']; ?></h2>
-            <div class="ww-setting-content">
+        <div class="ww-box">
+            <h3><?php print $field['title']; ?></h3>
+            <div>
 				<?php if (isset($field['description'])) { ?>
                     <p class="description"><?php print $field['description']; ?></p>
 				<?php } ?>

@@ -10,11 +10,6 @@ class WW_Admin_Sortable {
 		$this->all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
 	}
 
-	public static function init() {
-		add_action( 'admin_enqueue_scripts', 'WW_Admin_Sortable::js' );
-		add_action( 'admin_head', 'WidgetWranglerAdminUi::css' );
-	}
-
 	//
 	// Javascript drag and drop for sorting
 	//
@@ -28,7 +23,7 @@ class WW_Admin_Sortable {
 	            'allWidgets' => WidgetWranglerWidgets::all(),
             )
         );
-		wp_localize_script( 'ww-sortable-widgets', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
+		wp_localize_script( 'ww-sortable', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
 	}
 
 	/**
@@ -69,8 +64,9 @@ class WW_Admin_Sortable {
 					<div id="widget_wrangler_form_top">
 						<?php do_action('widget_wrangler_form_top'); ?>
 					</div>
-					<div id='ww-post-edit-message'>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?>"</div>
-
+                    <div id='ww-edited-message'>
+                        <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
+                    </div>
 					<?php
 						print $this->theme_sortable_corrals( $page_widgets );
 					?>
@@ -181,15 +177,17 @@ class WW_Admin_Sortable {
 
 		ob_start();
 		?>
-		<div id="ww-corral-<?php print $corral_slug; ?>-wrapper" class="ww-sortable-corral-wrapper">
-			<h4 class="ww-sortable-widgets-corral-title"><?php print $corral_name; ?></h4>
+		<div id="ww-corral-<?php print $corral_slug; ?>-wrapper">
+			<h3><?php print $corral_name; ?></h3>
 			<ul name='<?php print $corral_slug; ?>' id='ww-corral-<?php print $corral_slug; ?>-items' class='inner ww-sortable' width='100%'>
 				<?php
 					foreach ( $corral_widgets as $i => $widget ){
 						print $this->sortable_corral_item( $widget, $corral_slug.'-'.$i);
 					}
 				?>
-				<li class='ww-no-widgets' <?php print $no_widgets_style; ?>><?php _e("No Widgets in this corral.", 'widgetwrangler'); ?></li>
+				<li class='ww-no-widgets' <?php print $no_widgets_style; ?>>
+                    <p><?php _e("No Widgets in this corral.", 'widgetwrangler'); ?></p>
+                </li>
 			</ul>
 		</div>
 		<?php
@@ -243,8 +241,8 @@ class WW_Admin_Sortable {
 	 */
 	function add_new_widget(){
 		?>
-		<div id="ww-add-new-widget">
-			<h2><?php _e('Add Widget', 'widgetwrangler'); ?></h2>
+		<div class="">
+			<h3><?php _e('Add Widget', 'widgetwrangler'); ?></h3>
 			<div class="">
 				<select id="ww-add-new-widget-widget">
 					<option value="0">-- <?php _e('Select a Widget', 'widgetwrangler'); ?> --</option>
@@ -261,8 +259,8 @@ class WW_Admin_Sortable {
 					<?php } ?>
 				</select>
 				<span id="ww-add-new-widget-button" class="button button-large"><?php _e('Add Widget to Corral', 'widgetwrangler'); ?></span>
-			</div>
-			<p class="description"><?php _e('Select a widget you would like to add, and the corral where you would like to add it. Click the button Add Widget to Corral.', 'widgetwrangler'); ?></p>
+                <p class="description"><?php _e('Select a widget you would like to add, and the corral where you would like to add it. Click the button Add Widget to Corral.', 'widgetwrangler'); ?></p>
+            </div>
 
 			<script type="text/html" id="tmpl-add-widget">
 				<?php

@@ -29,14 +29,14 @@ class WW_Taxonomies_Admin {
 	public static function register( $settings ) {
 		$plugin = new self($settings);
 
-		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
-		add_action( 'admin_menu', array( $plugin, 'wp_admin_menu' ) );
+		add_action( 'admin_init', array( $plugin, 'init' ) );
+		add_action( 'admin_menu', array( $plugin, 'menu' ) );
 
 		return $plugin;
 	}
 
   //
-  function wp_admin_init(){
+  function init(){
     // saving widgets 
     add_action( 'edited_term', array( $this, '_taxonomy_term_form_save' ) );
     
@@ -51,9 +51,7 @@ class WW_Taxonomies_Admin {
       // see if it's enabled for ww
       if (isset($this->settings['taxonomies']) && isset($this->settings['taxonomies'][$taxonomy]))
       {
-        // add js and css
-	      WW_Admin_Sortable::init();
-          
+        add_action('admin_enqueue_scripts', array( $this, 'enqueue' ));
         // editing a term
         if (isset($_GET['action']) && isset($_GET['tag_ID'])){
           // add our sortable widgets to term edit form
@@ -66,15 +64,20 @@ class WW_Taxonomies_Admin {
       }
     }
   }
-  
+
+  function enqueue() {
+	  wp_enqueue_style('ww-admin');
+	  WW_Admin_Sortable::js();
+  }
+
   //
-  function wp_admin_menu(){
+  function menu(){
     // need a hook for saving taxonomy defaults
-    add_submenu_page(null, 'title', 'title', Widget_Wrangler_Admin::$capability, 'ww_save_taxonomy_form', array( $this, '_menu_router' ) );
+    add_submenu_page(null, 'title', 'title', Widget_Wrangler_Admin::$capability, 'ww_save_taxonomy_form', array( $this, 'route' ) );
   }
   
   //
-  function _menu_router(){
+  function route(){
     if (isset($_GET['page']) && $_GET['page'] == 'ww_save_taxonomy_form' && isset($_POST['taxonomy'])){
       $this->_save_taxonomy_form();
       wp_redirect($_SERVER['HTTP_REFERER']);
@@ -155,8 +158,9 @@ class WW_Taxonomies_Admin {
       ob_start();
         ?>
         <input type="hidden" name="taxonomy" value="<?php print $taxonomy; ?>" />
-        <div class="postbox">
-          <div class="ww-setting-content">
+        <div class="ww-box">
+            <h3><?php _e('Widgets'); ?></h3>
+          <div>
             <p>
               <label><input type="checkbox" name="override_default" <?php print $override_default_checked; ?> /> - <?php _e('Enable these widgets as the default widgets for terms in this taxonomy.', 'widgetwrangler'); ?></label>
             </p>
@@ -219,7 +223,7 @@ class WW_Taxonomies_Admin {
         <th scope="row" valign="top"><label><?php _e('Widget Wrangler', 'widgetwrangler'); ?></label><br/><em><small>(<?php _e('for this term only', 'widgetwrangler'); ?>)</small></em></th>
         <td>
           <div class="postbox">
-            <div class="ww-setting-content">
+            <div>
               <?php WW_Admin_Sortable::metaBox( $widgets ); ?>
             </div>
           </div>

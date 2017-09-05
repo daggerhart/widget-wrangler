@@ -3,7 +3,7 @@
  ****************************************************/
 .ww-danger {
     color: #a00;
-    border-bottom: 1px solid #a00;
+    border-color: #a00;
 }
 
 .ww-box {
@@ -14,12 +14,16 @@
     color: #333;
 }
 
+.ww-box .ww-box {
+    margin: 0;
+}
+
 .ww-box.description {
     border-left-width: 10px;
 }
 
 .ww-box.description p {
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .ww-box > * {
@@ -102,108 +106,36 @@
     padding: 6px 12px;
 }
 .ww-list-links a:hover {
-    background: #eee;
+    background: #fafafa;
 }
 .ww-list-links li.active a {
     background: #0074A2;
     color: #fff;
     font-weight: bold;
 }
+/******************************************************
+ * Corrals
+ *****************************************************/
+#ww-corrals-sort-list {
+    float: none;
+    clear: both;
+    padding: 12px 0;
+}
 /****************************************************
  * Fields
  ****************************************************/
-.ww-checkbox {
-	display: block;
-	font-size: 1em;
-	line-height: 2em;
-	padding-left: 1px;
-}
-.ww-checkbox input {
-	margin-top: -1px;
-}
-.ww-textarea-meta {
-	position: relative;
-}
-.ww-textarea-meta,
-.ww-textarea-meta textarea {
-	font-family: monospace;
-}
-#ww-post-edit-message {
-	visibility: hidden;
-	padding: 4px 8px;
-	margin: 6px 0px 12px;
-	background: #FFFFEE;
-	border: 2px solid #FFFF66;
-	font: italic normal 11px/22px "HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",sans-serif;
-	color: #333;
-}
 /* ---------------------- */
 
-#ww-add-new-widget h2 {
-	margin: 0;
-}
-#ww-post-preset, #ww-add-new-widget { border-bottom: 1px solid #666;padding-top: 8px; }
-#ww-post-preset p { padding-left: 20px; }
+/*#ww-post-preset { border-bottom: 1px solid #666;padding-top: 8px; }*/
+/*#ww-post-preset p { padding-left: 20px; }*/
 
-#ww-post-preset .description {
-	padding: 12px 20px;
-}
-.ww-setting-checkbox-label {
-  display: inline-block;
-  padding: 4px;
-}
-.ww-setting-checkbox-container.is-child {
-  padding-left: 24px;
-}
-.ww-preset-terms-form-taxonomy h4 {
-}
-.ww-preset-terms-form-taxonomy-checkboxes {
-  border: 1px solid #bbb;
-  padding: 4px 8px;
-  background: #eee;
-  height: 120px;
-  overflow: scroll;
-}
-#ww-add-taxonomy {
-  color: #0074A2;
-  padding-left: 32px;
-  font-size: 16px;
-}
+/*#ww-post-preset .description {*/
+	/*padding: 12px 20px;*/
+/*}*/
+
 /******************************************************
  * Widgets
  *****************************************************/
-#all-widgets {
-  font: normal 18px/20px Arial;
-}
-#all-widgets table {
-  border: 1px solid #000;
-  width: 98%;
-}
-#all-widgets table th {
-  background-color: #444;
-  color: #fff;
-  padding: 4px 6px;
-}
-#all-widgets table td {
-  font: normal 18px/20px Arial;
-  padding: 8px 12px;
-  border-bottom: 1px solid #666;
-}
-#all-widgets th.default {width: 42px; font: normal 12px serif;}
-#all-widgets td.default {width: 42px; text-align: center;}
-#all-widgets td.ewid { font-size: 14px; text-align: center; }
-#all-widgets td.title { font-weight: bold; width: 60%; }
-#all-widgets td.name { font-size: 16px;}
-#all-widgets td.edit { text-align: center;}
-
-
-#ww_admin_meta_box h3.hndle {
-  line-height: 18px;
-}
-#ww_admin_meta_box h3.hndle span img {
-  float: left;
-  margin-right: 8px;
-}
 .ww-widget-postid {
   float: right;
   text-align: center;
@@ -221,132 +153,17 @@
   background: #fff;
   padding: 4px 6px;
 }
-.ww-template-suggestions {
-}
-.ww-template-suggestion {
-	font-family: monospace;
-}
-.ww-template-suggestion.found {
-	font-weight: bold;
-}
-.ww-found-template-location {
-	font: normal 11px monospace;
-}
-#ww-advanced-field {
-  padding: 0px 0px 12px;
-}
-#ww-advanced-template {
-  padding: 4px 0px;
-}
-#ww-advanced-template .ww-adv-template-description{
-  padding: 8px 16px;
-  font-style: italic;
-}
-#ww-advanced-help {
-	margin: 16px 0px 12px 1px;
-}
-.ww-advanced-help-title {
-	border: 1px solid #bbb;
-  background: linear-gradient(to top, #FBFBFB, #FFFFFF) repeat scroll 0 0 #FFFFFF;
-	padding: 6px 12px;
-}
-.ww-advanced-help-title h4 {
-	margin: 0px;
-}
-.ww-advanced-help-description {
-	border: 1px solid #bbb;
-	background: #fff;
-	padding-bottom: 12px;
-  padding-left: 12px;
-  color: #444;
-}
-.ww-advanced-help-description h4 {
-	margin: 16px 0 6px 0;
-	border-bottom: 1px solid #bbb;
-}
-.ww-advanced-help-description ul  {
-	padding: 4px 4px 4px 24px;	
-}
-.ww-advanced-help-description ul li {
-  list-style: disc;
-  list-style-type: disc;
-  list-style-position: outside;
-  font: normal 11px Arial;
-  color: #555;
-}
 .ww-options-group h4 {
   padding: 6px 12px 6px 0px;
 	margin: 0px;
-}
-.ww-adv-template.ww-checkbox {
-	border-bottom: 1px solid #bbb;
-	margin-bottom: 12px;
-}
-#ww-preview-widget {
-	margin-top: 12px;
-	border-top: 1px solid #999;
-	padding: 12px 4px;
-}
-#ww-preview-html-toggle {
-  color: #0074A2;
-  cursor: pointer;
-}
-#ww-preview-html-content {
-  width: 100%;
-  overflow: scroll;
-  min-height: 250px;
-}
-.php-advanced-textarea {
-	width: 100%;
 }
 .ww-override-html div label {
   font-weight: bold;
 }
 
 /******************************************************
- * Settings
- *****************************************************/
-.ww-admin-top{
-  width: 95%;
-}
-.ww-top-right-save{
-  padding: 0px;
-  margin: 0px;
-  display: block;
-  float: right;
-}
-h2.ww-setting-title{
-    padding: 12px 24px;
-    margin: 0;
-  border-top: 1px solid #bbb;
-  border-bottom: 1px solid #bbb;
-}
-div.ww-setting-content {
-  padding: 6px 12px 24px;
-}
-#ww-mass-reset {
-  float: none;
-  clear: both;
-  margin-top: 64px;
-  border-top: 2px solid darkred;
-}
-.ww-settings-field label.ww-corral-checkbox {
-	display: block;
-	float: left;
-	clear: left;
-	padding: 2px 0px 6px;
-}
-.ww-settings-field label.ww-corral-checkbox input {
-	margin-top: -1px;
-}
-.ww-settings-roles {
-  padding: 8px 24px;
-}
-
-/*
  * TinyMCE
- */
-/* trouble with long lists */
+ *****************************************************/
 .mce-widget-wrangler-tinymce-button,
 body.widget-wrangler-tinymce-button .mce-floatpanel.mce-menu.mce-fixed{
   position: absolute !important;

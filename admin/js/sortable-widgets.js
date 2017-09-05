@@ -36,7 +36,7 @@ WidgetWrangler.sortable.update_widget_weights = function(){
  * Indicate changes have occured
  */
 WidgetWrangler.sortable.message = function() {
-	$('#ww-post-edit-message').css('visibility', 'visible');
+	$('#ww-edited-message').show();
 }
 
 /*
@@ -191,7 +191,7 @@ WidgetWrangler.ajax = {
   },
     
   changes_message: function(){
-    $('#ww-post-edit-message').show();
+    $('#ww-edited-message').show();
   }
 };
 
