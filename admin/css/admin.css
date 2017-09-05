@@ -113,6 +113,22 @@
     color: #fff;
     font-weight: bold;
 }
+
+.togglable-content {
+    display: none;
+}
+
+pre.code {
+    overflow-x: scroll;
+    background: #fafafa;
+    border: 1px solid #bbb;
+    padding: 6px;
+    font-size: 0.9em;
+}
+.list {
+    list-style: disc;
+    padding-left: 16px;
+}
 /******************************************************
  * Corrals
  *****************************************************/
@@ -124,18 +140,36 @@
 /****************************************************
  * Fields
  ****************************************************/
-/* ---------------------- */
 
-/*#ww-post-preset { border-bottom: 1px solid #666;padding-top: 8px; }*/
-/*#ww-post-preset p { padding-left: 20px; }*/
+.ww-field-label {}
+.ww-field-wrapper {
+    padding: 5px 0;
+}
 
-/*#ww-post-preset .description {*/
-	/*padding: 12px 20px;*/
-/*}*/
+.ww-field-type-textarea {
+    display: block;
+    margin: 12px 0 0;
+    min-height: 4em;
+    width: 100%;
+}
 
 /******************************************************
  * Widgets
  *****************************************************/
+
+.template-suggestions {
+    font-family: Consolas,Monaco,monospace;
+    border-top: 1px solid #eee;
+}
+.template-suggestions .item {
+    margin: 0;
+    padding: 2px 6px;
+    border-bottom: 1px solid #eee;
+}
+.template-suggestions .found {
+    background: #ffb;
+}
+
 .ww-widget-postid {
   float: right;
   text-align: center;

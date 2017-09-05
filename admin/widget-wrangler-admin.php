@@ -28,6 +28,8 @@ class Widget_Wrangler_Admin {
 		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminMessages.php';
 		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminUi.php';
 		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminPage.php';
+		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerForm.php';
+        include_once WW_PLUGIN_DIR.'/admin/wp-posttype-widget.php';
 
 		include_once WW_PLUGIN_DIR.'/admin/admin-clone.php';
 		include_once WW_PLUGIN_DIR.'/admin/admin-presets.php';
@@ -47,14 +49,19 @@ class Widget_Wrangler_Admin {
 	public static function register($settings) {
 		$plugin = new self($settings);
 
+		add_action( 'wp_loaded', array( $plugin, 'loaded' ) );
 		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
 
 		return $plugin;
 	}
 
+	function loaded() {
+		WW_Widget_PostType::register($this->settings);
+    }
 
     // WordPress hook 'admin_init'
     function wp_admin_init() {
+
         add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
 
         wp_register_style('ww-admin', plugins_url('css/admin.css', __FILE__), array(), WW_SCRIPT_VERSION );

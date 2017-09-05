@@ -95,7 +95,6 @@ class Widget_Wrangler {
 	  include_once WW_PLUGIN_DIR.'/common/template-wrangler.inc';
 	  include_once WW_PLUGIN_DIR.'/common/presets.php';
 	  include_once WW_PLUGIN_DIR.'/common/display.php';
-	  include_once WW_PLUGIN_DIR.'/common/wp-posttype-widget.php';
 
 	  // addons
 	  include_once WW_PLUGIN_DIR.'/common/taxonomies.php';
@@ -114,6 +113,7 @@ class Widget_Wrangler {
 	// early wp hooks
 	register_activation_hook(WW_PLUGIN_FILE, 'WidgetWranglerUpdate::install');
 	add_action( 'widgets_init', array( $plugin, 'wp_widgets_init' ) );
+	  add_action( 'init', array( $plugin, 'register_post_types' ) );
 
 	// let all plugins load before gathering addons
 	add_action( 'plugins_loaded' , array( $plugin, 'wp_plugins_loaded' ) );
@@ -153,8 +153,6 @@ class Widget_Wrangler {
     $this->display = Widget_Wrangler_Display::register( $this->settings->values );
     $this->presets = WW_Presets::register();
 
-    // init the post type
-    WW_Widget_PostType::register($this->settings->values);
 
     // initialize admin stuff
     if (is_admin()){
@@ -176,6 +174,56 @@ class Widget_Wrangler {
 			global $wp_registered_sidebars;
 			$wp_registered_sidebars = WidgetWranglerUtils::alteredSidebars();
 		}
+	}
+
+	/**
+	 *
+	 */
+	function register_post_types() {
+		$settings = $this->settings->values;
+		$capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced_capability'])) ? $settings['advanced_capability'] : "post";
+
+		$supports = array(
+			'title' => 'title',
+			'excerpt' => 'excerpt',
+			'editor' => 'editor',
+			'custom-fields' => 'custom-fields',
+			'thumbnail' => 'thumbnail'
+		);
+
+		// custom post type labels
+		$labels = array(
+			'name' => __('Widget Wrangler', 'widgetwrangler'),
+			'all_items' => __('All Widgets'),
+			'singular_name' => __('Widget', 'widgetwrangler'),
+			'add_new' => __('Add New Widget', 'widgetwrangler'),
+			'add_new_item' => __('Add New Widget', 'widgetwrangler'),
+			'edit_item' => __('Edit Widget', 'widgetwrangler'),
+			'new_item' => __('New Widget', 'widgetwrangler'),
+			'view_item' => __('View Widget', 'widgetwrangler'),
+			'search_items' => __('Search Widgets', 'widgetwrangler'),
+			'not_found' =>  __('No widgets found', 'widgetwrangler'),
+			'not_found_in_trash' => __('No widgets found in Trash', 'widgetwrangler'),
+			'parent_item_colon' => '',
+		);
+
+		// Register the post_type
+		register_post_type('widget', array(
+			'labels' => $labels,
+			'public' => true,
+			//'publicly_queryable' => true,?
+			'exclude_from_search' => (isset($settings['exclude_from_search']) && $settings['exclude_from_search'] == 0) ? false : true,
+			'show_in_menu' => true,
+			'show_ui' => true, // UI in admin panel
+			'_builtin' => false, // It's a custom post type, not built in
+			'_edit_link' => 'post.php?post=%d',
+			'capability_type' => $capability_type,
+			'hierarchical' => false,
+			'rewrite' => array("slug" => 'widget'), // Permalinks
+			'query_var' => 'widget', // This goes to the WP_Query schema
+			'supports' => $supports,
+			'menu_icon' => WW_PLUGIN_URL.'/admin/images/lasso-menu.png'
+		));
 	}
   
   /*
