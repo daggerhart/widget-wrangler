@@ -113,7 +113,10 @@
     color: #fff;
     font-weight: bold;
 }
-
+.toggle-next-content {
+    cursor: pointer;
+    text-decoration: underline;
+}
 .togglable-content {
     display: none;
 }
@@ -128,6 +131,10 @@ pre.code {
 .list {
     list-style: disc;
     padding-left: 16px;
+}
+a.anchor {
+    position: relative;
+    top: -50px;
 }
 /******************************************************
  * Corrals
