@@ -104,8 +104,8 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 		$altered_sidebars = WidgetWranglerUtils::alteredSidebars(true);
 
 		$form = new WidgetWranglerForm(array(
-			'form_style' => 'table',
-			'form_field_prefix' => 'ww-data[sidebars]',
+			'style' => 'table',
+			'field_prefix' => 'ww-data[sidebars]',
 		));
 
 		ob_start();
@@ -140,7 +140,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
                         'name' => 'before_widget',
                         'name_prefix' => "[{$slug}]",
                         'value' => htmlentities( $sidebar['before_widget'] ),
-                        'class' => array('regular-text code'),
+                        'class' => 'regular-text code',
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
@@ -148,7 +148,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
                         'name' => 'before_title',
                         'name_prefix' => "[{$slug}]",
                         'value' => htmlentities( $sidebar['before_title'] ),
-                        'class' => array('regular-text code'),
+                        'class' => 'regular-text code',
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
@@ -156,7 +156,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
                         'name' => 'after_title',
                         'name_prefix' => "[{$slug}]",
                         'value' => htmlentities( $sidebar['after_title'] ),
-                        'class' => array('regular-text code'),
+                        'class' => 'regular-text code',
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
@@ -164,7 +164,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
                         'name' => 'after_widget',
                         'name_prefix' => "[{$slug}]",
                         'value' => htmlentities( $sidebar['after_widget'] ),
-                        'class' => array('regular-text code'),
+                        'class' => 'regular-text code',
                     ));
 
                     print $form->form_close_table();

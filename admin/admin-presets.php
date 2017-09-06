@@ -271,7 +271,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
         }
 
 	    $form = new WidgetWranglerForm(array(
-            'form_field_prefix' => 'create',
+            'field_prefix' => 'create',
             'action' => 'edit.php?post_type=widget&page=presets&ww_action=create&noheader=true',
             'fields' => array(
 	            'variety' => array(
@@ -282,7 +282,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	            'save' => array(
 		            'type' => 'submit',
 		            'value' => __('Create New Preset'),
-		            'class' => array('button button-primary button-large'),
+		            'class' => 'button button-primary button-large',
 	            )
             ),
         ));
@@ -328,13 +328,13 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	 */
     function formEdit( $preset ) {
         $form = new WidgetWranglerForm(array(
-            'form_style' => 'table',
+            'style' => 'table',
             'action' => 'edit.php?post_type=widget&page=presets&ww_action=update_data&noheader=true',
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
                     'value' => __('Update'),
-                    'class' => array('ww-pull-right button button-primary button-large')
+                    'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'preset-id' => array(
                     'type' => 'hidden',
@@ -349,7 +349,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	                'title' => __('Name'),
 	                'name_prefix' => 'data',
 	                'value' => $preset->data['name'],
-                    'class' => array('regular-text'),
+                    'class' => 'regular-text',
                 ),
                 'slug' => array(
 	                'type' => 'markup',
@@ -407,13 +407,13 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
     function formDelete($preset) {
 
 	    $form = new WidgetWranglerForm(array(
-		    'form_style' => 'table',
+		    'style' => 'table',
 		    'action' => 'edit.php?post_type=widget&page=presets&ww_action=delete&noheader=true',
 		    'fields' => array(
 			    'submit' => array(
 				    'type' => 'submit',
 				    'value' => __('Delete'),
-				    'class' => array('button button-small disabled')
+				    'class' => 'button button-small disabled',
 			    ),
 			    'preset-id' => array(
 				    'type' => 'hidden',

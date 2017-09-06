@@ -280,7 +280,7 @@ class WW_Widget_PostType {
 		$values = $this->get_meta_values();
 
 		$form = new WidgetWranglerForm( array(
-			'form_field_prefix' => 'ww-data',
+			'field_prefix' => 'ww-data',
 		) );
 
 		print $form->render_field(array(
@@ -311,7 +311,7 @@ class WW_Widget_PostType {
 		$values = $this->get_meta_values();
 
 		$form = new WidgetWranglerForm( array(
-			'form_field_prefix' => 'ww-data',
+			'field_prefix' => 'ww-data',
 		) );
 
 		print $form->render_field( array(
@@ -331,7 +331,7 @@ class WW_Widget_PostType {
 			'name'  => 'ww-parse',
 			'title' => __( '' ),
 			'value' => $values['ww-parse'],
-			'class' => array('code'),
+			'class' => 'code',
 			'attributes' => array(
 				'rows' => substr_count($values['ww-parse'], "\n") + 3,
 			)
@@ -365,7 +365,7 @@ class WW_Widget_PostType {
 	{
 		$values = $this->get_meta_values();
 		$form = new WidgetWranglerForm( array(
-			'form_field_prefix' => 'ww-data',
+			'field_prefix' => 'ww-data',
 		) );
 
 		print $form->render_field( array(
@@ -379,7 +379,7 @@ class WW_Widget_PostType {
 			'name'  => 'ww-display-logic',
 			'description' => __( 'Site-wide raw PHP logic for displaying this widget' ),
 			'value' => $values['ww-display-logic'],
-			'class' => array('code'),
+			'class' => 'code',
 			'attributes' => array(
 				'rows' => substr_count($values['ww-display-logic'], "\n") + 3,
 			)
@@ -416,7 +416,7 @@ class WW_Widget_PostType {
 			$instance_form = ob_get_clean();
 
 			$form = new WidgetWranglerForm( array(
-				'form_field_prefix' => 'ww-data',
+				'field_prefix' => 'ww-data',
 			) );
 
 			print $form->render_field(array(
@@ -468,7 +468,7 @@ class WW_Widget_PostType {
 		<?php
 		$values = $this->get_meta_values();
 		$form = new WidgetWranglerForm( array(
-			'form_field_prefix' => 'ww-data',
+			'field_prefix' => 'ww-data',
 		) );
 
 		$options = $this->settings['override_elements'];
@@ -594,7 +594,7 @@ class WW_Widget_PostType {
         }
 
 		$form = new WidgetWranglerForm( array(
-			'form_field_prefix' => 'ww-data',
+			'field_prefix' => 'ww-data',
 		) );
 		print $form->render_field(array(
 			'type'  => 'text',
@@ -645,7 +645,7 @@ class WW_Widget_PostType {
 			$corrals = WidgetWranglerCorrals::all();
 
 			$form = new WidgetWranglerForm( array(
-				'form_field_prefix' => 'ww-data',
+				'field_prefix' => 'ww-data',
 			) );
 
 			print $form->render_field(array(

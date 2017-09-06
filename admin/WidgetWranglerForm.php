@@ -13,8 +13,8 @@ class WidgetWranglerForm {
 		'method' => 'POST',
 		'action' => '',
 		'attributes' => array(),
-		'form_style' => 'flat',
-		'form_field_prefix' => '',
+		'style' => 'flat',
+		'field_prefix' => '',
         'fields' => array(),
 	);
 
@@ -107,7 +107,6 @@ class WidgetWranglerForm {
 	 */
 	public $fields = array();
 
-
 	/**
 	 * WidgetWranglerForm constructor.
 	 *
@@ -171,8 +170,8 @@ class WidgetWranglerForm {
 		// default to flat style
 		$style = $this->form_styles['flat'];
 
-		if ( isset( $this->form_styles[ $this->form_args['form_style'] ] ) ){
-			$style = $this->form_styles[ $this->form_args['form_style'] ];
+		if ( isset( $this->form_styles[ $this->form_args['style'] ] ) ){
+			$style = $this->form_styles[ $this->form_args['style'] ];
 		}
 
 		return $style;
@@ -272,12 +271,13 @@ class WidgetWranglerForm {
 		$field_html = '';
 
 		// template the field
-		if ( isset( $this->field_types[ $field['type'] ] ) ){
+		if ( isset( $this->field_types[ $field['type'] ] ) && is_callable( $this->field_types[ $field['type'] ] ) ){
 			ob_start();
 			call_user_func( $this->field_types[ $field['type'] ], $field );
 			$field_html = ob_get_clean();
 		}
 
+		// do not wrap very simple fields
 		if ( empty( $field['title'] ) && empty( $field['description'] ) && empty( $field['help'] ) ) {
 			return $field_html;
 		}
@@ -312,8 +312,8 @@ class WidgetWranglerForm {
 
 		// build the field's entire form name
 		$field['form_name'] = '';
-		if ( !empty( $this->form_args['form_field_prefix'] ) ){
-			$field['form_name'].= $this->form_args['form_field_prefix'];
+		if ( !empty( $this->form_args['field_prefix'] ) ){
+			$field['form_name'].= $this->form_args['field_prefix'];
 		}
 		if ( !empty( $field['name_prefix'] ) ) {
 			$field['form_name'].= $field['name_prefix'];
@@ -542,9 +542,11 @@ class WidgetWranglerForm {
         <tr  id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
              class="ww-field-wrapper">
             <th scope="row">
-                <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
-					<?php echo $field['title']; ?>
-                </label>
+                <?php if ( !empty( $field['title'] ) ) : ?>
+                    <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
+                        <?php echo $field['title']; ?>
+                    </label>
+                <?php endif; ?>
             </th>
             <td>
 				<?php echo $field_html; ?>
@@ -586,11 +588,11 @@ class WidgetWranglerForm {
 	 * @param $field_html
 	 */
 	function field_wrapper_flat( $field, $field_html ){
-		?>
+	    ?>
         <div id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
              class="ww-field-wrapper">
 
-            <?php if ($field['label_first']) : ?>
+            <?php if ( !empty( $field['title'] ) && $field['label_first']) : ?>
                 <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
                     <?php echo $field['title']; ?>
                 </label>
@@ -602,8 +604,7 @@ class WidgetWranglerForm {
 
 			<?php echo $field_html; ?>
 
-
-		    <?php if (!$field['label_first']) : ?>
+		    <?php if ( !empty( $field['title'] ) && !$field['label_first']) : ?>
                 <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
                     <?php echo $field['title']; ?>
                 </label>

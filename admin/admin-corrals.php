@@ -74,18 +74,18 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	 */
 	function formCreate() {
 	    $form = new WidgetWranglerForm(array(
-            'form_style' => 'table',
+            'style' => 'table',
             'action' => 'edit.php?post_type=widget&page=corrals&ww_action=create&noheader=true',
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
                     'value' => __('Create Corral'),
-                    'class' => array('ww-pull-right button button-primary button-large'),
+                    'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'ww-new-corral' => array(
                     'type' => 'text',
                     'title' => __('Corral Name'),
-                    'class' => array('regular-text'),
+                    'class' => 'regular-text',
                 )
             )
         ));
@@ -137,7 +137,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
                 'submit' => array(
                     'type' => 'submit',
                     'value' => __('Save order'),
-                    'class' => array('ww-pull-right button button-primary button-large'),
+                    'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'items' => array(
                     'type' => 'markup',
@@ -174,30 +174,30 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	 */
     function formUpdate($name, $slug) {
 	    $form = new WidgetWranglerForm(array(
-            'form_style' => 'table',
+            'style' => 'table',
 		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=update&noheader=true',
             'fields' => array(
                 'ww-update-submit' => array(
 	                'type' => 'submit',
 	                'value' => __('Update'),
-	                'class' => array('ww-pull-right button button-primary button-large')
+	                'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'ww-update-old-slug' => array(
 	                'type' => 'hidden',
 	                'value' => $slug,
-	                'class' => array('ww-pull-right button button-primary button-large')
+	                'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'ww-update-corral' => array(
 	                'type' => 'text',
 	                'title' => __('Name'),
 	                'value' => $name,
-	                'class' => array('regular-text')
+	                'class' => 'regular-text',
                 ),
                 'ww-update-slug' => array(
 	                'type' => 'text',
 	                'title' => __('Slug'),
 	                'value' => $slug,
-	                'class' => array('regular-text disabled')
+	                'class' => 'regular-text disabled',
                 )
             ),
 	    ));
@@ -244,7 +244,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
                 'ww-delete-submit' => array(
 	                'type' => 'submit',
 	                'value' => __('Delete'),
-	                'class' => array('disabled button button-small'),
+	                'class' => 'disabled button button-small',
                 )
             ),
 	    ));
