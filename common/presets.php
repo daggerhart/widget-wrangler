@@ -183,7 +183,7 @@ class WW_Presets {
       
       if ($found_widgets){
         $widgets = $found_widgets;
-        $this->current_preset_id = $preset->id;
+        self::$current_preset_id = $preset->id;
       }
     }
     return $widgets;

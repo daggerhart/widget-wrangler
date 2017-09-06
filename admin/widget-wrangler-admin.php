@@ -102,18 +102,18 @@ class Widget_Wrangler_Admin {
             foreach($this->settings['post_types'] as $enabled_post_type){
                 add_meta_box('ww_admin_meta_box',
                     '<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />' . __('Widget Wrangler'),
-                    'WW_Admin_Sortable::metaBox',
+                    'WW_Admin_Sortable::postMetaBox',
                     $enabled_post_type,
                     'normal',
                     'high');
 
                 // Add some CSS to the admin header on the widget wrangler pages, and edit pages
                 if (WidgetWranglerUtils::editingEnabledPostType()){
-                    WW_Admin_Sortable::init();
+                    WW_Admin_Sortable::js();
                 }
 
                 if (isset($_POST['post_type']) && $_POST['post_type'] == $enabled_post_type){
-                    add_action( 'save_post', array( $this, '_save_post_widgets' ) );   // admin/sortable-widgets-metabox.inc
+                    add_action( 'save_post', array( $this, '_save_post_widgets' ) );
                 }
             }
         }

@@ -144,7 +144,7 @@ WidgetWrangler.sortable.init = function() {
 WidgetWrangler.ajax = {
 	
 	init: function() {
-		$('select#ww_post_preset').live('change' , WidgetWrangler.ajax.replace_edit_widgets);
+		$('select[name="ww-post-preset-id-new"]').live('change' , WidgetWrangler.ajax.replace_edit_widgets);
 	},
 	
 	replace_edit_widgets: function() {
@@ -160,7 +160,7 @@ WidgetWrangler.ajax = {
       var post_data_form = {
         'action': 'ww_form_ajax',
         'op': preset_ajax_op, 
-        'preset_id': $('select#ww_post_preset').val(),
+        'preset_id': $('select[name="ww-post-preset-id-new"]').val(),
         'context_id': $('input#ww_ajax_context_id').val(),
       };
       

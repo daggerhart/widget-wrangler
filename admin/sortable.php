@@ -4,7 +4,7 @@ class WW_Admin_Sortable {
 
 	private $all_widgets = array();
 
-	function __construct( $page_widgets = array() ){
+	function __construct(){
 		add_action( 'widget_wrangler_form_top', array( $this, 'add_new_widget' ) );
 
 		$this->all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
@@ -27,6 +27,15 @@ class WW_Admin_Sortable {
 	}
 
 	/**
+     * Meta box hook callback.
+     *
+	 * @param $post
+	 */
+	public static function postMetaBox( $post ) {
+	    self::metaBox();
+    }
+
+	/**
 	 * Output the sortable wrangler meta box.
 	 *
 	 * @param null $widgets
@@ -44,11 +53,11 @@ class WW_Admin_Sortable {
 	/**
 	 * Create an admin interface for wrangling widgets
 	 *
-	 * @param $page_widgets
+	 * @param $widgets
 	 *
 	 * @return string
 	 */
-	function box_wrapper( $page_widgets ){
+	function box_wrapper( $widgets ){
 		ob_start();
 		// meta_box interior
 		?>
@@ -68,7 +77,7 @@ class WW_Admin_Sortable {
                         <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
                     </div>
 					<?php
-						print $this->theme_sortable_corrals( $page_widgets );
+						print $this->theme_sortable_corrals( $widgets );
 					?>
 					<div id="widget_wrangler_form_bottom">
 						<?php do_action('widget_wrangler_form_bottom'); ?>
@@ -82,20 +91,20 @@ class WW_Admin_Sortable {
 	}
 
 	/**
-	 * @param $page_widgets
+	 * @param $widgets
 	 *
 	 * @return string
 	 */
-	function theme_sortable_corrals( $page_widgets ){
+	function theme_sortable_corrals( $widgets ){
 		$output = '';
 
 		foreach ( WidgetWranglerCorrals::all() as $corral_slug => $corral_name ){
 			// ensure an array exists
-			if ( ! isset( $page_widgets[ $corral_slug ] ) ){
-				$page_widgets[ $corral_slug ] = array();
+			if ( ! isset( $widgets[ $corral_slug ] ) ){
+				$widgets[ $corral_slug ] = array();
 			}
 
-			$corral_widgets = $this->preprocess_sortable_corral( $page_widgets[ $corral_slug ], $corral_slug );
+			$corral_widgets = $this->preprocess_sortable_corral( $widgets[ $corral_slug ], $corral_slug );
 
 			$output.= $this->sortable_corral( $corral_widgets, $corral_slug  );
 		}
