@@ -4,7 +4,8 @@ Plugin Name: Widget Wrangler
 Plugin URI: http://www.wranglerplugins.com
 Description: Widget Wrangler gives the WordPress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing WordPress widgets, and granular control over widget templates.
 Author: Jonathan Daggerhart
-Version: 2.2.4
+Version: 2.3.0
+Requires PHP: 5.3
 Author URI: http://daggerhart.com
 Text Domain: widgetwrangler
 Domain Path: /languages
@@ -23,9 +24,8 @@ License: GPL2
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-// versioning for now
-define('WW_VERSION', '2.2.4');
-define('WW_SCRIPT_VERSION', '2.2.4');
+define('WW_VERSION', '2.3.0');
+define('WW_SCRIPT_VERSION', '2.3.0');
 
 define('WW_PLUGIN_FILE', __FILE__);
 define('WW_PLUGIN_DIR', dirname(WW_PLUGIN_FILE));
@@ -34,140 +34,111 @@ define('WW_PLUGIN_URL', plugin_dir_url(WW_PLUGIN_FILE));
 // leave this in the global space so anything can use it
 $widget_wrangler = Widget_Wrangler::register();
 
-/*
- * The Widget_Wrangler object is the master of all things widget wrangler.
- *   It handles database interactions, loading addons, and execution of output.
- *   Does NOT build the output.  See Widget_Wrangler_Display (common/display.php)
- *   
+/**
+ * Class Widget_Wrangler.
+ *
  * New WordPress filters included
  *  - Widget_Wrangler_Addons
  *  - widget_wrangler_find_all_page_widgets
  *  - widget-wrangler-set-page-context
  */
 class Widget_Wrangler {
-  // addons
-  var $addons = array();
-    
-  // context for current page being viewed on front end
-  var $page_context = NULL;
 
-  // theme compatiblity is a global option
-  var $theme_compat = 0;
-  
-  // ww
-  var $settings = array();
-  var $default_settings = array(
-        'exclude_from_search' => 1,
-        'theme_compat' => 1,
-        'capabilities' => 'simple',
-        'advanced_capability' => '',
-        'post_types' => array(
-          'page' => 'page',
-          'post' => 'post',
-        ),
-        'taxonomies' => array(),
-        'override_elements' => array(
-          'div', 'h2', 'h3', 'aside', 'strong', 'span',
-        ),
-        'legacy_template_suggestions' => 0,
+	/**
+	 * List of addons
+	 *
+	 * @var array
+	 */
+    public $addons = array();
 
-        // begin the weaning of features that will be removed
-        // dead end features:  override html elements, shortcode tinymce
-        'previously_pro' => 0,
-        'override_elements_enabled' => 0,
-        'shortcode_tinymce' => 0,
-      );
+	/**
+	 * @var \WidgetWranglerSettings
+	 */
+    public $settings;
 
-  /**
-   * Construct the widget wrangler object.
-   *  - add dependencies
-   */
-  function __construct(){
-	  // core
-	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerSettings.php';
-	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerDB.php';
-	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerExtras.php';
-	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerCorrals.php';
-	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerWidgets.php';
-	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUpdate.php';
-	  include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUtils.php';
+	/**
+	 * Construct the widget wrangler object.
+	 *  - add dependencies
+	 */
+	function __construct(){
+		// core
+		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerSettings.php';
+		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerDB.php';
+		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerExtras.php';
+		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerCorrals.php';
+		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerWidgets.php';
+		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUpdate.php';
+		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUtils.php';
 
-	  include_once WW_PLUGIN_DIR.'/common/template-wrangler.inc';
-	  include_once WW_PLUGIN_DIR.'/common/presets.php';
-	  include_once WW_PLUGIN_DIR.'/common/display.php';
+		include_once WW_PLUGIN_DIR.'/common/template-wrangler.inc';
+		include_once WW_PLUGIN_DIR.'/common/presets.php';
+		include_once WW_PLUGIN_DIR.'/common/display.php';
 
-	  // addons
-	  include_once WW_PLUGIN_DIR.'/common/taxonomies.php';
-  }
+		// addons
+		include_once WW_PLUGIN_DIR.'/common/taxonomies.php';
+	}
 
-  /**
-   * Instantiate and register WP hooks
-   *
-   * @return \Widget_Wrangler
-   */
-  public static function register() {
-    $plugin = new self();
-    
-	add_action('wp_loaded', array($plugin, 'wp_loaded'), 999);
+	/**
+	 * Instantiate and register WP hooks
+	 *
+	 * @return \Widget_Wrangler
+	 */
+	public static function register() {
+		$plugin = new self();
 
-	// early wp hooks
-	register_activation_hook(WW_PLUGIN_FILE, 'WidgetWranglerUpdate::install');
-	add_action( 'widgets_init', array( $plugin, 'wp_widgets_init' ) );
-	  add_action( 'init', array( $plugin, 'register_post_types' ) );
+		add_action('wp_loaded', array($plugin, 'wp_loaded'), 999);
 
-	// let all plugins load before gathering addons
-	add_action( 'plugins_loaded' , array( $plugin, 'wp_plugins_loaded' ) );
+		// early wp hooks
+		register_activation_hook(WW_PLUGIN_FILE, 'WidgetWranglerUpdate::install');
+		add_action( 'widgets_init', array( $plugin, 'wp_widgets_init' ) );
+		add_action( 'init', array( $plugin, 'register_post_types' ) );
 
-	// singular page widget detection
-	add_filter( 'widget_wrangler_find_all_page_widgets', array( $plugin, '_find_singular_page_widgets' ), 10 );
+		// let all plugins load before gathering addons
+		add_action( 'plugins_loaded' , array( $plugin, 'wp_plugins_loaded' ) );
 
+		// singular page widget detection
+		add_filter( 'widget_wrangler_find_all_page_widgets', array( $plugin, '_find_singular_page_widgets' ), 10 );
 
-	return $plugin;
-  }
+		return $plugin;
+	}
 
-  /*
-   * WordPress hook widgets_init
-   * 
-   *  - Register the corral and widget WP_Widget(s) 
-   */
-  function wp_widgets_init(){
-    include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-corral.php';
-    include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-widget.php';
-    register_widget( 'WidgetWrangler_Corral_Widget' );
-    register_widget( 'WidgetWrangler_Widget_Widget' );
-  }
+	/**
+	 * WordPress hook widgets_init
+	 *
+	 *  - Register the corral and widget WP_Widget(s)
+	 */
+	function wp_widgets_init(){
+		include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-corral.php';
+		include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-widget.php';
+		register_widget( 'WidgetWrangler_Corral_Widget' );
+		register_widget( 'WidgetWrangler_Widget_Widget' );
+	}
 
-  /*
-   * WordPress hook plugins_loaded
-   * 
-   *  - load all Widget Wrangler Addons
-   *  - load core WW display and preset functionality
-   */
-  function wp_plugins_loaded(){
-    load_plugin_textdomain( 'widgetwrangler', FALSE, basename( WW_PLUGIN_DIR ) . '/languages/' );
+	/**
+	 * WordPress hook plugins_loaded
+	 */
+	function wp_plugins_loaded(){
+		load_plugin_textdomain( 'widgetwrangler', FALSE, basename( WW_PLUGIN_DIR ) . '/languages/' );
+
+		// initialize core
+		$this->settings = new WidgetWranglerSettings();
+		$this->addons = apply_filters( 'Widget_Wrangler_Addons', array() );
+		$this->display = Widget_Wrangler_Display::register( $this->settings->values );
+		$this->presets = WW_Presets::register();
 
 
-	// initialize core
-	  $this->settings = new WidgetWranglerSettings();
-    $this->addons = apply_filters( 'Widget_Wrangler_Addons', array() );
-    $this->display = Widget_Wrangler_Display::register( $this->settings->values );
-    $this->presets = WW_Presets::register();
+		// initialize admin stuff
+		if (is_admin()){
+			include_once WW_PLUGIN_DIR.'/admin/widget-wrangler-admin.php';
+			$this->admin = Widget_Wrangler_Admin::register($this->settings->values);
 
-
-    // initialize admin stuff
-    if (is_admin()){
-      include_once WW_PLUGIN_DIR.'/admin/widget-wrangler-admin.php';
-      $this->admin = Widget_Wrangler_Admin::register($this->settings->values);
-
-      // make sure we're updated
-      WidgetWranglerUpdate::update();
-    }
-  }
+			// make sure we're updated
+			WidgetWranglerUpdate::update();
+		}
+	}
 
 	/**
 	 * WordPress wp_loaded hook
-	 *
-	 *  - Handle altered sidebar definitions
 	 */
 	function wp_loaded(){
 		if ( !is_admin()) {
@@ -177,73 +148,66 @@ class Widget_Wrangler {
 	}
 
 	/**
-	 *
+	 * Widget Post Type
 	 */
 	function register_post_types() {
 		$settings = $this->settings->values;
 		$capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced_capability'])) ? $settings['advanced_capability'] : "post";
 
-		$supports = array(
-			'title' => 'title',
-			'excerpt' => 'excerpt',
-			'editor' => 'editor',
-			'custom-fields' => 'custom-fields',
-			'thumbnail' => 'thumbnail'
-		);
-
-		// custom post type labels
-		$labels = array(
-			'name' => __('Widget Wrangler', 'widgetwrangler'),
-			'all_items' => __('All Widgets'),
-			'singular_name' => __('Widget', 'widgetwrangler'),
-			'add_new' => __('Add New Widget', 'widgetwrangler'),
-			'add_new_item' => __('Add New Widget', 'widgetwrangler'),
-			'edit_item' => __('Edit Widget', 'widgetwrangler'),
-			'new_item' => __('New Widget', 'widgetwrangler'),
-			'view_item' => __('View Widget', 'widgetwrangler'),
-			'search_items' => __('Search Widgets', 'widgetwrangler'),
-			'not_found' =>  __('No widgets found', 'widgetwrangler'),
-			'not_found_in_trash' => __('No widgets found in Trash', 'widgetwrangler'),
-			'parent_item_colon' => '',
-		);
-
-		// Register the post_type
 		register_post_type('widget', array(
-			'labels' => $labels,
+			'labels' => array(
+				'name' => __('Widget Wrangler', 'widgetwrangler'),
+				'all_items' => __('All Widgets'),
+				'singular_name' => __('Widget', 'widgetwrangler'),
+				'add_new' => __('Add New Widget', 'widgetwrangler'),
+				'add_new_item' => __('Add New Widget', 'widgetwrangler'),
+				'edit_item' => __('Edit Widget', 'widgetwrangler'),
+				'new_item' => __('New Widget', 'widgetwrangler'),
+				'view_item' => __('View Widget', 'widgetwrangler'),
+				'search_items' => __('Search Widgets', 'widgetwrangler'),
+				'not_found' =>  __('No widgets found', 'widgetwrangler'),
+				'not_found_in_trash' => __('No widgets found in Trash', 'widgetwrangler'),
+				'parent_item_colon' => '',
+			),
+			'supports' => array(
+				'title' => 'title',
+				'excerpt' => 'excerpt',
+				'editor' => 'editor',
+				'custom-fields' => 'custom-fields',
+				'thumbnail' => 'thumbnail'
+			),
 			'public' => true,
-			//'publicly_queryable' => true,?
 			'exclude_from_search' => (isset($settings['exclude_from_search']) && $settings['exclude_from_search'] == 0) ? false : true,
 			'show_in_menu' => true,
-			'show_ui' => true, // UI in admin panel
-			'_builtin' => false, // It's a custom post type, not built in
+			'show_ui' => true,
+			'_builtin' => false,
 			'_edit_link' => 'post.php?post=%d',
 			'capability_type' => $capability_type,
 			'hierarchical' => false,
-			'rewrite' => array("slug" => 'widget'), // Permalinks
-			'query_var' => 'widget', // This goes to the WP_Query schema
-			'supports' => $supports,
+			'rewrite' => array('slug' => 'widget'),
+			'query_var' => 'widget',
 			'menu_icon' => WW_PLUGIN_URL.'/admin/images/lasso-menu.png'
 		));
 	}
-  
-  /*
-   * Detect if the current page being viewed is wrangling own widgets
-   *
-   * @param (array) - $widgets found by the system
-   *
-   * @return (array) - widgets array
-   */
-  function _find_singular_page_widgets($widgets){
-    // don't replace any widgets already found
-    if (is_null($widgets) && (is_singular() || is_admin())) {
-      global $post;
-      // single page widgets wrangling on their own
-      if (isset($post) && $widgets_string = get_post_meta($post->ID,'ww_post_widgets', TRUE)) {
-        $widgets = unserialize( $widgets_string );
-      }
-    }
-    return $widgets;
-  }
+
+	/**
+	 * Detect if the current page being viewed is wrangling own widgets
+	 *
+	 * @param array|null - $widgets found by the system
+	 *
+	 * @return array
+	 */
+	function _find_singular_page_widgets($widgets){
+		// don't replace any widgets already found
+		if (is_null($widgets) && (is_singular() || is_admin())) {
+			global $post;
+			// single page widgets wrangling on their own
+			if (isset($post) && $widgets_string = get_post_meta($post->ID,'ww_post_widgets', TRUE)) {
+				$widgets = unserialize( $widgets_string );
+			}
+		}
+		return $widgets;
+	}
 
 	/**
 	 * Returns all published widgets

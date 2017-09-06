@@ -91,7 +91,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	 */
 	function actionResetWidgets(){
 		global $wpdb;
-		$query = "DELETE FROM `".$wpdb->prefix."postmeta` WHERE `meta_key` = 'ww_post_widgets' OR `meta_key` = 'ww_post_preset_id'";
+		$query = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'ww_post_widgets' OR `meta_key` = 'ww_post_preset_id'";
 		$wpdb->query($query);
 	}
 

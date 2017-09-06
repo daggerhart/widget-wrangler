@@ -524,7 +524,7 @@ class Widget_Wrangler_Display {
     // allow slug
     if ($args['slug']){
       global $wpdb;
-      if ($id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM ".$wpdb->prefix."posts WHERE post_name = '%s' AND post_status = 'publish' LIMIT 1", $args['slug']))){
+      if ($id = $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_name = '%s' AND post_status = 'publish' LIMIT 1", $args['slug']))){
         $args['id'] = $id;
       }
     }
