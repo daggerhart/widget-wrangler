@@ -3,8 +3,9 @@
 class WidgetWranglerCorrals {
 
 	/**
+	 * All corrals in the system.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public static function all() {
 		$corrals = get_option('ww_sidebars', array());

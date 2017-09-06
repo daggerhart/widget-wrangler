@@ -148,7 +148,7 @@ WidgetWrangler.ajax = {
 	},
 	
 	replace_edit_widgets: function() {
-    var preset_ajax_op = $('input#widget_wrangler_preset_ajax_op').val();
+    var preset_ajax_op = $('input[name="widget_wrangler_preset_ajax_op"]').val();
     if (preset_ajax_op){
       // show throbber
       $('.ajax-working').show();

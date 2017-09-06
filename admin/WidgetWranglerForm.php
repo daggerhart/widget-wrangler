@@ -15,6 +15,7 @@ class WidgetWranglerForm {
 		'attributes' => array(),
 		'form_style' => 'flat',
 		'form_field_prefix' => '',
+        'fields' => array(),
 	);
 
 	/**
@@ -100,6 +101,8 @@ class WidgetWranglerForm {
 	);
 
 	/**
+     * Array of field definitions.
+     *
 	 * @var array
 	 */
 	public $fields = array();
@@ -112,6 +115,7 @@ class WidgetWranglerForm {
 	 */
 	function __construct( $form_args = array() ){
 		$this->form_args = array_replace( $this->default_form_args, $form_args );
+		$this->fields = $this->form_args['fields'];
 		$this->form_styles = $this->default_form_styles();
 		$this->field_types = $this->default_field_types();
 	}
@@ -154,6 +158,7 @@ class WidgetWranglerForm {
 			'checkboxes' => array( $this, 'template_checkboxes' ),
 			'select' => array( $this, 'template_select' ),
 			'item_list' => array( $this, 'template_item_list' ),
+            'markup' => array( $this, 'template_markup' ),
 		);
 	}
 
@@ -234,6 +239,26 @@ class WidgetWranglerForm {
 
 		return $output;
 	}
+
+	/**
+     * Render an entire form that is instantiated with fields.
+     *
+	 * @return string
+	 */
+	function render() {
+	    $output = $this->open();
+
+	    foreach( $this->fields as $name => $field ) {
+	        if ( empty($field['name']) ) {
+	            $field['name'] = $name;
+            }
+	        $output.= $this->render_field($field);
+        }
+
+        $output.= $this->close();
+
+	    return $output;
+    }
 
 	/**
 	 * Execute the filters and methods that render a field
@@ -481,7 +506,8 @@ class WidgetWranglerForm {
 	 */
 	function template_item_list( $field ){
 		?>
-        <ul class="<?php echo esc_attr( $field['class'] ); ?>">
+        <ul class="<?php echo esc_attr( $field['class'] ); ?>"
+	        <?php echo $this->attributes( $field['attributes'] ); ?>>
 			<?php
 			foreach ( $field['items'] as $item ) { ?>
                 <li><?php print $item; ?></li>
@@ -491,6 +517,15 @@ class WidgetWranglerForm {
         </ul>
 		<?php
 	}
+
+	/**
+     * Generic output.
+     *
+	 * @param $field
+	 */
+	function template_markup( $field ) {
+	    print $field['value'];
+    }
 
 
 	// **** styles ***** //

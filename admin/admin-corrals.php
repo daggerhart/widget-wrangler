@@ -49,7 +49,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	 */
 	function actions() {
         return array(
-            'insert' => array( $this, 'actionInsert' ),
+            'create' => array( $this, 'actionCreate' ),
             'delete' => array( $this, 'actionDelete' ),
             'update' => array( $this, 'actionUpdate' ),
             'sort' => array( $this, 'actionReorder' ),
@@ -68,83 +68,45 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-     * Create a new corral.
+     * Create corral form.
      *
-	 * @return array
-	 */
-	function actionInsert() {
-		if ( !empty( $_POST['ww-new-corral'] ) ) {
-			WidgetWranglerCorrals::add( $_POST['ww-new-corral'] );
-
-			return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-new-corral']));
-		}
-
-		return $this->error();
-	}
-
-	/**
-	 * Delete an existing corral.
-	 *
-	 * @return array
-	 */
-	function actionDelete() {
-		if ( !empty( $_POST['ww-delete-slug'] ) ) {
-			WidgetWranglerCorrals::remove( $_POST['ww-delete-slug'] );
-
-			return $this->result(sprintf(__('Corral "%s" deleted.'), $_POST['ww-delete-slug']));
-		}
-
-		return $this->error();
-	}
-
-	/**
-	 * Update an existing corral.
-	 *
-	 * @return array
-	 */
-	function actionUpdate() {
-		if ( isset( $_POST['ww-update-old-slug'], $_POST['ww-update-corral'], $_POST['ww-update-slug'] ) ) {
-			WidgetWranglerCorrals::update( $_POST['ww-update-old-slug'],  $_POST['ww-update-corral'], $_POST['ww-update-slug']);
-
-			return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-update-corral']));
-		}
-
-		return $this->error();
-	}
-
-	/**
-	 * Reorder the corrals.
-	 *
-	 * @return array
-	 */
-	function actionReorder() {
-		if ( isset( $_POST['weight'] ) && is_array( $_POST['weight'] ) ) {
-			WidgetWranglerCorrals::reorder($_POST['weight']);
-
-			return $this->result(__('Corrals have been reordered.'));
-		}
-
-		return $this->error();
-	}
-
-	/**
 	 * @return string
 	 */
-	function corralCreateForm() {
-	    ob_start();
-	    ?>
-        <form action='edit.php?post_type=widget&page=corrals&ww_action=insert&noheader=true' method='post'>
-            <input class=' ww-pull-right button button-primary button-large' type='submit' value='<?php _e("Create Corral", 'widgetwrangler'); ?>' />
-            <table class="form-table">
-                <tr>
-                    <th scope="row"><label for="ww-new-corral"><?php _e("Corral Name", 'widgetwrangler'); ?></label></th>
-                    <td><input class="regular-text" name='ww-new-corral' type='text' value=''></td>
-                </tr>
-            </table>
-        </form>
-        <?php
-        return ob_get_clean();
+	function formCreate() {
+	    $form = new WidgetWranglerForm(array(
+            'form_style' => 'table',
+            'action' => 'edit.php?post_type=widget&page=corrals&ww_action=create&noheader=true',
+            'fields' => array(
+                'submit' => array(
+                    'type' => 'submit',
+                    'value' => __('Create Corral'),
+                    'class' => array('ww-pull-right button button-primary button-large'),
+                ),
+                'ww-new-corral' => array(
+                    'type' => 'text',
+                    'title' => __('Corral Name'),
+                    'class' => array('regular-text'),
+                )
+            )
+        ));
+
+	    return $form->render();
     }
+
+	/**
+	 * Create a new corral.
+	 *
+	 * @return array
+	 */
+	function actionCreate() {
+		if ( empty( $_POST['ww-new-corral'] ) ) {
+			return $this->error( __('Error: No corral name given.') );
+        }
+
+        WidgetWranglerCorrals::add( $_POST['ww-new-corral'] );
+
+        return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-new-corral']));
+	}
 
 	/**
 	 * Sortable corrals form.
@@ -153,29 +115,54 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	 *
 	 * @return string
 	 */
-	function corralSortableForm($corrals) {
+	function formReorder($corrals) {
 	    ob_start();
-		?>
-        <form action='edit.php?post_type=widget&page=corrals&ww_action=sort&noheader=true' method='post'>
-            <input class='ww-pull-right button button-primary button-large' type='submit' name='ww-sidebars-save' value='<?php _e("Save Order", 'widgetwrangler'); ?>' />
-            <ul id='ww-corrals-sort-list'>
-                <?php
-                    $weight = 1;
-                    foreach( $corrals as $slug => $name) {
-                        ?>
-                        <li class='ww-box ww-item'>
-                            <h4><?php print "$name ($slug)"; ?></h4>
-                            <input type='hidden' name='weight[<?php print $weight; ?>]' value='<?php print $slug?>' />
-                        </li>
-                        <?php
-                        $weight += 1;
-                    }
+	        ?><ul id='ww-corrals-sort-list'><?php
+            $weight = 1;
+            foreach( $corrals as $slug => $name) {
                 ?>
-            </ul>
-        </form>
-		<?php
-        return ob_get_clean();
+                <li class='ww-box ww-item'>
+                    <h4><?php print "$name ($slug)"; ?></h4>
+                    <input type='hidden' name='weight[<?php print $weight; ?>]' value='<?php print $slug?>' />
+                </li>
+                <?php
+                $weight += 1;
+            }
+            ?></ul><?php
+	    $items = ob_get_clean();
+
+        $form = new WidgetWranglerForm(array(
+            'action' => 'edit.php?post_type=widget&page=corrals&ww_action=sort&noheader=true',
+            'fields' => array(
+                'submit' => array(
+                    'type' => 'submit',
+                    'value' => __('Save order'),
+                    'class' => array('ww-pull-right button button-primary button-large'),
+                ),
+                'items' => array(
+                    'type' => 'markup',
+                    'value' => $items,
+                )
+            )
+        ));
+
+        return $form->render();
     }
+
+	/**
+	 * Reorder the corrals.
+	 *
+	 * @return array
+	 */
+	function actionReorder() {
+	    if ( empty($_POST['weight']) || !is_array($_POST['weight']) ) {
+		    return $this->error();
+        }
+
+        WidgetWranglerCorrals::reorder($_POST['weight']);
+
+        return $this->result(__('Corrals have been reordered.'));
+	}
 
 	/**
      * Corral edit form.
@@ -185,73 +172,107 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
      *
      * @return string
 	 */
-    function corralEditForm($name, $slug) {
-        ob_start();
+    function formUpdate($name, $slug) {
 	    $form = new WidgetWranglerForm(array(
+            'form_style' => 'table',
 		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=update&noheader=true',
+            'fields' => array(
+                'ww-update-submit' => array(
+	                'type' => 'submit',
+	                'value' => __('Update'),
+	                'class' => array('ww-pull-right button button-primary button-large')
+                ),
+                'ww-update-old-slug' => array(
+	                'type' => 'hidden',
+	                'value' => $slug,
+	                'class' => array('ww-pull-right button button-primary button-large')
+                ),
+                'ww-update-corral' => array(
+	                'type' => 'text',
+	                'title' => __('Name'),
+	                'value' => $name,
+	                'class' => array('regular-text')
+                ),
+                'ww-update-slug' => array(
+	                'type' => 'text',
+	                'title' => __('Slug'),
+	                'value' => $slug,
+	                'class' => array('regular-text disabled')
+                )
+            ),
 	    ));
 
-	    print $form->open();
-	    print $form->render_field(array(
-		    'type' => 'submit',
-		    'name' => 'ww-update-submit',
-		    'value' => __('Update'),
-		    'class' => array('ww-pull-right button button-primary button-large')
-	    ));
-	    print $form->render_field(array(
-		    'type' => 'hidden',
-		    'name' => 'ww-update-old-slug',
-		    'value' => $slug,
-		    'class' => array('ww-pull-right button button-primary button-large')
-	    ));
-
-	    $form->form_args['form_style'] = 'table';
-	    print $form->form_open_table();
-
-	    print $form->render_field(array(
-		    'type' => 'text',
-		    'title' => __('Name'),
-		    'name' => 'ww-update-corral',
-		    'value' => $name,
-		    'class' => array('regular-text')
-	    ));
-	    print $form->render_field(array(
-		    'type' => 'text',
-		    'title' => __('Slug'),
-		    'name' => 'ww-update-slug',
-		    'value' => $slug,
-		    'class' => array('regular-text disabled')
-	    ));
-	    print $form->close();
-
-	    // Delete form
-	    $form = new WidgetWranglerForm(array(
-		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=delete&noheader=true'
-	    ));
-	    print $form->open();
-	    print $form->render_field(array(
-		    'type' => 'hidden',
-		    'name' => 'ww-delete-slug',
-		    'value' => $slug,
-	    ));
-	    print $form->render_field(array(
-		    'type' => 'submit',
-		    'name' => 'ww-delete-submit',
-		    'value' => __('Delete'),
-		    'class' => array('disabled button button-small'),
-	    ));
-	    print $form->close();
-
-	    return ob_get_clean();
+	    return $form->render();
     }
+
+	/**
+	 * Update an existing corral.
+	 *
+	 * @return array
+	 */
+	function actionUpdate() {
+	    if ( empty( $_POST['ww-update-old-slug'] ) ) {
+		    return $this->error( __('Previous corral name not found.') );
+        }
+
+	    if ( empty( $_POST['ww-update-corral'] ) ) {
+		    return $this->error( __('No new corral name found.') );
+        }
+
+	    if ( empty( $_POST['ww-update-slug'] ) ) {
+		    return $this->error( __('No corral slug found.') );
+        }
+
+        WidgetWranglerCorrals::update( $_POST['ww-update-old-slug'],  $_POST['ww-update-corral'], $_POST['ww-update-slug']);
+
+        return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-update-corral']));
+	}
+
+	/**
+	 * @param $slug
+	 *
+	 * @return string
+	 */
+    function formDelete($slug) {
+	    $form = new WidgetWranglerForm(array(
+		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=delete&noheader=true',
+            'fields' => array(
+                'ww-delete-slug' => array(
+	                'type' => 'hidden',
+	                'value' => $slug,
+                ),
+                'ww-delete-submit' => array(
+	                'type' => 'submit',
+	                'value' => __('Delete'),
+	                'class' => array('disabled button button-small'),
+                )
+            ),
+	    ));
+
+	    return $form->render();
+    }
+
+	/**
+	 * Delete an existing corral.
+	 *
+	 * @return array
+	 */
+	function actionDelete() {
+		if ( empty( $_POST['ww-delete-slug'] ) ) {
+			return $this->error( __('Corral data missing.') );
+		}
+
+        WidgetWranglerCorrals::remove( $_POST['ww-delete-slug'] );
+
+        return $this->result(sprintf(__('Corral "%s" deleted.'), $_POST['ww-delete-slug']));
+	}
 
 	/**
 	 * Build the various forms
 	 *
 	 * @see \WidgetWranglerAdminPage::page()
 	 */
-	function page()
-	{
+	function page() {
 		$corrals = WidgetWranglerCorrals::all();
 		?>
         <div class="ww-columns">
@@ -259,7 +280,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
                 <div class="ww-box">
                     <h3><?php _e("Create New Corral", 'widgetwrangler'); ?></h3>
                     <div>
-                        <?php print $this->corralCreateForm(); ?>
+                        <?php print $this->formCreate(); ?>
                     </div>
                 </div>
 
@@ -267,7 +288,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
                 <div class="ww-box">
                     <h3><?php _e("Sort Corrals", 'widgetwrangler'); ?></h3>
                     <div>
-                        <?php print $this->corralSortableForm($corrals); ?>
+                        <?php print $this->formReorder($corrals); ?>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -287,7 +308,8 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
                                 <h3><?php print $name; ?> (<?php print $slug; ?>)</h3>
                                 <div class="ww-box-toggle-content">
                                     <?php
-                                        print $this->corralEditForm($name, $slug);
+                                        print $this->formUpdate($name, $slug);
+                                        print $this->formDelete($slug);
                                     ?>
                                 </div>
                                 </li>
