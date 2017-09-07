@@ -646,13 +646,11 @@ class Form {
         <div id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
              class="ww-field-wrapper ww-box">
 
-            <?php if ( !empty( $field['title'] ) && $field['label_first']) : ?>
-                <h3>
+            <h3>
                 <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
                     <?php echo $field['title']; ?>
                 </label>
-                </h3>
-            <?php endif; ?>
+            </h3>
 
             <div>
 			<?php if ( !empty( $field['description'] ) ) : ?>
