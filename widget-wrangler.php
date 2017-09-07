@@ -45,13 +45,6 @@ $widget_wrangler = Widget_Wrangler::register();
 class Widget_Wrangler {
 
 	/**
-	 * List of addons
-	 *
-	 * @var array
-	 */
-    public $addons = array();
-
-	/**
 	 * @var \WidgetWranglerSettings
 	 */
     public $settings;
@@ -90,7 +83,7 @@ class Widget_Wrangler {
 
 		// early wp hooks
 		register_activation_hook(WW_PLUGIN_FILE, 'WidgetWranglerUpdate::install');
-		add_action( 'widgets_init', array( $plugin, 'wp_widgets_init' ) );
+		add_action( 'widgets_init', array( $plugin, 'widgets_init' ) );
 		add_action( 'init', array( $plugin, 'register_post_types' ) );
 
 		// let all plugins load before gathering addons
@@ -107,7 +100,7 @@ class Widget_Wrangler {
 	 *
 	 *  - Register the corral and widget WP_Widget(s)
 	 */
-	function wp_widgets_init(){
+	function widgets_init(){
 		include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-corral.php';
 		include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-widget.php';
 		register_widget( 'WidgetWrangler_Corral_Widget' );
@@ -122,9 +115,9 @@ class Widget_Wrangler {
 
 		// initialize core
 		$this->settings = new WidgetWranglerSettings();
-		$this->addons = apply_filters( 'Widget_Wrangler_Addons', array() );
-		$this->display = Widget_Wrangler_Display::register( $this->settings->values );
-		$this->presets = WW_Presets::register();
+		Widget_Wrangler_Display::register( $this->settings->values );
+		WW_Presets::register();
+		WW_Taxonomies::register();
 
 
 		// initialize admin stuff

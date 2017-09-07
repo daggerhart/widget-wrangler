@@ -47,18 +47,59 @@ class WW_Presets {
 		return $plugin;
 	}
 
-  
-  /*
-   * WordPress hook admin_init
-   *  Ensure default presets are installed
-   */
-  function wp_admin_init(){
-    // make sure our core presets are installed
-    if (!self::getCore('default')){
-      WidgetWranglerExtras::ensureTable();
-      $this->_install_core_presets();
-    }
-  }
+	/**
+	 * WordPress hook admin_init
+	 *  Ensure default presets are installed
+	 */
+	function wp_admin_init(){
+		// make sure our core presets are installed
+		if (!self::getCore('default')){
+			WidgetWranglerExtras::ensureTable();
+			self::installCore();
+		}
+	}
+
+	/**
+	 * Look for and insert legacy default and postpage widgets as presets
+	 */
+	public static function installCore(){
+		$data = array(
+			'type' => 'preset',
+			'variety' => 'core',
+			'extra_key' => '',
+			'data' => '',
+			'widgets' => serialize(array()),
+		);
+
+		$where = array(
+			'type' => 'preset',
+			'variety' => 'core',
+			'extra_key' => 'default',
+		);
+
+		// default widgets
+		if (!$row = WidgetWranglerExtras::get($where)) {
+			$data['extra_key'] = $where['extra_key'];
+			$data['data'] = serialize(array('name' => 'Default'));
+
+			$existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_default_widgets', array()));
+			$data['widgets'] = serialize($existing_widgets);
+
+			WidgetWranglerExtras::insert($data);
+		}
+
+		// postspage widgets
+		$where['extra_key'] = 'postspage';
+		if (!$row = WidgetWranglerExtras::get($where)) {
+			$data['extra_key'] = $where['extra_key'];
+			$data['data'] = serialize(array('name' => 'Posts Page'));
+
+			$existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_postspage_widgets', array()));
+			$data['widgets'] = serialize($existing_widgets);
+
+			WidgetWranglerExtras::insert($data);
+		}
+	}
 
 	/**
 	 * Get all Presets
@@ -139,95 +180,54 @@ class WW_Presets {
 
 		return $varieties;
 	}
-  
-  /*
-   * Handle determining the widgets for a single post using a preset
-   *
-   * @param (mixed) - array if widgets already found, null if not
-   *
-   * @return (mixed) - array if widgets found, null if not
-   */
-  function ww_find_standard_preset_widgets($widgets){
-    if (is_null($widgets) && (is_singular() || is_admin())) {
-      global $post;
-      if (isset($post) && $post_preset_id = get_post_meta($post->ID, 'ww_post_preset_id', TRUE)){
-        if ($post_preset = self::get($post_preset_id)){
-          self::$current_preset_id = $post_preset_id;
-          $widgets = $post_preset->widgets;
-        }
-      }
-    }
-    
-    return $widgets;
-  }
-  
-  /*
-   * Handle determining the widgets for non-post routes using a preset
-   *
-   * @param (mixed) - array if widgets already found, null if not
-   *
-   * @return (mixed) - array if widgets found, null if not
-   */
-  function ww_find_core_preset_widgets($widgets){
-    // only take over with core widgets if no other widgets have been found
-    if (is_null($widgets)){
-      $found_widgets = FALSE;
-      
-      if(is_home() && $preset = self::getCore('postspage')){
-        $found_widgets = $preset->widgets;
-      }
-      
-      else if ($preset = self::getCore('default')) {
-        $found_widgets = $preset->widgets;
-      }
-      
-      if ($found_widgets){
-        $widgets = $found_widgets;
-        self::$current_preset_id = $preset->id;
-      }
-    }
-    return $widgets;
-  }
 
-  /*
-   * Look for and insert legacy default and postpage widgets as presets
-   */
-  function _install_core_presets(){
-    $data = array(
-      'type' => 'preset',
-      'variety' => 'core',
-      'extra_key' => '',
-      'data' => '',
-      'widgets' => serialize(array()),
-    );
-    
-    $where = array(
-      'type' => 'preset',
-      'variety' => 'core',
-      'extra_key' => 'default',
-    );
-    
-    // default widgets
-    if (!$row = WidgetWranglerExtras::get($where)) {
-      $data['extra_key'] = $where['extra_key'];
-      $data['data'] = serialize(array('name' => 'Default'));
-      
-      $existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_default_widgets', array()));
-      $data['widgets'] = serialize($existing_widgets);
-      
-      WidgetWranglerExtras::insert($data);
-    }
-  
-    // postspage widgets
-    $where['extra_key'] = 'postspage';
-    if (!$row = WidgetWranglerExtras::get($where)) {
-      $data['extra_key'] = $where['extra_key'];
-      $data['data'] = serialize(array('name' => 'Posts Page'));
+	/**
+	 * Handle determining the widgets for a single post using a preset
+	 *
+	 * @param array|null - array if widgets previously found, null if not
+	 *
+	 * @return array|null
+	 */
+	function ww_find_standard_preset_widgets($widgets){
+		if (is_null($widgets) && (is_singular() || is_admin())) {
+			global $post;
+			if (isset($post) && $post_preset_id = get_post_meta($post->ID, 'ww_post_preset_id', TRUE)){
+				if ($post_preset = self::get($post_preset_id)){
+					self::$current_preset_id = $post_preset_id;
+					$widgets = $post_preset->widgets;
+				}
+			}
+		}
 
-      $existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_postspage_widgets', array()));
-      $data['widgets'] = serialize($existing_widgets);
-      
-      WidgetWranglerExtras::insert($data);
-    }
-  }
+		return $widgets;
+	}
+
+	/**
+	 * Handle determining the widgets for non-post routes using a preset
+	 *
+	 * @param array|null - array if widgets previously found, null if not
+	 *
+	 * @return array|null
+	 */
+	function ww_find_core_preset_widgets($widgets){
+		// only take over with core widgets if no other widgets have been found
+		if (is_null($widgets)){
+			$found_widgets = null;
+
+			if(is_home() && $preset = self::getCore('postspage')){
+				$found_widgets = $preset->widgets;
+			}
+			else if ($preset = self::getCore('default')) {
+				$found_widgets = $preset->widgets;
+			}
+
+			if ($found_widgets){
+				$widgets = $found_widgets;
+				self::$current_preset_id = $preset->id;
+			}
+		}
+
+		return $widgets;
+	}
+
 }

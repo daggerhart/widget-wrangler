@@ -33,6 +33,7 @@ class WidgetWranglerUpdate extends WidgetWranglerDb {
 		add_option('ww_settings', $settings->default_settings);
 		add_option('ww_version', WW_VERSION);
 		WidgetWranglerExtras::ensureTable();
+		WW_Presets::installCore();
 	}
 
 	/**
