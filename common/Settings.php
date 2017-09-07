@@ -52,6 +52,36 @@ class Settings {
 	 * Save the stored values to the option row
 	 */
 	function save(){
+		// clean up checkboxes
+		foreach ($this->values as $key => $value) {
+			if ( is_string( $value ) ) {
+				if ( $value == 'on' ) {
+					$value = 1;
+				}
+				else if ( $value == '0' ) {
+					$value = 0;
+				}
+
+				$this->values[ $key ] = $value;
+			}
+		}
+
+		// make override elements an array
+		if ( isset( $this->values['override_elements'] ) && is_string( $this->values['override_elements'] ) ) {
+			$this->values['override_elements'] = explode("\n", $this->values['override_elements']);
+		}
+
+		// manage simple vs advanced capability automatically
+		if ( isset( $this->values['advanced_capability'] ) ) {
+			$this->values['advanced_capability'] = sanitize_text_field( trim( $this->values['advanced_capability'] ) );
+
+			$this->values['capabilities'] = 'simple';
+
+			if ( !empty( $this->values['advanced_capability'] ) ) {
+				$this->values['capabilities'] = 'advanced';
+			}
+		}
+		
 		update_option( $this->option_name, $this->values );
 	}
 

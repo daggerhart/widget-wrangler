@@ -145,6 +145,15 @@ class AdminPage {
 	}
 
 	/**
+	 * Helper function to get the page url.
+	 *
+	 * @return string
+	 */
+	function pageUrl() {
+		return $this->parent() . '&page=' .$this->slug();
+	}
+
+	/**
 	 * Route the page navigation
 	 */
 	function route() {

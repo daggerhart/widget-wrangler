@@ -92,6 +92,7 @@ class Form {
 		'value' => '',
 		'name' => '',
 		'label_first' => TRUE,
+		'access' => TRUE,
 
 		// [top-lvl][mid-lvl][bottom-lvl]
 		'name_prefix' => '',
@@ -138,11 +139,16 @@ class Form {
 				'form_close' => array( $this, 'form_close_flat' ),
 				'field_wrapper' => array( $this, 'field_wrapper_flat' ),
 			),
+			'box' => array(
+				'form_open' => array( $this, 'form_open_flat' ),
+				'form_close' => array( $this, 'form_close_flat' ),
+				'field_wrapper' => array( $this, 'field_wrapper_box' ),
+			),
 			'table' => array(
 				'form_open' => array( $this, 'form_open_table' ),
 				'form_close' => array( $this, 'form_close_table' ),
 				'field_wrapper' => array( $this, 'field_wrapper_table' ),
-			)
+			),
 		);
 	}
 
@@ -276,6 +282,11 @@ class Form {
 	function render_field( $field ){
 		$field = $this->make_field( $field );
 		$field_html = '';
+
+		// do not render fields users do not have access to.
+		if ( !$field['access'] ) {
+		    return $field_html;
+        }
 
 		// template the field
 		if ( isset( $this->field_types[ $field['type'] ] ) && is_callable( $this->field_types[ $field['type'] ] ) ){
@@ -620,6 +631,46 @@ class Form {
 			<?php if ( !empty($field['help']) ) : ?>
                 <p class="description"><?php echo $field['help']; ?></p>
 			<?php endif; ?>
+        </div>
+		<?php
+	}
+
+	/**
+	 * Box form style
+	 *
+	 * @param $field
+	 * @param $field_html
+	 */
+	function field_wrapper_box( $field, $field_html ){
+	    ?>
+        <div id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
+             class="ww-field-wrapper ww-box">
+
+            <?php if ( !empty( $field['title'] ) && $field['label_first']) : ?>
+                <h3>
+                <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
+                    <?php echo $field['title']; ?>
+                </label>
+                </h3>
+            <?php endif; ?>
+
+            <div>
+			<?php if ( !empty( $field['description'] ) ) : ?>
+                <p class="description"><?php echo $field['description']; ?></p>
+			<?php endif; ?>
+
+			<?php echo $field_html; ?>
+
+		    <?php if ( !empty( $field['title'] ) && !$field['label_first']) : ?>
+                <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
+                    <?php echo $field['title']; ?>
+                </label>
+            <?php endif; ?>
+
+			<?php if ( !empty($field['help']) ) : ?>
+                <p class="description"><?php echo $field['help']; ?></p>
+			<?php endif; ?>
+            </div>
         </div>
 		<?php
 	}
