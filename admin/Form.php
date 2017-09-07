@@ -1,6 +1,13 @@
 <?php
 
-class WidgetWranglerForm {
+namespace WidgetWrangler;
+
+/**
+ * Class Form
+ *
+ * @package WidgetWrangler
+ */
+class Form {
     
 	/**
 	 * Necessary argument defaults for a working form

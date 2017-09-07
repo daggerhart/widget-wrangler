@@ -1,41 +1,36 @@
 <?php
-// hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_sidebars_admin_addon', 10, 2 );
 
-//
-function ww_sidebars_admin_addon($addons, $settings){
-  $addons['Sidebars'] = WW_Sidebars_Admin::register($settings);
-  return $addons;
-}
+namespace WidgetWrangler;
 
 /**
- * Class WW_Sidebars_Admin
+ * Class AdminPageSidebars
+ * @package WidgetWrangler
  */
-class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
+class AdminPageSidebars extends AdminPage {
 
 	/**
-	 * @see WidgetWranglerAdminPage::title()
+	 * @see AdminPage::title()
 	 */
 	function title() {
 		return __('Theme Sidebars');
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::menuTitle()
+	 * @see AdminPage::menuTitle()
 	 */
 	function menuTitle() {
 		return __('Sidebars');
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::slug()
+	 * @see AdminPage::slug()
 	 */
 	function slug() {
 		return 'sidebars';
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::description()
+	 * @see AdminPage::description()
 	 */
 	function description() {
 		return array(
@@ -44,7 +39,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::actions()
+	 * @see AdminPage::actions()
 	 */
 	function actions() {
 		return array(
@@ -53,7 +48,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::enqueue()
+	 * @see AdminPage::enqueue()
 	 */
 	function enqueue() {
 		if ( $this->onPage() ){
@@ -64,7 +59,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::menu()
+	 * @see AdminPage::menu()
 	 */
 	function menu() {
 		parent::menu();
@@ -97,13 +92,13 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::page()
+	 * @see AdminPage::page()
 	 */
 	function page() {
 		global $wp_registered_sidebars;
-		$altered_sidebars = WidgetWranglerUtils::alteredSidebars(true);
+		$altered_sidebars = Utils::alteredSidebars(true);
 
-		$form = new WidgetWranglerForm(array(
+		$form = new Form(array(
 			'style' => 'table',
 			'field_prefix' => 'ww-data[sidebars]',
 		));
@@ -194,6 +189,7 @@ class WW_Sidebars_Admin extends WidgetWranglerAdminPage {
 				),
 			),
 		);
-		print WidgetWranglerAdminUi::form($page);
+		print AdminUi::form($page);
 	}
+
 }

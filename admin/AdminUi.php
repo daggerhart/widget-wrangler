@@ -1,6 +1,12 @@
 <?php
 
-class WidgetWranglerAdminUi {
+namespace WidgetWrangler;
+
+/**
+ * Class AdminUi
+ * @package WidgetWrangler
+ */
+class AdminUi {
 
 	/**
 	 * Reusable admin page template
@@ -120,7 +126,7 @@ class WidgetWranglerAdminUi {
 	 * @return string
 	 */
 	public static function messages() {
-		$messages = WidgetWranglerAdminMessages::instance()->get();
+		$messages = AdminMessages::instance()->get();
 
 	    ob_start();
 		if ( !empty( $messages ) ) {

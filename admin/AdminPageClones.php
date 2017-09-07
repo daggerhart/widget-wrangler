@@ -1,41 +1,36 @@
 <?php
-// hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_clone_admin_addon', 10, 2 );
 
-//
-function ww_clone_admin_addon($addons, $settings){
-  $addons['Clone'] = WW_Clone_Admin::register($settings);
-  return $addons;
-}
+namespace WidgetWrangler;
 
 /**
- * Class WW_Clone_Admin
+ * Class AdminPageClones
+ * @package WidgetWrangler
  */
-class WW_Clone_Admin extends WidgetWranglerAdminPage {
+class AdminPageClones extends AdminPage {
 
 	/**
-	 * @see WidgetWranglerAdminPage::title()
+	 * @see AdminPage::title()
 	 */
     function title() {
         return __('Copy WordPress Widgets to Widget Wrangler');
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::menuTitle()
+	 * @see AdminPage::menuTitle()
 	 */
     function menuTitle() {
 	    return __('Copy WP Widgets');
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::slug()
+	 * @see AdminPage::slug()
 	 */
 	function slug() {
         return 'clone';
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::description()
+	 * @see AdminPage::description()
 	 */
     function description() {
         return array(
@@ -45,7 +40,7 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::actions()
+	 * @see AdminPage::actions()
 	 */
     function actions() {
         return array(
@@ -54,7 +49,7 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::enqueue()
+	 * @see AdminPage::enqueue()
 	 */
 	function enqueue() {
 		if ( $this->onPage() ){
@@ -66,7 +61,7 @@ class WW_Clone_Admin extends WidgetWranglerAdminPage {
 	/**
 	 * Display widgets available for cloning.
 	 *
-	 * @see \WidgetWranglerAdminPage::page()
+	 * @see \AdminPage::page()
 	 */
 	function page() {
 		global $wp_widget_factory;

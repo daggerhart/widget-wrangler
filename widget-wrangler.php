@@ -34,20 +34,42 @@ define('WW_PLUGIN_URL', plugin_dir_url(WW_PLUGIN_FILE));
 // leave this in the global space so anything can use it
 $widget_wrangler = Widget_Wrangler::register();
 
+use WidgetWrangler\Admin;
+use WidgetWrangler\Display;
+use WidgetWrangler\Presets;
+use WidgetWrangler\Settings;
+use WidgetWrangler\Taxonomies;
+use WidgetWrangler\Updates;
+use WidgetWrangler\Utils;
+use WidgetWrangler\Widgets;
+
 /**
  * Class Widget_Wrangler.
  *
  * New WordPress filters included
- *  - Widget_Wrangler_Addons
  *  - widget_wrangler_find_all_page_widgets
  *  - widget-wrangler-set-page-context
+ *  - widget-wrangler-display-widget-output-alter
+ *  - widget-wrangler-display-corral-output-alter
+ *
+actions
+- widget_wrangler_form_meta  (doesn't get replaced on ajax)
+- widget_wrangler_form_top
+- widget_wrangler_form_bottom
  */
 class Widget_Wrangler {
 
 	/**
-	 * @var \WidgetWranglerSettings
+	 * @var \WidgetWrangler\Settings
 	 */
     public $settings;
+
+	/**
+	 * Store an instance of the Display object for global functions.
+	 *
+	 * @var \WidgetWrangler\Display
+	 */
+    public $display;
 
 	/**
 	 * Construct the widget wrangler object.
@@ -55,20 +77,19 @@ class Widget_Wrangler {
 	 */
 	function __construct(){
 		// core
-		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerSettings.php';
-		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerDB.php';
-		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerExtras.php';
-		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerCorrals.php';
-		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerWidgets.php';
-		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUpdate.php';
-		include_once WW_PLUGIN_DIR.'/common/WidgetWranglerUtils.php';
+		include_once WW_PLUGIN_DIR.'/common/Corrals.php';
+		include_once WW_PLUGIN_DIR.'/common/Db.php';
+		include_once WW_PLUGIN_DIR.'/common/Display.php';
+		include_once WW_PLUGIN_DIR.'/common/Extras.php';
+		include_once WW_PLUGIN_DIR.'/common/Presets.php';
+		include_once WW_PLUGIN_DIR.'/common/Settings.php';
+		include_once WW_PLUGIN_DIR.'/common/Taxonomies.php';
+		include_once WW_PLUGIN_DIR.'/common/Updates.php';
+		include_once WW_PLUGIN_DIR.'/common/Utils.php';
+		include_once WW_PLUGIN_DIR.'/common/Widgets.php';
 
 		include_once WW_PLUGIN_DIR.'/common/template-wrangler.inc';
-		include_once WW_PLUGIN_DIR.'/common/presets.php';
-		include_once WW_PLUGIN_DIR.'/common/display.php';
 
-		// addons
-		include_once WW_PLUGIN_DIR.'/common/taxonomies.php';
 	}
 
 	/**
@@ -114,19 +135,19 @@ class Widget_Wrangler {
 		load_plugin_textdomain( 'widgetwrangler', FALSE, basename( WW_PLUGIN_DIR ) . '/languages/' );
 
 		// initialize core
-		$this->settings = new WidgetWranglerSettings();
-		Widget_Wrangler_Display::register( $this->settings->values );
-		WW_Presets::register();
-		WW_Taxonomies::register();
+		$this->settings = new Settings();
+		$this->display = Display::register( $this->settings->values );
+		Presets::register();
+		Taxonomies::register();
 
 
 		// initialize admin stuff
 		if (is_admin()){
-			include_once WW_PLUGIN_DIR.'/admin/widget-wrangler-admin.php';
-			$this->admin = Widget_Wrangler_Admin::register($this->settings->values);
+			include_once WW_PLUGIN_DIR.'/admin/Admin.php';
+			Admin::register($this->settings->values);
 
 			// make sure we're updated
-			WidgetWranglerUpdate::update();
+			Updates::update();
 		}
 	}
 
@@ -136,7 +157,7 @@ class Widget_Wrangler {
 	function wp_loaded(){
 		if ( !is_admin()) {
 			global $wp_registered_sidebars;
-			$wp_registered_sidebars = WidgetWranglerUtils::alteredSidebars();
+			$wp_registered_sidebars = Utils::alteredSidebars();
 		}
 	}
 
@@ -208,15 +229,15 @@ class Widget_Wrangler {
 	 * @see \WidgetWranglerWidgets::all()
 	 */
 	function get_all_widgets($post_status = array('publish')) {
-		return WidgetWranglerWidgets::all($post_status);
+		return Widgets::all($post_status);
 	}
 
 	/**
 	 * Retrieve and return a single widget by its ID
 	 * @deprecated
-	 * @see WidgetWranglerWidgets::get()
+	 * @see Widgets::get()
 	 */
 	function get_single_widget($post_id, $widget_status = false) {
-		return WidgetWranglerWidgets::get($post_id, $widget_status);
+		return Widgets::get($post_id, $widget_status);
 	}
 }

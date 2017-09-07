@@ -1,42 +1,36 @@
 <?php
-// hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_settings_admin_addon', 10, 2 );
-
-//
-function ww_settings_admin_addon($addons, $settings){
-  $addons['Settings'] = WW_Settings_Admin::register($settings);
-  return $addons;
-}
+namespace WidgetWrangler;
 
 /**
- * Class WW_Settings_Admin
+ * Class AdminPageSettings
+ * @package WidgetWrangler
  */
-class WW_Settings_Admin extends WidgetWranglerAdminPage {
+class AdminPageSettings extends AdminPage {
 	public $urlbase = 'edit.php?post_type=widget&page=settings';
 
 	/**
-	 * @see WidgetWranglerAdminPage::title()
+	 * @see AdminPage::title()
 	 */
 	function title() {
 		return __('Settings');
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::menuTitle()
+	 * @see AdminPage::menuTitle()
 	 */
 	function menuTitle() {
 		return __('Settings');
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::slug()
+	 * @see AdminPage::slug()
 	 */
 	function slug() {
 		return 'settings';
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::description()
+	 * @see AdminPage::description()
 	 */
 	function description() {
 		return array(
@@ -45,7 +39,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::actions()
+	 * @see AdminPage::actions()
 	 */
 	function actions() {
 		return array(
@@ -57,7 +51,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::enqueue()
+	 * @see AdminPage::enqueue()
 	 */
 	function enqueue() {
 		if ( $this->onPage() ){
@@ -66,7 +60,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see \WidgetWranglerAdminPage::page()
+	 * @see \AdminPage::page()
 	 */
 	function page() {
 		$sections = $this->processedSections();
@@ -81,7 +75,7 @@ class WW_Settings_Admin extends WidgetWranglerAdminPage {
 		$form['content'] .= $this->templateSection($sections['settings']);
 		$form['content'] .= $this->templateSection($sections['widget']);
 
-		print WidgetWranglerAdminUi::form($form);
+		print AdminUi::form($form);
 		print $this->templateSection($sections['tools']);
 		//var_dump($this->settings);
     }

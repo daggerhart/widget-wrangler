@@ -1,66 +1,76 @@
 <?php
-/*
- * Widget Wrangler Admin Panel and related functions
- *
 
-filters
-  - Widget_Wrangler_Admin_Addons
-
-actions
-  - widget_wrangler_form_meta  (doesn't get replaced on ajax)
-  - widget_wrangler_form_top
-  - widget_wrangler_form_bottom
-  
-*/
+namespace WidgetWrangler;
 
 /**
- * Class Widget_Wrangler_Admin
+ * Class Admin
+ * @package WidgetWrangler
  */
-class Widget_Wrangler_Admin {
-	public $addons = array();
-	public static $page_slug = 'edit.php?post_type=widget';
-	public static $capability = 'manage_options';
-
+class Admin {
+	/**
+	 * @var array
+	 */
 	public $settings = array();
 
+	/**
+	 * Admin constructor.
+	 *
+	 * @param $settings
+	 */
 	function __construct($settings){
 
-		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminMessages.php';
-		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminUi.php';
-		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerAdminPage.php';
-		include_once WW_PLUGIN_DIR.'/admin/WidgetWranglerForm.php';
-        include_once WW_PLUGIN_DIR.'/admin/wp-posttype-widget.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminMessages.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminUi.php';
+		include_once WW_PLUGIN_DIR.'/admin/Form.php';
 
-		include_once WW_PLUGIN_DIR.'/admin/admin-clone.php';
-		include_once WW_PLUGIN_DIR.'/admin/admin-presets.php';
-		include_once WW_PLUGIN_DIR.'/admin/admin-corrals.php';
-		include_once WW_PLUGIN_DIR.'/admin/admin-sidebars.php';
-		include_once WW_PLUGIN_DIR.'/admin/admin-settings.php';
-		include_once WW_PLUGIN_DIR.'/admin/admin-shortcode-tinymce.php';
-		include_once WW_PLUGIN_DIR.'/admin/admin-taxonomies.php';
-		include_once WW_PLUGIN_DIR.'/admin/sortable.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminPage.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminPageClones.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminPageCorrals.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminPagePresets.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminPageSettings.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminPageSidebars.php';
+
+		include_once WW_PLUGIN_DIR.'/admin/SortableWidgetsUi.php';
+		include_once WW_PLUGIN_DIR.'/admin/TaxonomiesUi.php';
+		include_once WW_PLUGIN_DIR.'/admin/TinymceShortcode.php';
+		include_once WW_PLUGIN_DIR.'/admin/WidgetPostType.php';
 
 		$this->settings = $settings;
-
-		// get all our admin addons
-		$this->addons = apply_filters( 'Widget_Wrangler_Admin_Addons', array(), $this->settings );
 	}
 
+	/**
+	 * @param $settings
+	 *
+	 * @return \WidgetWrangler\Admin
+	 */
 	public static function register($settings) {
 		$plugin = new self($settings);
 
 		add_action( 'wp_loaded', array( $plugin, 'loaded' ) );
-		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
+		add_action( 'admin_init', array( $plugin, 'admin_init' ) );
+
+		AdminPageClones::register($settings);
+		AdminPageCorrals::register($settings);
+		AdminPagePresets::register($settings);
+		AdminPageSettings::register($settings);
+		AdminPageSidebars::register($settings);
+		TaxonomiesUi::register($settings);
 
 		return $plugin;
 	}
 
+	/**
+	 * WP hook wp_loaded
+	 */
 	function loaded() {
-		WW_Widget_PostType::register($this->settings);
+		TinymceShortcode::register($this->settings);
+		WidgetPostType::register($this->settings);
     }
 
-    // WordPress hook 'admin_init'
-    function wp_admin_init() {
+	/**
+	 * WP hook admin_init
+	 */
+    function admin_init() {
 
         add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
 
@@ -108,8 +118,8 @@ class Widget_Wrangler_Admin {
                     'high');
 
                 // Add some CSS to the admin header on the widget wrangler pages, and edit pages
-                if (WidgetWranglerUtils::editingEnabledPostType()){
-                    WW_Admin_Sortable::js();
+                if (Utils::editingEnabledPostType()){
+                    SortableWidgetsUi::js();
                 }
 
                 if (isset($_POST['post_type']) && $_POST['post_type'] == $enabled_post_type){
@@ -127,7 +137,7 @@ class Widget_Wrangler_Admin {
   function ww_form_meta(){
     // add the post_id hidden input when editing an enabled post
     // for ajax handling
-    if (WidgetWranglerUtils::editingEnabledPostType())
+    if (Utils::editingEnabledPostType())
     { ?>
       <input value="<?php print get_the_ID(); ?>" type="hidden" id="ww_ajax_context_id" />
       <?php
@@ -167,7 +177,7 @@ class Widget_Wrangler_Admin {
 
     // OK, we're authenticated:
     // we need to find and save the data
-    $widgets = WidgetWranglerUtils::serializeWidgets($_POST['ww-data']['widgets']);
+    $widgets = Utils::serializeWidgets($_POST['ww-data']['widgets']);
 
     // allow other plugins to modify the widgets or save other things
     $widgets = apply_filters('widget_wrangler_save_widgets_alter', $widgets);
@@ -176,7 +186,7 @@ class Widget_Wrangler_Admin {
 		  update_post_meta( $post_id, 'ww_post_widgets', $widgets);
 	  }
     
-    $new_preset_id = WW_Presets::$new_preset_id;
+    $new_preset_id = Presets::$new_preset_id;
     
     if ($new_preset_id !== FALSE){
       update_post_meta( $post_id, 'ww_post_preset_id', (int) $new_preset_id);

@@ -1,6 +1,12 @@
 <?php
 
-class WidgetWranglerUpdate extends WidgetWranglerDb {
+namespace WidgetWrangler;
+
+/**
+ * Class Update
+ * @package WidgetWrangler
+ */
+class Updates extends Db {
 
 	/**
 	 * Check for updates and perform as necessary
@@ -29,11 +35,11 @@ class WidgetWranglerUpdate extends WidgetWranglerDb {
 	 * Installation.
 	 */
 	public static function install() {
-		$settings = new WidgetWranglerSettings();
+		$settings = new Settings();
 		add_option('ww_settings', $settings->default_settings);
 		add_option('ww_version', WW_VERSION);
-		WidgetWranglerExtras::ensureTable();
-		WW_Presets::installCore();
+		Extras::ensureTable();
+		Presets::installCore();
 	}
 
 	/**
@@ -63,7 +69,7 @@ class WidgetWranglerUpdate extends WidgetWranglerDb {
 			}
 		}
 
-		$settings = new WidgetWranglerSettings();
+		$settings = new Settings();
 
 		// add new default settings
 		foreach ( $settings->default_settings as $key => $value ) {
@@ -96,7 +102,7 @@ class WidgetWranglerUpdate extends WidgetWranglerDb {
 	protected static function update2001() {
 		// only modifications are for versions that used to be PRO
 		if ( self::previouslyPro() ){
-			$settings = new WidgetWranglerSettings();
+			$settings = new Settings();
 
 			// this site used to be a paid-for WW Pro version
 			$settings->previously_pro = 1;
@@ -109,4 +115,5 @@ class WidgetWranglerUpdate extends WidgetWranglerDb {
 
 		delete_option('ww_pro_license_status');
 	}
+
 }

@@ -1,7 +1,12 @@
 <?php
 
-class WidgetWranglerWidgets extends WidgetWranglerDb {
+namespace WidgetWrangler;
 
+/**
+ * Class WidgetWranglerWidgets
+ * @package WidgetWrangler
+ */
+class Widgets extends Db {
 
 	/**
 	 * Returns all published widgets

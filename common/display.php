@@ -1,16 +1,17 @@
 <?php
 
-/*
- * The Widget_Wrangler_Display object handles output of
+namespace WidgetWrangler;
+
+/**
+ * Class Display
+ * @package WidgetWrangler
+ *
+ * The Display object handles output of
  *  - corrals
  *  - widgets
  *  - shortcodes
- *
- * New Wordpress filters included 
- *  - widget-wrangler-display-widget-output-alter
- *  - widget-wrangler-display-corral-output-alter
  */
-class Widget_Wrangler_Display {
+class Display {
 
 	public $settings = array();
   

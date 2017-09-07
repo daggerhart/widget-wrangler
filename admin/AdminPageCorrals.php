@@ -1,41 +1,35 @@
 <?php
-// hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_corrals_admin_addon', 10, 2   );
-
-//
-function ww_corrals_admin_addon($addons, $settings){
-  $addons['Corrals'] = WW_Corrals_Admin::register($settings);
-  return $addons;
-}
+namespace WidgetWrangler;
 
 /**
- * Class WW_Corrals_Admin
+ * Class AdminPageCorrals
+ * @package WidgetWrangler
  */
-class WW_Corrals_Admin extends WidgetWranglerAdminPage {
+class AdminPageCorrals extends AdminPage {
 
 	/**
-	 * @see WidgetWranglerAdminPage::title()
+	 * @see AdminPage::title()
 	 */
     function title() {
         return __('Widget Corrals');
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::menuTitle()
+	 * @see AdminPage::menuTitle()
 	 */
     function menuTitle() {
 	    return __('Corrals');
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::slug()
+	 * @see AdminPage::slug()
 	 */
     function slug() {
         return 'corrals';
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::description()
+	 * @see AdminPage::description()
 	 */
 	function description() {
 		return array(
@@ -45,7 +39,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::actions()
+	 * @see AdminPage::actions()
 	 */
 	function actions() {
         return array(
@@ -57,7 +51,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
     }
 
 	/**
-	 * @see WidgetWranglerAdminPage::enqueue()
+	 * @see AdminPage::enqueue()
 	 */
 	function enqueue() {
 		if ( $this->onPage() ){
@@ -73,7 +67,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	 * @return string
 	 */
 	function formCreate() {
-	    $form = new WidgetWranglerForm(array(
+	    $form = new Form(array(
             'style' => 'table',
             'action' => 'edit.php?post_type=widget&page=corrals&ww_action=create&noheader=true',
             'fields' => array(
@@ -103,7 +97,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 			return $this->error( __('Error: No corral name given.') );
         }
 
-        WidgetWranglerCorrals::add( $_POST['ww-new-corral'] );
+        Corrals::add( $_POST['ww-new-corral'] );
 
         return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-new-corral']));
 	}
@@ -131,7 +125,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
             ?></ul><?php
 	    $items = ob_get_clean();
 
-        $form = new WidgetWranglerForm(array(
+        $form = new Form(array(
             'action' => 'edit.php?post_type=widget&page=corrals&ww_action=sort&noheader=true',
             'fields' => array(
                 'submit' => array(
@@ -159,7 +153,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 		    return $this->error();
         }
 
-        WidgetWranglerCorrals::reorder($_POST['weight']);
+        Corrals::reorder($_POST['weight']);
 
         return $this->result(__('Corrals have been reordered.'));
 	}
@@ -173,7 +167,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
      * @return string
 	 */
     function formUpdate($name, $slug) {
-	    $form = new WidgetWranglerForm(array(
+	    $form = new Form(array(
             'style' => 'table',
 		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=update&noheader=true',
             'fields' => array(
@@ -223,7 +217,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 		    return $this->error( __('No corral slug found.') );
         }
 
-        WidgetWranglerCorrals::update( $_POST['ww-update-old-slug'],  $_POST['ww-update-corral'], $_POST['ww-update-slug']);
+        Corrals::update( $_POST['ww-update-old-slug'],  $_POST['ww-update-corral'], $_POST['ww-update-slug']);
 
         return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-update-corral']));
 	}
@@ -234,7 +228,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	 * @return string
 	 */
     function formDelete($slug) {
-	    $form = new WidgetWranglerForm(array(
+	    $form = new Form(array(
 		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=delete&noheader=true',
             'fields' => array(
                 'ww-delete-slug' => array(
@@ -262,7 +256,7 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 			return $this->error( __('Corral data missing.') );
 		}
 
-        WidgetWranglerCorrals::remove( $_POST['ww-delete-slug'] );
+        Corrals::remove( $_POST['ww-delete-slug'] );
 
         return $this->result(sprintf(__('Corral "%s" deleted.'), $_POST['ww-delete-slug']));
 	}
@@ -270,10 +264,10 @@ class WW_Corrals_Admin extends WidgetWranglerAdminPage {
 	/**
 	 * Build the various forms
 	 *
-	 * @see \WidgetWranglerAdminPage::page()
+	 * @see \AdminPage::page()
 	 */
 	function page() {
-		$corrals = WidgetWranglerCorrals::all();
+		$corrals = Corrals::all();
 		?>
         <div class="ww-columns">
             <div class="ww-column">

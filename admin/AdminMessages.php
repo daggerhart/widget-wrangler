@@ -1,9 +1,12 @@
 <?php
 
+namespace WidgetWrangler;
+
 /**
- * Class WidgetWranglerAdminMessages
+ * Class AdminMessages
+ * @package WidgetWrangler
  */
-class WidgetWranglerAdminMessages {
+class AdminMessages {
 
 	/**
 	 * Where messages are stored in the options table.
@@ -20,7 +23,7 @@ class WidgetWranglerAdminMessages {
 	public $messages = array();
 
 	/**
-	 * Private WidgetWranglerAdminMessages constructor.
+	 * Private AdminMessages constructor.
 	 */
 	private function __construct() {
 		$this->messages = get_option($this->option_name, array());
@@ -29,7 +32,7 @@ class WidgetWranglerAdminMessages {
 	/**
 	 * Singleton.
 	 *
-	 * @return null|\WidgetWranglerAdminMessages
+	 * @return AdminMessages
 	 */
 	public static function instance() {
 		static $instance = null;

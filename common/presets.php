@@ -1,6 +1,8 @@
 <?php
 
-/*
+namespace WidgetWrangler;
+
+/**
  * Presets are a mechanism for using pre-configured groups of widgets throughout
  *  a WordPress site.
  *
@@ -9,7 +11,7 @@
  * New WordPress filters
  *  - widget_wrangler_preset_varieties
  */
-class WW_Presets {
+class Presets {
 
 	/**
 	 * Preset found for this page context
@@ -28,7 +30,7 @@ class WW_Presets {
 	/**
 	 * Register hooks
 	 *
-	 * @return \WW_Presets
+	 * @return Presets
 	 */
 	public static function register() {
 		$plugin = new self();
@@ -54,7 +56,7 @@ class WW_Presets {
 	function wp_admin_init(){
 		// make sure our core presets are installed
 		if (!self::getCore('default')){
-			WidgetWranglerExtras::ensureTable();
+			Extras::ensureTable();
 			self::installCore();
 		}
 	}
@@ -78,26 +80,26 @@ class WW_Presets {
 		);
 
 		// default widgets
-		if (!$row = WidgetWranglerExtras::get($where)) {
+		if (!$row = Extras::get($where)) {
 			$data['extra_key'] = $where['extra_key'];
 			$data['data'] = serialize(array('name' => 'Default'));
 
-			$existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_default_widgets', array()));
+			$existing_widgets = Utils::unserializeWidgets(get_option('ww_default_widgets', array()));
 			$data['widgets'] = serialize($existing_widgets);
 
-			WidgetWranglerExtras::insert($data);
+			Extras::insert($data);
 		}
 
 		// postspage widgets
 		$where['extra_key'] = 'postspage';
-		if (!$row = WidgetWranglerExtras::get($where)) {
+		if (!$row = Extras::get($where)) {
 			$data['extra_key'] = $where['extra_key'];
 			$data['data'] = serialize(array('name' => 'Posts Page'));
 
-			$existing_widgets = WidgetWranglerUtils::unserializeWidgets(get_option('ww_postspage_widgets', array()));
+			$existing_widgets = Utils::unserializeWidgets(get_option('ww_postspage_widgets', array()));
 			$data['widgets'] = serialize($existing_widgets);
 
-			WidgetWranglerExtras::insert($data);
+			Extras::insert($data);
 		}
 	}
 
@@ -110,7 +112,7 @@ class WW_Presets {
 		$where = array(
 			'type' => 'preset',
 		);
-		return WidgetWranglerExtras::get($where, 'all');
+		return Extras::get($where, 'all');
 	}
 
 	/**
@@ -126,7 +128,7 @@ class WW_Presets {
 			'type' => 'preset',
 		);
 
-		return WidgetWranglerExtras::get($where);
+		return Extras::get($where);
 	}
 
 	/**
@@ -143,7 +145,7 @@ class WW_Presets {
 			'extra_key' => $preset_key,
 		);
 
-		return WidgetWranglerExtras::get($where);
+		return Extras::get($where);
 	}
 
 	/**

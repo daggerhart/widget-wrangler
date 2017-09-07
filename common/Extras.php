@@ -1,6 +1,12 @@
 <?php
 
-class WidgetWranglerExtras extends WidgetWranglerDb {
+namespace WidgetWrangler;
+
+/**
+ * Class WidgetWranglerExtras
+ * @package WidgetWrangler
+ */
+class Extras extends Db {
 
 	/**
 	 * Make sure the ww_extras table exists

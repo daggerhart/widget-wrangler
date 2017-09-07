@@ -1,7 +1,12 @@
 <?php
 
-class WidgetWranglerUtils {
+namespace WidgetWrangler;
 
+/**
+ * Class Utils
+ * @package WidgetWrangler
+ */
+class Utils {
 
 	/**
 	 * Apply filter so all addons can help find the appropriate page_widgets
@@ -83,7 +88,7 @@ class WidgetWranglerUtils {
 	 */
 	public static function serializeWidgets($submitted_widget_data) {
 
-		$all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
+		$all_widgets = Widgets::all(array('publish', 'draft'));
 		$active_widgets = array();
 
 		if ( ! empty( $submitted_widget_data ) ) {
@@ -142,7 +147,7 @@ class WidgetWranglerUtils {
 	 * @return bool
 	 */
 	public static function editingEnabledPostType() {
-		$settings = new WidgetWranglerSettings();
+		$settings = new Settings();
 
 		if ((isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit') &&
 		     isset($_REQUEST['post']))

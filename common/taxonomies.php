@@ -1,14 +1,17 @@
 <?php
 
+namespace WidgetWrangler;
+
 /**
- * WW_Taxonomies allows for setting widgets on taxonomy term routes
+ * Class Taxonomies allows for setting widgets on taxonomy term routes.
+ * @package WidgetWrangler
  */
-class WW_Taxonomies {
+class Taxonomies {
 
 	/**
 	 * Register WP hooks.
 	 *
-	 * @return \WW_Taxonomies
+	 * @return Taxonomies
 	 */
 	public static function register() {
 		$plugin = new self();
@@ -35,7 +38,7 @@ class WW_Taxonomies {
 				'variety' => 'term',
 				'extra_key' => $term->term_id,
 			);
-			$term_data = WidgetWranglerExtras::get($where);
+			$term_data = Extras::get($where);
 
 			if ( $term_data ) {
 				$widgets = $this->getTaxonomyWidgets($term_data);
@@ -47,7 +50,7 @@ class WW_Taxonomies {
 					'variety' => 'taxonomy',
 					'extra_key' => $term->taxonomy,
 				);
-				$tax_data = WidgetWranglerExtras::get($where);
+				$tax_data = Extras::get($where);
 
 				if ( $tax_data && isset( $tax_data->data['override_default'] ) ) {
 					$widgets = $this->getTaxonomyWidgets($tax_data);
@@ -71,12 +74,13 @@ class WW_Taxonomies {
 		$widgets = $tax_data->widgets;
 
 		if (isset($tax_data->data['preset_id']) && $tax_data->data['preset_id'] != 0){
-			$preset = WW_Presets::get($tax_data->data['preset_id']);
+			$preset = Presets::get($tax_data->data['preset_id']);
 
-			WW_Presets::$current_preset_id = $preset->id;
+			Presets::$current_preset_id = $preset->id;
 			$widgets = $preset->widgets;
 		}
 
 		return $widgets;
 	}
+
 }

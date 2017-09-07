@@ -1,6 +1,12 @@
 <?php
 
-class WidgetWranglerAdminPage {
+namespace WidgetWrangler;
+
+/**
+ * Class AdminPage
+ * @package WidgetWrangler
+ */
+class AdminPage {
 
 	/**
 	 * Hook for this specific page.
@@ -22,7 +28,7 @@ class WidgetWranglerAdminPage {
 	 * @return string
 	 */
 	function parent() {
-		return Widget_Wrangler_Admin::$page_slug;
+		return 'edit.php?post_type=widget';
 	}
 
 	/**
@@ -31,7 +37,7 @@ class WidgetWranglerAdminPage {
 	 * @return string
 	 */
 	function capability() {
-		return Widget_Wrangler_Admin::$capability;
+		return 'manage_options';
 	}
 
 	/**
@@ -89,7 +95,7 @@ class WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * WidgetWranglerAdminPage constructor.
+	 * AdminPage constructor.
 	 *
 	 * @param $settings
 	 */
@@ -102,7 +108,7 @@ class WidgetWranglerAdminPage {
 	 *
 	 * @param $settings
 	 *
-	 * @return \WidgetWranglerAdminPage
+	 * @return AdminPage
 	 */
 	public static function register($settings) {
 		$class = get_called_class();
@@ -155,7 +161,7 @@ class WidgetWranglerAdminPage {
 			}
 
 			if ( is_array($result) && !empty( $result['message'] ) ) {
-				WidgetWranglerAdminMessages::instance()->add( $result['message'], $result['type'] );
+				AdminMessages::instance()->add( $result['message'], $result['type'] );
 			}
 
 			wp_safe_redirect($redirect);
@@ -178,7 +184,7 @@ class WidgetWranglerAdminPage {
 			$this->page();
 		$content = ob_get_clean();
 
-		print WidgetWranglerAdminUi::page(array(
+		print AdminUi::page(array(
 			'title' => $this->title(),
 			'description' => $this->description(),
 			'content' => $content,
@@ -193,7 +199,7 @@ class WidgetWranglerAdminPage {
 			$this->form();
 		$content = ob_get_clean();
 
-		print WidgetWranglerAdminUi::form(array(
+		print AdminUi::form(array(
 			'title' => $this->title(),
 			'description' => $this->description(),
 			'content' => $content,

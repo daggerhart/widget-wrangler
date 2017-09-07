@@ -1,9 +1,12 @@
 <?php
 
+namespace WidgetWrangler;
+
 /**
- * Class WW_Widget_PostType
+ * Class WidgetPostType
+ * @package WidgetWrangler
  */
-class WW_Widget_PostType {
+class WidgetPostType {
 	// public meta fields
 	var $meta_box_fields = array(
 		"ww-adv-enabled",
@@ -36,7 +39,7 @@ class WW_Widget_PostType {
 	/**
 	 * @param $settings
 	 *
-	 * @return \WW_Widget_PostType
+	 * @return WidgetPostType
 	 */
 	public static function register( $settings ) {
         $plugin = new self($settings);
@@ -279,7 +282,7 @@ class WW_Widget_PostType {
 	function meta_box_options() {
 		$values = $this->get_meta_values();
 
-		$form = new WidgetWranglerForm( array(
+		$form = new Form( array(
 			'field_prefix' => 'ww-data',
 		) );
 
@@ -310,7 +313,7 @@ class WW_Widget_PostType {
 	function meta_box_parse() {
 		$values = $this->get_meta_values();
 
-		$form = new WidgetWranglerForm( array(
+		$form = new Form( array(
 			'field_prefix' => 'ww-data',
 		) );
 
@@ -364,7 +367,7 @@ class WW_Widget_PostType {
 	function meta_box_display_logic()
 	{
 		$values = $this->get_meta_values();
-		$form = new WidgetWranglerForm( array(
+		$form = new Form( array(
 			'field_prefix' => 'ww-data',
 		) );
 
@@ -415,7 +418,7 @@ class WW_Widget_PostType {
 			$wp_widget->form($wp_widget_instance);
 			$instance_form = ob_get_clean();
 
-			$form = new WidgetWranglerForm( array(
+			$form = new Form( array(
 				'field_prefix' => 'ww-data',
 			) );
 
@@ -467,7 +470,7 @@ class WW_Widget_PostType {
         <p class="description"><?php _e("Alter the html output of a templated widget.  Doesn't apply to advanced parsing unless templating is selected.", 'widgetwrangler'); ?></p>
 		<?php
 		$values = $this->get_meta_values();
-		$form = new WidgetWranglerForm( array(
+		$form = new Form( array(
 			'field_prefix' => 'ww-data',
 		) );
 
@@ -551,10 +554,10 @@ class WW_Widget_PostType {
 	 * Templates meta box.
 	 */
 	function meta_box_templates() {
-		$settings = new WidgetWranglerSettings();
-		$display = new Widget_Wrangler_Display($settings->values);
+		$settings = new Settings();
+		$display = new Display($settings->values);
 
-		if ($widget = WidgetWranglerWidgets::get($this->post_id)){
+		if ($widget = Widgets::get($this->post_id)){
 
 			$preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
 			if ($preview_corral_slug){
@@ -593,7 +596,7 @@ class WW_Widget_PostType {
 	        $result_suggestion = $widget->custom_template_suggestion;
         }
 
-		$form = new WidgetWranglerForm( array(
+		$form = new Form( array(
 			'field_prefix' => 'ww-data',
 		) );
 		print $form->render_field(array(
@@ -638,13 +641,13 @@ class WW_Widget_PostType {
 			$settings = $this->settings;
 			$preview_corral_slug = get_post_meta($this->post_id, 'ww-preview-corral-slug', TRUE);
 
-			$display = new Widget_Wrangler_Display($settings);
+			$display = new Display($settings);
 			$display->doing_corral = TRUE;
 			$display->doing_corral_slug = $preview_corral_slug;
 
-			$corrals = WidgetWranglerCorrals::all();
+			$corrals = Corrals::all();
 
-			$form = new WidgetWranglerForm( array(
+			$form = new Form( array(
 				'field_prefix' => 'ww-data',
 			) );
 
@@ -671,8 +674,8 @@ class WW_Widget_PostType {
 		// queries in widgets can cause problems, even when executed correctly
 
 		$settings = $this->settings;
-		$display = new Widget_Wrangler_Display($settings);
-		$widget = WidgetWranglerWidgets::get( intval( $_POST['widget_post_id'] ) );
+		$display = new Display($settings);
+		$widget = Widgets::get( intval( $_POST['widget_post_id'] ) );
 
 		if (!$widget) {
 			die(__('Widget not found'));

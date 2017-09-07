@@ -1,13 +1,19 @@
 <?php
 
-class WW_Admin_Sortable {
+namespace WidgetWrangler;
+
+/**
+ * Class SortableWidgetsUi
+ * @package WidgetWrangler
+ */
+class SortableWidgetsUi {
 
 	private $all_widgets = array();
 
 	function __construct(){
 		add_action( 'widget_wrangler_form_top', array( $this, 'add_new_widget' ) );
 
-		$this->all_widgets = WidgetWranglerWidgets::all(array('publish', 'draft'));
+		$this->all_widgets = Widgets::all(array('publish', 'draft'));
 	}
 
 	//
@@ -20,7 +26,7 @@ class WW_Admin_Sortable {
 		$data = array(
             'data' => array(
 	            'ajaxURL' => admin_url( 'admin-ajax.php' ),
-	            'allWidgets' => WidgetWranglerWidgets::all(),
+	            'allWidgets' => Widgets::all(),
             )
         );
 		wp_localize_script( 'ww-sortable', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
@@ -42,7 +48,7 @@ class WW_Admin_Sortable {
 	 */
 	public static function metaBox( $widgets = null ) {
 	    if ( !$widgets ){
-		    $widgets = WidgetWranglerUtils::pageWidgets();
+		    $widgets = Utils::pageWidgets();
 	    }
 
 		$sortable = new self();
@@ -98,7 +104,7 @@ class WW_Admin_Sortable {
 	function theme_sortable_corrals( $widgets ){
 		$output = '';
 
-		foreach ( WidgetWranglerCorrals::all() as $corral_slug => $corral_name ){
+		foreach ( Corrals::all() as $corral_slug => $corral_name ){
 			// ensure an array exists
 			if ( ! isset( $widgets[ $corral_slug ] ) ){
 				$widgets[ $corral_slug ] = array();
@@ -135,7 +141,7 @@ class WW_Admin_Sortable {
 					'status' => $widget->post_status,
 					'display_logic' => $widget->display_logic_enabled,
 					'corral' => array(
-						'title' => WidgetWranglerCorrals::all()[ $corral_slug ],
+						'title' => Corrals::all()[ $corral_slug ],
 						'slug' => $corral_slug,
 					),
 					'notes' => array(),
@@ -181,7 +187,7 @@ class WW_Admin_Sortable {
 	 */
 	function sortable_corral( $corral_widgets, $corral_slug ){
 		// todo
-		$corral_name = WidgetWranglerCorrals::all()[ $corral_slug ];
+		$corral_name = Corrals::all()[ $corral_slug ];
 		$no_widgets_style = count( $corral_widgets ) ? 'style="display:none"' : '';
 
 		ob_start();
@@ -229,7 +235,7 @@ class WW_Admin_Sortable {
 			<input  name='ww-data[widgets][<?php print $row_index; ?>][id]' type='hidden' class='ww-widget-id' value='<?php print $widget_details['id']; ?>' />
 			<select name='ww-data[widgets][<?php print $row_index; ?>][sidebar]'>
 				<option value='disabled'><?php _e('Remove', 'widgetwrangler'); ?></option>
-				<?php foreach( WidgetWranglerCorrals::all() as $this_corral_slug => $corral_name ){ ?>
+				<?php foreach( Corrals::all() as $this_corral_slug => $corral_name ){ ?>
 					<option name='<?php print $this_corral_slug; ?>'
 					        value='<?php print $this_corral_slug; ?>'
 						    <?php selected( $this_corral_slug, $corral_slug ); ?>>
@@ -263,7 +269,7 @@ class WW_Admin_Sortable {
 				</select>
 				<select id="ww-add-new-widget-corral">
 					<option value="0">-- <?php _e('Select a Corral', 'widgetwrangler'); ?> --</option>
-					<?php foreach(WidgetWranglerCorrals::all() as $corral_slug => $corral_name) { ?>
+					<?php foreach(Corrals::all() as $corral_slug => $corral_name) { ?>
 						<option value="<?php print esc_attr( $corral_slug ); ?>"><?php print $corral_name; ?></option>
 					<?php } ?>
 				</select>

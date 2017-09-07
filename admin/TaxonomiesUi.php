@@ -1,17 +1,12 @@
 <?php
-// hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_taxonomies_admin_addon', 10, 2 );
 
-//
-function ww_taxonomies_admin_addon($addons, $settings){
-  $addons['Taxonomies'] = WW_Taxonomies_Admin::register($settings);
-  return $addons;
-}
+namespace WidgetWrangler;
 
-/*
- *
+/**
+ * Class TaxonomiesUi
+ * @package WidgetWrangler
  */
-class WW_Taxonomies_Admin {
+class TaxonomiesUi {
 
 	public $settings = array();
 
@@ -24,7 +19,7 @@ class WW_Taxonomies_Admin {
 	 *
 	 * @param $settings
 	 *
-	 * @return \WW_Taxonomies_Admin
+	 * @return \WidgetWrangler\TaxonomiesUi
 	 */
 	public static function register( $settings ) {
 		$plugin = new self($settings);
@@ -67,13 +62,13 @@ class WW_Taxonomies_Admin {
 
   function enqueue() {
 	  wp_enqueue_style('ww-admin');
-	  WW_Admin_Sortable::js();
+	  SortableWidgetsUi::js();
   }
 
   //
   function menu(){
     // need a hook for saving taxonomy defaults
-    add_submenu_page(null, 'title', 'title', Widget_Wrangler_Admin::$capability, 'ww_save_taxonomy_form', array( $this, 'route' ) );
+    add_submenu_page(null, 'title', 'title', 'manage_options', 'ww_save_taxonomy_form', array( $this, 'route' ) );
   }
   
   //
@@ -117,14 +112,14 @@ class WW_Taxonomies_Admin {
       );
       
        // allow for presets
-      if ($tax_data = WidgetWranglerExtras::get($where))
+      if ($tax_data = Extras::get($where))
       {
         if ( isset( $tax_data->data['override_default'] ) ){
           $override_default_checked = 'checked="checked"';
         }
         
         if (isset($tax_data->data['preset_id']) && $tax_data->data['preset_id'] != 0) {
-          $preset = WW_Presets::get($tax_data->data['preset_id']);
+          $preset = Presets::get($tax_data->data['preset_id']);
           $widgets = $preset->widgets;
         }
         else {
@@ -132,21 +127,21 @@ class WW_Taxonomies_Admin {
         }
       }
       else {
-        $preset = WW_Presets::getCore('default');
+        $preset = Presets::getCore('default');
         $widgets = $preset->widgets;
       }
       
       $page_widgets = $widgets;
 
       if (isset($preset)){
-        WW_Presets::$current_preset_id = $preset->id;
+        Presets::$current_preset_id = $preset->id;
       }
       
       $form = array(
         'title' => __('Widget Wrangler', 'widgetwrangler'),
         'description' => __('Here you can override the default widgets for all terms in this taxonomy.', 'widgetwrangler'),
         'attributes' => array(
-          'action' => Widget_Wrangler_Admin::$page_slug . '&page=ww_save_taxonomy_form&noheader=true',
+          'action' => 'edit.php?post_type=widget&page=ww_save_taxonomy_form&noheader=true',
           ),
         'submit_button' => array(
           'attributes' => array(
@@ -164,13 +159,13 @@ class WW_Taxonomies_Admin {
             <p>
               <label><input type="checkbox" name="override_default" <?php print $override_default_checked; ?> /> - <?php _e('Enable these widgets as the default widgets for terms in this taxonomy.', 'widgetwrangler'); ?></label>
             </p>
-            <?php WW_Admin_Sortable::metaBox( $page_widgets ); ?>
+            <?php SortableWidgetsUi::metaBox( $page_widgets ); ?>
           </div>
         </div>
         <?php
       $form['content'] = ob_get_clean();
       
-      print WidgetWranglerAdminUi::form($form);
+      print AdminUi::form($form);
     }
   }
 
@@ -200,9 +195,9 @@ class WW_Taxonomies_Admin {
         'extra_key' => $tag->term_id,
       );
       // allow for presets
-      if ($term_data = WidgetWranglerExtras::get($where)){
+      if ($term_data = Extras::get($where)){
         if (isset($term_data->data['preset_id']) && $term_data->data['preset_id'] != 0) {
-          $preset = WW_Presets::get($term_data->data['preset_id']);
+          $preset = Presets::get($term_data->data['preset_id']);
           $widgets = $preset->widgets;
         }
         else {
@@ -210,12 +205,12 @@ class WW_Taxonomies_Admin {
         }
       }
       else {
-        $preset = WW_Presets::getCore('default');
+        $preset = Presets::getCore('default');
         $widgets = $preset->widgets;
       }
 
       if (isset($preset)){
-        WW_Presets::$current_preset_id = $preset->id;
+        Presets::$current_preset_id = $preset->id;
       }
 
       ?>
@@ -224,7 +219,7 @@ class WW_Taxonomies_Admin {
         <td>
           <div class="postbox">
             <div>
-              <?php WW_Admin_Sortable::metaBox( $widgets ); ?>
+              <?php SortableWidgetsUi::metaBox( $widgets ); ?>
             </div>
           </div>
         </td>
@@ -251,13 +246,13 @@ class WW_Taxonomies_Admin {
   //
   function _update_posted_taxonomy_widgets($variety, $extra_key, $additional_data = array()){
     //
-    $widgets = WidgetWranglerUtils::serializeWidgets($_POST['ww-data']['widgets']);
+    $widgets = Utils::serializeWidgets($_POST['ww-data']['widgets']);
 
     // let presets addon do it's stuff
     $widgets = apply_filters('widget_wrangler_save_widgets_alter', $widgets);
 
     // get the new preset id, if set
-    $new_preset_id = (WW_Presets::$new_preset_id !== FALSE) ? (int) WW_Presets::$new_preset_id : 0;
+    $new_preset_id = (Presets::$new_preset_id !== FALSE) ? (int) Presets::$new_preset_id : 0;
 
     $where = array(
       'type' => 'taxonomy',
@@ -278,9 +273,9 @@ class WW_Taxonomies_Admin {
     }
 
     // doesn't exist, create it before update
-    if (!WidgetWranglerExtras::get($where)){
+    if (!Extras::get($where)){
       $values['data'] = serialize($values['data']);
-      WidgetWranglerExtras::insert($values);
+      Extras::insert($values);
     }
 
     if ($widgets) {
@@ -297,7 +292,7 @@ class WW_Taxonomies_Admin {
     }
 
     $values['data'] = serialize($values['data']);
-    WidgetWranglerExtras::update($values, $where);
+    Extras::update($values, $where);
   }
 
   // override the preset ajax op
@@ -327,8 +322,8 @@ class WW_Taxonomies_Admin {
           }
 
           // if we changed to a preset, load those widgets
-          if ($preset_id && $preset = WW_Presets::get($preset_id)){
-            WW_Presets::$current_preset_id = $preset_id;
+          if ($preset_id && $preset = Presets::get($preset_id)){
+            Presets::$current_preset_id = $preset_id;
             $widgets = $preset->widgets;
           }
           // else, attempt to load tag widgets
@@ -339,15 +334,15 @@ class WW_Taxonomies_Admin {
               'extra_key' => $tag_id,
             );
 
-            if ($term_data = WidgetWranglerExtras::get($where)){
+            if ($term_data = Extras::get($where)){
               $widgets = $term_data->widgets;
             }
             else {
-              $widgets = WW_Presets::getCore('default')->widgets;
+              $widgets = Presets::getCore('default')->widgets;
             }
           }
           ob_start();
-            WW_Admin_Sortable::metaBox( $widgets );
+            SortableWidgetsUi::metaBox( $widgets );
           $output = ob_get_clean();
 
           print $output;
@@ -364,8 +359,8 @@ class WW_Taxonomies_Admin {
           }
 
           // if we changed to a preset, load those widgets
-          if ($preset_id && $preset = WW_Presets::get($preset_id)){
-            WW_Presets::$current_preset_id = $preset_id;
+          if ($preset_id && $preset = Presets::get($preset_id)){
+            Presets::$current_preset_id = $preset_id;
             $widgets = $preset->widgets;
           }
           // else, attempt to load tag widgets
@@ -376,15 +371,15 @@ class WW_Taxonomies_Admin {
               'extra_key' => $taxonomy,
             );
 
-            if ($term_data = WidgetWranglerExtras::get($where)){
+            if ($term_data = Extras::get($where)){
               $widgets = $term_data->widgets;
             }
             else {
-              $widgets = WW_Presets::getCore('default')->widgets;
+              $widgets = Presets::getCore('default')->widgets;
             }
           }
           ob_start();
-            WW_Admin_Sortable::metaBox( $widgets );
+            SortableWidgetsUi::metaBox( $widgets );
           $output = ob_get_clean();
   
           print $output;          

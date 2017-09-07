@@ -1,6 +1,12 @@
 <?php
 
-class WidgetWranglerSettings {
+namespace WidgetWrangler;
+
+/**
+ * Class Settings
+ * @package WidgetWrangler
+ */
+class Settings {
 
 	// wp option name/key
 	public $option_name = 'ww_settings';

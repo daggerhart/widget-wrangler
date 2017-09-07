@@ -1,6 +1,12 @@
 <?php
 
-class WidgetWranglerCorrals {
+namespace WidgetWrangler;
+
+/**
+ * Class Corrals
+ * @package WidgetWrangler
+ */
+class Corrals {
 
 	/**
 	 * All corrals in the system.

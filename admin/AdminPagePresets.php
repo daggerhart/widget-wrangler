@@ -1,51 +1,40 @@
 <?php
-/*
- *
-filters
- - widget_wrangler_preset_ajax_op
- 
- */
-// hook this addon in
-add_filter( 'Widget_Wrangler_Admin_Addons', 'ww_presets_admin_addon', 10, 2 );
 
-//
-function ww_presets_admin_addon($addons, $settings){
-  $addons['Presets_Admin'] = WW_Presets_Admin::register($settings);
-  return $addons;
-}
+namespace WidgetWrangler;
 
 /**
- * Class WW_Presets_Admin
+ * Class AdminPagePresets
+ * @package WidgetWrangler
  */
-class WW_Presets_Admin extends WidgetWranglerAdminPage {
+class AdminPagePresets extends AdminPage {
     // @todo - fix this current preset id stuff
 	public $current_preset_id = 0;
 
 	public $new_preset_id = FALSE;
 
 	/**
-	 * @see WidgetWranglerAdminPage::title()
+	 * @see AdminPage::title()
 	 */
 	function title() {
 		return __('Presets');
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::menuTitle()
+	 * @see AdminPage::menuTitle()
 	 */
 	function menuTitle() {
 		return __('Presets');
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::slug()
+	 * @see AdminPage::slug()
 	 */
 	function slug() {
 		return 'presets';
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::description()
+	 * @see AdminPage::description()
 	 */
 	function description() {
 		return array(
@@ -55,7 +44,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::actions()
+	 * @see AdminPage::actions()
 	 */
 	function actions() {
 		return array(
@@ -69,7 +58,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	/**
 	 * @param $settings
 	 *
-	 * @return \WidgetWranglerAdminPage
+	 * @return \AdminPage
 	 */
 	public static function register( $settings ) {
 		$plugin  = parent::register( $settings );
@@ -90,14 +79,14 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	}
 
 	/**
-	 * @see WidgetWranglerAdminPage::actions()
+	 * @see AdminPage::actions()
 	 */
 	function enqueue() {
 	    if ($this->onPage()) {
 		    wp_enqueue_style('ww-admin');
 		    wp_enqueue_style('ww-sortable');
 		    wp_enqueue_script('ww-box-toggle');
-		    WW_Admin_Sortable::js();
+		    SortableWidgetsUi::js();
         }
     }
 
@@ -118,7 +107,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	        return $this->error( __('Error: No widgets.') );
         }
 
-        $active_widgets = WidgetWranglerUtils::serializeWidgets($_POST['ww-data']['widgets']);
+        $active_widgets = Utils::serializeWidgets($_POST['ww-data']['widgets']);
         $preset_id = intval( $_POST['preset-id'] );
         $preset_variety = $_POST['preset-variety'];
         $preset_widgets = (!empty($active_widgets)) ? $active_widgets : serialize(array());
@@ -135,7 +124,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
         );
 
         // save the widgets
-        WidgetWranglerExtras::update($data, $where);
+        Extras::update($data, $where);
 
         return $this->result(__('Preset updated.'));
 	}
@@ -156,7 +145,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 				}
 
 				// if we changed to a preset, load those widgets
-				if ($preset_id && $preset = WW_Presets::get($preset_id)){
+				if ($preset_id && $preset = Presets::get($preset_id)){
 					$this->current_preset_id = $preset_id;
 					$widgets = $preset->widgets;
 				}
@@ -167,7 +156,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 				}
 
 				ob_start();
-				WW_Admin_Sortable::metaBox( $widgets );
+				SortableWidgetsUi::metaBox( $widgets );
 				$output = ob_get_clean();
 				print $output;
 			}
@@ -188,7 +177,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 		$new_preset_widgets = NULL;
 
 		// attempt to load that new preset
-		if ($new_preset_id && $new_preset = WW_Presets::get($new_preset_id)){
+		if ($new_preset_id && $new_preset = Presets::get($new_preset_id)){
 			$new_preset_widgets = serialize($new_preset->widgets);
 		}
 
@@ -204,7 +193,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 			$widgets = false;
 		}
 		// set the new preset id for other plugins or addons to use
-		WW_Presets::$new_preset_id = $new_preset_id;
+		Presets::$new_preset_id = $new_preset_id;
 
 		return $widgets;
 	}
@@ -217,14 +206,14 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 		// allow other addons to manage their own ajax
 		$preset_ajax_op = apply_filters('widget_wrangler_preset_ajax_op', $preset_ajax_op);
 
-		$all = WW_Presets::all();
+		$all = Presets::all();
 		$current_preset_id = $this->current_preset_id;
 		$current_preset = NULL;
 		$current_preset_message = "No preset selected. This page is wrangling widgets on its own.";
 
 		// we have a preset to load
-		if ($current_preset_id && $current_preset = WW_Presets::get($current_preset_id)){
-			$current_preset_message = "This page is currently using the <a href='".Widget_Wrangler_Admin::$page_slug."&page=presets&preset_id=".$current_preset->id."'>".$current_preset->data['name']."</a>  Widgets.";
+		if ($current_preset_id && $current_preset = Presets::get($current_preset_id)){
+			$current_preset_message = "This page is currently using the <a href='".$this->parent()."&page=presets&preset_id=".$current_preset->id."'>".$current_preset->data['name']."</a>  Widgets.";
 		}
 
 		$preset_options = array(0 => __('- No Preset'));
@@ -236,7 +225,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
         <div id='ww-post-preset'>
             <span id="ww-post-preset-message"><?php print $current_preset_message; ?></span>
             <?php
-				$form = new WidgetWranglerForm();
+				$form = new Form();
 				print $form->render_field(array(
                     'type' => 'hidden',
                     'name' => 'widget_wrangler_preset_ajax_op',
@@ -262,7 +251,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	 * @return string
 	 */
     function formCreate(){
-	    $varieties  = WW_Presets::varieties();
+	    $varieties  = Presets::varieties();
 	    unset($varieties['core']);
 	    $options = array();
 
@@ -270,7 +259,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	        $options[$key] = $variety['title'];
         }
 
-	    $form = new WidgetWranglerForm(array(
+	    $form = new Form(array(
             'field_prefix' => 'create',
             'action' => 'edit.php?post_type=widget&page=presets&ww_action=create&noheader=true',
             'fields' => array(
@@ -302,12 +291,12 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 			case 'standard':
 				$data = array(
 					'type' => 'preset',
-					'variety' => WidgetWranglerUtils::makeSlug( $_POST['create']['variety'] ),
+					'variety' => Utils::makeSlug( $_POST['create']['variety'] ),
 					'data' => serialize(array('name' => ucfirst($_POST['create']['variety']))),
 					'widgets' => serialize(array()),
 				);
 
-				$new_preset_id = WidgetWranglerExtras::insert($data);
+				$new_preset_id = Extras::insert($data);
 
 				return $this->result(
 					__('New Preset Created.'),
@@ -327,7 +316,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	 * @return string
 	 */
     function formEdit( $preset ) {
-        $form = new WidgetWranglerForm(array(
+        $form = new Form(array(
             'style' => 'table',
             'action' => 'edit.php?post_type=widget&page=presets&ww_action=update_data&noheader=true',
             'fields' => array(
@@ -385,11 +374,11 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 			'variety' => $_POST['preset-variety']
 		);
 
-		$preset = WidgetWranglerExtras::get($where);
+		$preset = Extras::get($where);
 
 		if ( $preset ) {
 			$preset->data['name'] = sanitize_text_field($_POST['data']['name']);
-			WidgetWranglerExtras::update(array( 'data' => $preset->data ), $where);
+			Extras::update(array( 'data' => $preset->data ), $where);
 
 			return $this->result(sprintf(__('Updated preset name to "%s".'), $preset->data['name']));
 		}
@@ -406,7 +395,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 	 */
     function formDelete($preset) {
 
-	    $form = new WidgetWranglerForm(array(
+	    $form = new Form(array(
 		    'style' => 'table',
 		    'action' => 'edit.php?post_type=widget&page=presets&ww_action=delete&noheader=true',
 		    'fields' => array(
@@ -445,7 +434,7 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 			return $this->error( __('Error: You cannot delete a plugin provided preset.') );
 		}
 
-		WidgetWranglerExtras::delete(array(
+		Extras::delete(array(
 			'type' => 'preset',
 			'variety' => $_POST['preset-variety'],
 			'id' => $_POST['preset-id'],
@@ -470,13 +459,13 @@ class WW_Presets_Admin extends WidgetWranglerAdminPage {
 			}
 		}
 
-		$all = WW_Presets::all();
-		$this_preset = WW_Presets::get($preset_id);
-		$varieties  = WW_Presets::varieties();
+		$all = Presets::all();
+		$this_preset = Presets::get($preset_id);
+		$varieties  = Presets::varieties();
 		$preset_variety  = $varieties[$this_preset->variety];
 
 		// themes draggable widgets
-		$sortable = new WW_Admin_Sortable();
+		$sortable = new SortableWidgetsUi();
 
 		// need to remove the normal preset form_top. can't select preset for preset
 		remove_action( 'widget_wrangler_form_top', array( $this, 'ww_form_top' ));

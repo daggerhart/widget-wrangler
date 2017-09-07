@@ -1,6 +1,12 @@
 <?php
 
-class WidgetWranglerDb {
+namespace WidgetWrangler;
+
+/**
+ * Class Db
+ * @package WidgetWrangler
+ */
+abstract class Db {
 
 	/**
 	 * Simple wrapper to retrieve global $wpdb object with local modifications
