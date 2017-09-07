@@ -88,7 +88,10 @@ class Widget_Wrangler {
 		include_once WW_PLUGIN_DIR.'/common/Utils.php';
 		include_once WW_PLUGIN_DIR.'/common/Widgets.php';
 
-		include_once WW_PLUGIN_DIR.'/common/template-wrangler.inc';
+		include_once WW_PLUGIN_DIR.'/includes/template-wrangler.inc';
+		include_once WW_PLUGIN_DIR.'/includes/backwards-compat-functions.inc';
+		include_once WW_PLUGIN_DIR.'/includes/wp-widget-ww-corral.php';
+		include_once WW_PLUGIN_DIR.'/includes/wp-widget-ww-widget.php';
 
 	}
 
@@ -122,8 +125,6 @@ class Widget_Wrangler {
 	 *  - Register the corral and widget WP_Widget(s)
 	 */
 	function widgets_init(){
-		include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-corral.php';
-		include_once WW_PLUGIN_DIR.'/common/wp-widget-ww-widget.php';
 		register_widget( 'WidgetWrangler_Corral_Widget' );
 		register_widget( 'WidgetWrangler_Widget_Widget' );
 	}

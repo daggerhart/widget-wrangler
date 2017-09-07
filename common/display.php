@@ -34,7 +34,6 @@ class Display {
    *  - prepare display object for WordPress
    */
   function __construct( $settings ){
-    include_once WW_PLUGIN_DIR.'/common/backwards-compat-functions.inc';
     $this->settings = $settings;
   }
   
