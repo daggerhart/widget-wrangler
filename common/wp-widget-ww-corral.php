@@ -1,7 +1,8 @@
 <?php
 
-use WidgetWrangler\Settings;
 use WidgetWrangler\Corrals;
+use WidgetWrangler\Display;
+use WidgetWrangler\Settings;
 
 /**
  * Widget Wrangler Sidebar Widget class.

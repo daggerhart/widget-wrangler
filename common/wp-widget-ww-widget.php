@@ -1,5 +1,6 @@
 <?php
 
+use WidgetWrangler\Display;
 use WidgetWrangler\Settings;
 use WidgetWrangler\Widgets;
 

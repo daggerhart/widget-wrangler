@@ -13,7 +13,7 @@ function ww_dynamic_sidebar($slug, $args = array('before_widget' => '', 'before_
 
 /**
  * For old clone widgets that use advanced parsing area with php to execute the widget
- * 
+ *
  * @param $wp_widget_class
  * @param array $instance
  */

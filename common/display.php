@@ -177,7 +177,7 @@ class Display {
    */
   function dynamic_corral($corral_slug = 'default', $wp_widget_args = array('before_widget' => '', 'before_title' => '', 'after_title' => '', 'after_widget' => ''))
   {
-  	$page_widgets = WidgetWranglerUtils::pageWidgets();
+  	$page_widgets = Utils::pageWidgets();
     $corral_html = '';
     
     // only if page_widgets were found
@@ -190,12 +190,12 @@ class Display {
       $this->doing_corral_wp_widget_args = $wp_widget_args;
       
       // ensure widgets are sorted correctly
-      usort($page_widgets[$corral_slug], 'WidgetWranglerUtils::sortByWeight' );
+      usort($page_widgets[$corral_slug], '\WidgetWrangler\Utils::sortByWeight' );
       
       $i = 0;
       $total = count($page_widgets[$corral_slug]);
       while($i < $total) {
-        if($widget = WidgetWranglerWidgets::get($page_widgets[$corral_slug][$i]['id'], 'publish'))
+        if($widget = Widgets::get($page_widgets[$corral_slug][$i]['id'], 'publish'))
         {
           // include theme compatibility data
           $widget->wp_widget_args = $this->doing_corral_wp_widget_args;
@@ -468,7 +468,7 @@ class Display {
     $wp_widget = $wp_widget_factory->widgets[$wp_widget_class];
 
     // get as much ww widget data as possible 
-    $ww_widget = (isset($instance['ww_widget'])) ? $instance['ww_widget'] : WidgetWranglerWidgets::get($instance['ID']);
+    $ww_widget = (isset($instance['ww_widget'])) ? $instance['ww_widget'] : Widgets::get($instance['ID']);
 
     if (!isset($instance['hide_title'])){
       $instance['hide_title'] = 0;
@@ -530,7 +530,7 @@ class Display {
       }
     }
     
-    if ($widget = WidgetWranglerWidgets::get($args['id'], 'publish')){
+    if ($widget = Widgets::get($args['id'], 'publish')){
       if (!empty($this->doing_corral_wp_widget_args)){
         $widget->wp_widget_args = $this->doing_corral_wp_widget_args;
       }
