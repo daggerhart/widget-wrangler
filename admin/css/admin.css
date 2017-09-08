@@ -8,7 +8,7 @@
     margin-bottom: 12px;
 }
 .wrap > h2:first-child + .description {
-    margin: 0;
+    margin: 0 0 12px;
 }
 
 div.notice {
@@ -178,6 +178,14 @@ a.anchor {
     clear: both;
     padding: 12px 0;
 }
+.ww-sortable-corral {
+    background: linear-gradient(to top, #F9F9F9, #FFFFFF) repeat scroll 0 0 #FFFFFF;
+    background-image: url('../images/drag_handle.png');
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    padding-left: 24px;
+    cursor: move;
+}
 
 /****************************************************
  * Fields
@@ -231,6 +239,79 @@ a.anchor {
   border-top: 1px solid #bbb;
   background: #fff;
   padding: 4px 6px;
+}
+
+/******************************************************
+ * Sortable Widgets
+ *****************************************************/
+
+.ww-sortable {
+    min-height: 20px;
+    padding: 1px;
+    background: #eee url('../images/empty-bg.png') repeat;
+}
+
+.ww-no-widgets {
+    padding: 6px;
+    margin: 0;
+    border: 2px dashed #eee;
+    background: transparent url('../images/empty-bg.png') repeat;
+}
+
+.ww-no-widgets p {
+    padding: 4px;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #eee;
+}
+
+li.ww-item {
+    background: linear-gradient(to top, #F9F9F9, #FFFFFF) repeat scroll 0 0 #FFFFFF;
+    background-image: url('../images/drag_handle.png');
+    background-repeat: no-repeat;
+    background-position: 4px center;
+    line-height: 36px;
+    font-weight: bold;
+    padding: 0px 12px 0px 30px;
+    margin: 0px;
+    overflow: hidden;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    cursor: move;
+    color: #222222;
+    box-shadow: 0 1px 0 #FFFFFF;
+    text-shadow: 0 1px 0 #FFFFFF;
+}
+
+li.ww-item:hover {
+    background-color: #fafafa;
+}
+
+li.ww-item.ww-dragging {
+    background-color: #ffffe5 !important;
+    background-image: url('../images/drag_handle.png');
+    background-repeat: no-repeat;
+    background-position: 4px center;
+}
+
+.ww-item select {
+    display: block;
+    float: right;
+    margin: 3px 0 0 0;
+}
+
+.ww-widget-weight {
+    display: none;
+    float: right;
+    margin-top: 5px;
+}
+
+#ww-edited-message { display: none; }
+#ww-edited-message p {
+    margin: 0;
+    padding: 12px 16px;
+    border: 1px solid #cc0;
+    border-left-width: 10px;
 }
 
 /******************************************************

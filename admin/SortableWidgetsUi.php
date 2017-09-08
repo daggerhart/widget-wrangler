@@ -21,7 +21,6 @@ class SortableWidgetsUi {
 	//
 	public static function js(){
 		wp_enqueue_script('ww-sortable-widgets');
-		wp_enqueue_style('ww-sortable-widgets');
 
 		$data = array(
             'data' => array(

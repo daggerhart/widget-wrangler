@@ -74,7 +74,6 @@ class Admin {
         add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
 
         wp_register_style('ww-admin', plugins_url('css/admin.css', __FILE__), array(), WW_SCRIPT_VERSION );
-        wp_register_style('ww-sortable-widgets', plugins_url('css/sortable-widgets.css', __FILE__),array(), WW_SCRIPT_VERSION );
 
 	    wp_register_script('ww-admin',
 		    plugins_url('js/admin.js', __FILE__),

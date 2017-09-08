@@ -64,7 +64,6 @@ class TaxonomiesUi {
 	  wp_enqueue_style('ww-admin');
 	  wp_enqueue_script('ww-admin');
 
-	  wp_enqueue_style('ww-sortable-widgets');
 	  SortableWidgetsUi::js();
   }
 

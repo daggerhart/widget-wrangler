@@ -85,7 +85,6 @@ class AdminPagePresets extends AdminPage {
 	    parent::enqueue();
 
 	    if ($this->onPage()) {
-		    wp_enqueue_style('ww-sortable-widgets');
 		    SortableWidgetsUi::js();
         }
     }

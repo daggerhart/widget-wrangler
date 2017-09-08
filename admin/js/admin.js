@@ -31,7 +31,7 @@
         if ( $corrals.length ) {
             $corrals.sortable({
                 update: function(event,ui){
-                    var all_corrals = $corrals.children('.ww-item');
+                    var all_corrals = $corrals.children('.ww-sortable-corral');
 
                     $.each(all_corrals, function(i){
                         var weight_input = $(this).children('input[type=hidden]');

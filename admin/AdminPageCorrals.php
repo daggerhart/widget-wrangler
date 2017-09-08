@@ -104,8 +104,8 @@ class AdminPageCorrals extends AdminPage {
             $weight = 1;
             foreach( $corrals as $slug => $name) {
                 ?>
-                <li class='ww-box ww-item'>
-                    <h4><?php print "$name ($slug)"; ?></h4>
+                <li class='ww-box ww-sortable-corral'>
+                    <h4><?php print $name; ?> (<code><?php print $slug; ?></code>)</h4>
                     <input type='hidden' name='weight[<?php print $weight; ?>]' value='<?php print $slug?>' />
                 </li>
                 <?php
@@ -291,7 +291,7 @@ class AdminPageCorrals extends AdminPage {
                             foreach ($corrals as $slug => $name) {
                                 ?>
                                 <li class='ww-box ww-box-toggle'>
-                                <h3><?php print $name; ?> (<?php print $slug; ?>)</h3>
+                                <h3><?php print $name; ?> (<code><?php print $slug; ?></code>)</h3>
                                 <div class="ww-box-toggle-content">
                                     <?php
                                         print $this->formUpdate($name, $slug);
