@@ -20,8 +20,8 @@ class SortableWidgetsUi {
 	// Javascript drag and drop for sorting
 	//
 	public static function js(){
-		wp_enqueue_script('ww-sortable');
-		wp_enqueue_style('ww-sortable');
+		wp_enqueue_script('ww-sortable-widgets');
+		wp_enqueue_style('ww-sortable-widgets');
 
 		$data = array(
             'data' => array(
@@ -29,7 +29,7 @@ class SortableWidgetsUi {
 	            'allWidgets' => Widgets::all(),
             )
         );
-		wp_localize_script( 'ww-sortable', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
+		wp_localize_script( 'ww-sortable-widgets', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
 	}
 
 	/**

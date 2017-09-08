@@ -48,17 +48,6 @@ class AdminPageSidebars extends AdminPage {
 	}
 
 	/**
-	 * @see AdminPage::enqueue()
-	 */
-	function enqueue() {
-		if ( $this->onPage() ){
-			wp_enqueue_style('ww-admin');
-			wp_enqueue_script('ww-sidebars');
-			wp_enqueue_script('ww-box-toggle');
-		}
-	}
-
-	/**
 	 * @see AdminPage::menu()
 	 */
 	function menu() {

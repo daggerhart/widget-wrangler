@@ -75,33 +75,21 @@ class Admin {
         add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
 
         wp_register_style('ww-admin', plugins_url('css/admin.css', __FILE__), array(), WW_SCRIPT_VERSION );
-        wp_register_style('ww-sortable', plugins_url('css/sortable.css', __FILE__),array(), WW_SCRIPT_VERSION );
+        wp_register_style('ww-sortable-widgets', plugins_url('css/sortable-widgets.css', __FILE__),array(), WW_SCRIPT_VERSION );
 
-        wp_register_script('ww-sortable',
+	    wp_register_script('ww-admin',
+		    plugins_url('js/admin.js', __FILE__),
+		    array('jquery', 'jquery-ui-sortable', 'wp-util'),
+		    WW_SCRIPT_VERSION,
+		    true
+	    );
+        wp_register_script('ww-sortable-widgets',
             plugins_url('js/sortable-widgets.js', __FILE__),
             array('jquery-ui-core', 'jquery-ui-sortable', 'wp-util'),
             WW_SCRIPT_VERSION,
             true );
-        wp_register_script('ww-corrals',
-            plugins_url('js/corrals.js', __FILE__),
-            array('jquery-ui-core', 'jquery-ui-sortable'),
-            WW_SCRIPT_VERSION,
-            true
-        );
-        wp_register_script('ww-sidebars',
-            plugins_url('js/sidebars.js', __FILE__),
-	        array('jquery'),
-            WW_SCRIPT_VERSION,
-            true
-        );
-        wp_register_script('ww-widget-edit',
-            plugins_url('js/editing-widget.js', __FILE__),
-            array('jquery'),
-            WW_SCRIPT_VERSION,
-            true
-        );
-        wp_register_script('ww-box-toggle',
-            plugins_url('js/box-toggle.js', __FILE__),
+        wp_register_script('ww-widget-posttype',
+            plugins_url('js/widget-posttype.js', __FILE__),
             array('jquery'),
             WW_SCRIPT_VERSION,
             true

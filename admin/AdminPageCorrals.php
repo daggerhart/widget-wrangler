@@ -51,17 +51,6 @@ class AdminPageCorrals extends AdminPage {
     }
 
 	/**
-	 * @see AdminPage::enqueue()
-	 */
-	function enqueue() {
-		if ( $this->onPage() ){
-		    wp_enqueue_style('ww-admin');
-			wp_enqueue_script('ww-corrals');
-			wp_enqueue_script('ww-box-toggle');
-		}
-	}
-
-	/**
      * Create corral form.
      *
 	 * @return string
@@ -239,7 +228,10 @@ class AdminPageCorrals extends AdminPage {
 	                'type' => 'submit',
 	                'value' => __('Delete'),
 	                'class' => 'disabled button button-small',
-                )
+                    'attributes' => array(
+                        'data-confirm' => __('Are you sure you want to delete this corral?'),
+                    ),
+                ),
             ),
 	    ));
 

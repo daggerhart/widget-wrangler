@@ -63,8 +63,8 @@ class WidgetPostType {
 	    if ($screen->id == 'widget') {
 		    $this->add_meta_boxes();
 		    wp_enqueue_style('ww-admin');
-		    wp_enqueue_script('ww-widget-edit');
-		    wp_enqueue_script('ww-box-toggle');
+		    wp_enqueue_script('ww-admin');
+		    wp_enqueue_script('ww-widget-posttype');
         }
 	}
 

@@ -49,19 +49,9 @@ class AdminPageClones extends AdminPage {
     }
 
 	/**
-	 * @see AdminPage::enqueue()
-	 */
-	function enqueue() {
-		if ( $this->onPage() ){
-			wp_enqueue_style('ww-admin');
-			wp_enqueue_script('ww-box-toggle');
-		}
-	}
-
-	/**
 	 * Display widgets available for cloning.
 	 *
-	 * @see \AdminPage::page()
+	 * @see AdminPage::page()
 	 */
 	function page() {
 		global $wp_widget_factory;
@@ -92,12 +82,32 @@ class AdminPageClones extends AdminPage {
                 <li class="ww-box ww-box-toggle">
                     <h3><?php print $widget->name; ?></h3>
                     <div class='ww-box-toggle-content'>
-                        <form action='edit.php?post_type=widget&page=clone&ww_action=insert&noheader=true' method='post'>
-                            <input type='hidden' name='ww-classname' value='<?php print $classname; ?>' />
-                            <input type='hidden' name='ww-keyname' value='<?php print $posted_array_key; ?>' />
-                            <?php print $new_class_form; ?>
-                            <input class='button button-primary button-large' type='submit' value='Create' />
-                        </form>
+                        <?php
+                            $form = new Form(array(
+                                'action' => $this->pageUrl().'&ww_action=insert&noheader=true',
+                                'fields' => array(
+                                    'ww-classname' => array(
+                                        'type' => 'hidden',
+                                        'value' => $classname,
+                                    ),
+                                    'ww-keyname' => array(
+                                        'type' => 'hidden',
+                                        'value' => $posted_array_key,
+                                    ),
+                                    'instance_form' => array(
+                                        'type' => 'markup',
+                                        'value' => $new_class_form,
+                                    ),
+                                    'submit' => array(
+                                        'type' => 'submit',
+                                        'value' => __('Create'),
+                                        'class' => 'button button-primary button-large',
+                                    ),
+                                ),
+                            ));
+
+                            print $form->render();
+                        ?>
                     </div>
                 </li>
                 <?php
@@ -116,7 +126,7 @@ class AdminPageClones extends AdminPage {
 	 */
 	function actionInsert()
 	{
-		global $wpdb,$wp_widget_factory;
+		global $wp_widget_factory;
 		$posted = $_POST;
 
 		//Start our outputs

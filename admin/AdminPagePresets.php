@@ -58,7 +58,7 @@ class AdminPagePresets extends AdminPage {
 	/**
 	 * @param $settings
 	 *
-	 * @return \AdminPage
+	 * @return AdminPage
 	 */
 	public static function register( $settings ) {
 		$plugin  = parent::register( $settings );
@@ -82,10 +82,10 @@ class AdminPagePresets extends AdminPage {
 	 * @see AdminPage::actions()
 	 */
 	function enqueue() {
+	    parent::enqueue();
+
 	    if ($this->onPage()) {
-		    wp_enqueue_style('ww-admin');
-		    wp_enqueue_style('ww-sortable');
-		    wp_enqueue_script('ww-box-toggle');
+		    wp_enqueue_style('ww-sortable-widgets');
 		    SortableWidgetsUi::js();
         }
     }
@@ -403,6 +403,9 @@ class AdminPagePresets extends AdminPage {
 				    'type' => 'submit',
 				    'value' => __('Delete'),
 				    'class' => 'button button-small disabled',
+				    'attributes' => array(
+					    'data-confirm' => __('Are you sure you want to delete this preset?'),
+				    ),
 			    ),
 			    'preset-id' => array(
 				    'type' => 'hidden',

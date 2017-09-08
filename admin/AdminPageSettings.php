@@ -50,15 +50,6 @@ class AdminPageSettings extends AdminPage {
 	}
 
 	/**
-	 * @see AdminPage::enqueue()
-	 */
-	function enqueue() {
-		if ( $this->onPage() ){
-			wp_enqueue_style('ww-admin');
-		}
-	}
-
-	/**
 	 * @see \AdminPage::page()
 	 */
 	function page() {
@@ -146,10 +137,10 @@ class AdminPageSettings extends AdminPage {
                     'type' => 'submit',
                     'title' => __('Setup Theme'),
                     'description' => __('If you click this button, Widget Wrangler will create a Corral for each WordPress sidebar you have, and place a Widget Wrangler Corral Widget into each WordPress Sidebar.'),
-                    'value' => __('Reset All Widgets to Default'),
+                    'value' => __('Setup Theme'),
                     'class' => 'button disabled',
                     'attributes' => array(
-                        'data-confirm' => __('Are you sure?'),
+                        'data-confirm' => __('Are you sure you want to replace the WordPress widgets in your sidebars with corrals?'),
                     ),
                 )
             )
@@ -165,7 +156,7 @@ class AdminPageSettings extends AdminPage {
                     'value' => __('Reset All Widgets to Default'),
                     'class' => 'button disabled',
                     'attributes' => array(
-	                    'data-confirm' => __('Are you sure?'),
+	                    'data-confirm' => __('Are you sure you want to set all post and page widget settings back to the default preset?'),
                     ),
                 )
             )
@@ -181,7 +172,7 @@ class AdminPageSettings extends AdminPage {
                     'value' => __('Reset Settings'),
                     'class' => 'button disabled',
                     'attributes' => array(
-	                    'data-confirm' => __('Are you sure?'),
+	                    'data-confirm' => __('Are you sure you want to reset the plugin settings back to default?'),
                     ),
                 )
             )

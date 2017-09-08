@@ -132,7 +132,12 @@ class AdminPage {
 	/**
 	 * Override to enqueue styles and scripts
 	 */
-	function enqueue() {}
+	function enqueue() {
+		if ( $this->onPage() ) {
+			wp_enqueue_style('ww-admin');
+			wp_enqueue_script('ww-admin');
+		}
+	}
 
 	/**
 	 * Helper function to determine if the user is on this admin page.
