@@ -166,8 +166,6 @@ class WidgetPostType {
 		// http://wordpress.org/support/topic/quickedit-deletes-code-in-advanced-parsing
 		if (isset($_REQUEST['_inline_edit'])) { return; }
 
-		// @todo - ww-wpautop defaults to checked
-
 		// Loop through the public meta fields ($this->meta_box_fields) for $_POST data
 		foreach ($this->meta_box_fields as $key){
 			$value = @$_POST['ww-data'][$key];
@@ -280,6 +278,7 @@ class WidgetPostType {
 	 * Standard options
 	 */
 	function meta_box_options() {
+	    $screen = get_current_screen();
 		$values = $this->get_meta_values();
 
 		$form = new Form( array(
@@ -290,7 +289,7 @@ class WidgetPostType {
 			'type'  => 'checkbox',
 			'name'  => 'ww-wpautop',
 			'title' => __( 'Automatically add paragraphs to the widget content.' ),
-			'value' => $values['ww-wpautop'],
+			'value' => ($values['ww-wpautop'] || ( $screen->id == 'widget' && $screen->action == 'add' ) ),
 		));
 		print $form->render_field(array(
 			'type'  => 'checkbox',

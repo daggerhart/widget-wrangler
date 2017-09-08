@@ -14,20 +14,6 @@ namespace WidgetWrangler;
 class Presets {
 
 	/**
-	 * Preset found for this page context
-	 *
-	 * @var int
-	 */
-	public static $current_preset_id = 0;
-
-	/**
-	 * Id for new Preset being created through admin UI
-	 *
-	 * @var int
-	 */
-	public static $new_preset_id = 0;
-
-	/**
 	 * Register hooks
 	 *
 	 * @return Presets
@@ -195,7 +181,6 @@ class Presets {
 			global $post;
 			if (isset($post) && $post_preset_id = get_post_meta($post->ID, 'ww_post_preset_id', TRUE)){
 				if ($post_preset = self::get($post_preset_id)){
-					self::$current_preset_id = $post_preset_id;
 					$widgets = $post_preset->widgets;
 				}
 			}
@@ -225,7 +210,6 @@ class Presets {
 
 			if ($found_widgets){
 				$widgets = $found_widgets;
-				self::$current_preset_id = $preset->id;
 			}
 		}
 

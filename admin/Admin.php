@@ -30,7 +30,8 @@ class Admin {
 		include_once WW_PLUGIN_DIR.'/admin/AdminPageSidebars.php';
 
 		include_once WW_PLUGIN_DIR.'/admin/SortableWidgetsUi.php';
-		include_once WW_PLUGIN_DIR.'/admin/TaxonomiesUi.php';
+		include_once WW_PLUGIN_DIR.'/admin/TaxonomyUi.php';
+		include_once WW_PLUGIN_DIR.'/admin/TaxonomyTermUi.php';
 		include_once WW_PLUGIN_DIR.'/admin/TinymceShortcode.php';
 		include_once WW_PLUGIN_DIR.'/admin/WidgetPostType.php';
 
@@ -53,7 +54,8 @@ class Admin {
 		AdminPagePresets::register($settings);
 		AdminPageSettings::register($settings);
 		AdminPageSidebars::register($settings);
-		TaxonomiesUi::register($settings);
+		TaxonomyUi::register($settings);
+		TaxonomyTermUi::register($settings);
 
 		return $plugin;
 	}
@@ -98,7 +100,7 @@ class Admin {
             foreach($this->settings['post_types'] as $enabled_post_type){
                 add_meta_box('ww_admin_meta_box',
                     '<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />' . __('Widget Wrangler'),
-                    'WW_Admin_Sortable::postMetaBox',
+                    '\WidgetWrangler\SortableWidgetsUi::postMetaBox',
                     $enabled_post_type,
                     'normal',
                     'high');
@@ -171,8 +173,8 @@ class Admin {
 	  if ($widgets){
 		  update_post_meta( $post_id, 'ww_post_widgets', $widgets);
 	  }
-    
-    $new_preset_id = Presets::$new_preset_id;
+
+    $new_preset_id = (isset($_POST['ww-post-preset-id-new'])) ? (int)$_POST['ww-post-preset-id-new'] : 0;
     
     if ($new_preset_id !== FALSE){
       update_post_meta( $post_id, 'ww_post_preset_id', (int) $new_preset_id);

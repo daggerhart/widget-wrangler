@@ -85,15 +85,7 @@ div.notice p {
 }
 
 .ajax-working {
-    background-position: top left;
     float: none;
-    height: 16px;
-    width: 16px;
-    line-height: 16px;
-    font-size: 16px;
-    padding: 0;
-    margin: 0;
-    display: none;
 }
 
 .ww-pull-right {

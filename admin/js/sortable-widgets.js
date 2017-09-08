@@ -151,7 +151,7 @@ WidgetWrangler.ajax = {
     var preset_ajax_op = $('input[name="widget_wrangler_preset_ajax_op"]').val();
     if (preset_ajax_op){
       // show throbber
-      $('.ajax-working').show();
+      $('.ajax-working').show().css('visibility', 'visible');
       
       // store original message
       var original_message = $('#ww-post-preset-message').html();
@@ -168,7 +168,6 @@ WidgetWrangler.ajax = {
       $.ajax({
         url: WidgetWrangler.data.ajaxURL,
         type: 'POST',
-        async: false,
         data: post_data_form,
         //dataType: 'json',
         success: function(data){

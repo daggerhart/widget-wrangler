@@ -141,13 +141,22 @@ class AdminPage {
 	}
 
 	/**
-	 * Helper function to get the page url.
+	 * Helper function to get the relative page path.
 	 *
 	 * @return string
 	 */
 	function pagePath() {
 		return $this->parentSlug() . '&page=' . $this->slug();
 	}
+
+	/**
+     * Helper function to get the full page url.
+     *
+	 * @return string
+	 */
+	function pageUrl() {
+	    return admin_url( $this->pagePath() );
+    }
 
 	/**
      * Standard action path creation.
@@ -228,7 +237,7 @@ class AdminPage {
 			<h2><?php printf( __('%s', 'widgetwrangler'), $page['title']); ?></h2>
 			<?php
 			print $this->templateMessages();
-			print $this->templateDescription($page['description']);
+			print $this->templateDescriptions($page['description']);
 			?>
 			<div>
 				<?php print $page['content']; ?>
@@ -270,7 +279,7 @@ class AdminPage {
 	 *
 	 * @return string
 	 */
-	function templateDescription( $descriptions ) {
+	function templateDescriptions( $descriptions ) {
 		ob_start();
 		if ( !empty( $descriptions ) ) {
 			if ( !is_array($descriptions) ){

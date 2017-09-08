@@ -7,10 +7,6 @@ namespace WidgetWrangler;
  * @package WidgetWrangler
  */
 class AdminPagePresets extends AdminPage {
-    // @todo - fix this current preset id stuff
-	public $current_preset_id = 0;
-
-	public $new_preset_id = FALSE;
 
 	/**
 	 * @see AdminPage::title()
@@ -79,7 +75,7 @@ class AdminPagePresets extends AdminPage {
 	}
 
 	/**
-	 * @see AdminPage::actions()
+	 * @see AdminPage::enqueue()
 	 */
 	function enqueue() {
 	    parent::enqueue();
@@ -88,7 +84,6 @@ class AdminPagePresets extends AdminPage {
 		    SortableWidgetsUi::js();
         }
     }
-
 
 	/**
 	 * Update a Widget Preset
@@ -145,7 +140,6 @@ class AdminPagePresets extends AdminPage {
 
 				// if we changed to a preset, load those widgets
 				if ($preset_id && $preset = Presets::get($preset_id)){
-					$this->current_preset_id = $preset_id;
 					$widgets = $preset->widgets;
 				}
 				// else, attempt to load page widgets
@@ -191,31 +185,33 @@ class AdminPagePresets extends AdminPage {
 		if ($new_preset_id !== 0){
 			$widgets = false;
 		}
-		// set the new preset id for other plugins or addons to use
-		Presets::$new_preset_id = $new_preset_id;
 
 		return $widgets;
 	}
 
 	/**
 	 * Preset wrangler meta box form.
+	 *
+	 * @param $context
 	 */
-	function ww_form_top() {
+	function ww_form_top( $context ) {
 		$preset_ajax_op = 'replace_edit_page_widgets';
 		// allow other addons to manage their own ajax
 		$preset_ajax_op = apply_filters('widget_wrangler_preset_ajax_op', $preset_ajax_op);
 
 		$all = Presets::all();
-		$current_preset_id = $this->current_preset_id;
+		$current_preset_id = 0;
 		$current_preset = NULL;
 		$current_preset_message = "No preset selected. This page is wrangling widgets on its own.";
 
 		// we have a preset to load
-		if ($current_preset_id && $current_preset = Presets::get($current_preset_id)){
+		if ( !empty( $context['preset'] ) && $current_preset = $context['preset'] ) {
+		    $current_preset_id = $current_preset->id;
 			$current_preset_message = "This page is currently using the <a href='".$this->pagePath() . "&preset_id=" . $current_preset->id . "'>" . $current_preset->data['name'] . "</a>  Widgets.";
 		}
 
-		$preset_options = array(0 => __('- No Preset'));
+		$preset_options = array(0 => __('- No Preset -'));
+
 		foreach( $all as $preset ) {
 			$preset_options[ $preset->id ] = $preset->data['name'];
 		}
@@ -233,9 +229,8 @@ class AdminPagePresets extends AdminPage {
 				print $form->render_field(array(
 					'type' => 'select',
 					'name' => 'ww-post-preset-id-new',
-					'title' => __('Preset'),
-					'description' => '<span class="ajax-working spinner"></span>',
-					'help' => __("Select the Widget Preset you would like to control widgets on this page. To allow this page to control its own widgets, select '- No Preset -'. If you select a preset and then rearrange widgets, this page will convert itself to '- No Preset -' on save."),
+					'title' => __('Preset') .'<span class="ajax-working spinner"></span>',
+					'help' => __("Select the Preset you would like to control widgets on this page, or select '- No Preset -' to allow this page to control its own widgets."),
 					'options' => $preset_options,
 					'value' => $current_preset_id,
 				));
@@ -297,10 +292,7 @@ class AdminPagePresets extends AdminPage {
 
 				$new_preset_id = Extras::insert($data);
 
-				return $this->result(
-					__('New Preset Created.'),
-					get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=presets&preset_id='.$new_preset_id
-				);
+				return $this->result( __('New Preset Created.'), $this->pageUrl().'&preset_id='.$new_preset_id );
 				break;
 		}
 
@@ -442,10 +434,7 @@ class AdminPagePresets extends AdminPage {
 			'id' => $_POST['preset-id'],
 		));
 
-		return $this->result(
-			__('Preset deleted.'),
-			get_bloginfo('wpurl').'/wp-admin/edit.php?post_type=widget&page=presets'
-		);
+		return $this->result( __('Preset deleted.'), $this->pageUrl() );
 	}
 
 	/**
@@ -485,7 +474,7 @@ class AdminPagePresets extends AdminPage {
                             $classes = ($preset_id == $preset->id) ? 'active' : '';
                             ?>
                             <li class="<?php print $classes; ?>">
-                                <a href="edit.php?post_type=widget&page=presets&preset_id=<?php print $preset->id; ?>"><?php print $preset->data['name']; ?><?php print ($preset->variety == 'core') ? ' <small>('.$preset->variety.')</small>' : ''; ?></a>
+                                <a href="<?php print $this->pagePath(); ?>&preset_id=<?php print $preset->id; ?>"><?php print $preset->data['name']; ?><?php print ($preset->variety == 'core') ? ' <small>('.$preset->variety.')</small>' : ''; ?></a>
                             </li>
                             <?php
                         }
@@ -504,7 +493,6 @@ class AdminPagePresets extends AdminPage {
                 { ?>
                     <div class="ww-box">
                         <h3><?php print $this_preset->data['name']; ?></h3>
-                        <input type="hidden" name="data[name]" value="<?php print $this_preset->data['name']; ?>" />
                     </div>
                     <?php
                 }
@@ -531,14 +519,11 @@ class AdminPagePresets extends AdminPage {
                         <input class='ww-pull-right-box-out button button-primary button-large' type='submit' value='Save Preset'>
                         <input type='hidden' name='widget-wrangler-edit' value='true' />
                         <input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
-                        <input type="hidden" name="preset-id" value="<?php print $preset_id; ?>" />
-                        <input type="hidden" name="preset-variety" value="<?php print $preset_variety['slug']; ?>" />
+                        <input type="hidden" name="preset-id" value="<?php print $this_preset->id; ?>" />
+                        <input type="hidden" name="preset-variety" value="<?php print $this_preset->variety; ?>" />
 
                         <div id="widget_wrangler_form_top">
-                            <?php
-                            // TODO, dry this action up
-                            do_action('widget_wrangler_form_top');
-                            ?>
+                            <?php do_action('widget_wrangler_form_top', Utils::pageContext()); ?>
                         </div>
                         <div id='ww-edited-message'>
                             <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>

@@ -16,10 +16,11 @@ class SortableWidgetsUi {
 		$this->all_widgets = Widgets::all(array('publish', 'draft'));
 	}
 
-	//
-	// Javascript drag and drop for sorting
-	//
+	/**
+	 * Javascript drag and drop for sorting
+	 */
 	public static function js(){
+	    wp_enqueue_style('ww-admin');
 		wp_enqueue_script('ww-sortable-widgets');
 
 		$data = array(
@@ -76,7 +77,7 @@ class SortableWidgetsUi {
 			<div id='widget-wrangler-form' class='new-admin-panel'>
 				<div class='outer'>
 					<div id="widget_wrangler_form_top">
-						<?php do_action('widget_wrangler_form_top'); ?>
+						<?php do_action('widget_wrangler_form_top', Utils::pageContext()); ?>
 					</div>
                     <div id='ww-edited-message'>
                         <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
@@ -185,7 +186,6 @@ class SortableWidgetsUi {
 	 * @return string
 	 */
 	function sortable_corral( $corral_widgets, $corral_slug ){
-		// todo
 		$corral_name = Corrals::all()[ $corral_slug ];
 		$no_widgets_style = count( $corral_widgets ) ? 'style="display:none"' : '';
 
@@ -226,7 +226,6 @@ class SortableWidgetsUi {
 			$notes = ' : <em>(' . implode( '),(', $widget_details['notes'] ) . ')</em>';
 		}
 
-		// todo
 		ob_start();
 		?>
 		<li class='ww-item <?php print $corral_slug; ?> nojs' width='100%'>
@@ -259,7 +258,7 @@ class SortableWidgetsUi {
 			<h3><?php _e('Add Widget', 'widgetwrangler'); ?></h3>
 			<div class="">
 				<select id="ww-add-new-widget-widget">
-					<option value="0">-- <?php _e('Select a Widget', 'widgetwrangler'); ?> --</option>
+					<option value="0">- <?php _e('Select a Widget', 'widgetwrangler'); ?> -</option>
 					<?php foreach ( $this->all_widgets as $widget ){ ?>
 						<?php if ( ! $widget->hide_from_wrangler ) : ?>
 						<option value="<?php print esc_attr( $widget->ID ); ?>"><?php print $widget->post_title; ?></option>
@@ -267,7 +266,7 @@ class SortableWidgetsUi {
 					<?php } ?>
 				</select>
 				<select id="ww-add-new-widget-corral">
-					<option value="0">-- <?php _e('Select a Corral', 'widgetwrangler'); ?> --</option>
+					<option value="0">- <?php _e('Select a Corral', 'widgetwrangler'); ?> -</option>
 					<?php foreach(Corrals::all() as $corral_slug => $corral_name) { ?>
 						<option value="<?php print esc_attr( $corral_slug ); ?>"><?php print $corral_name; ?></option>
 					<?php } ?>
