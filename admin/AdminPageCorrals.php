@@ -33,7 +33,7 @@ class AdminPageCorrals extends AdminPage {
 	 */
 	function description() {
 		return array(
-            __("A Corral is an arbitrary group of widgets. WordPress and previous Widget Wrangler versions call them 'sidebars', but they are ultimately not limited by that terminology.", 'widgetwrangler'),
+            __("A Corral is container for widgets. They are separate from sidebars to provide greater flexibility. For example you could have one or many Corrals within a theme sidebar.", 'widgetwrangler'),
             __("In general, you probably want at least one corral per theme sidebar.", 'widgetwrangler'),
 		);
 	}

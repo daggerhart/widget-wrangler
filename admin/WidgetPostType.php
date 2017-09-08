@@ -396,8 +396,9 @@ class WidgetPostType {
             <ul class="list">
                 <li><?php print sprintf(__("Do NOT use %s and %s tags.  This field is for raw PHP.", 'widgetwrangler'), '<code>&lt;?php</code>', '<code>?&gt;</code>'); ?></li>
                 <li><?php _e("Evaluate boolean true or false with php. Defaults to TRUE.", 'widgetwrangler'); ?></li>
-                <li><?php print sprintf(__("For simple logic, execute your conditions directly.  (For example, use Wordpress Conditional Tags such as %s or %s).", 'widgetwrangler'), '<code>is_search()</code>', '<code>is_404()</code>'); ?></li>
+                <li><?php print sprintf(__("For simple logic, execute your conditions directly.  (For example, use WordPress Conditional Tags such as %s or %s).", 'widgetwrangler'), '<code>is_search()</code>', '<code>is_404()</code>'); ?></li>
                 <li><?php _e("For complex logic, return TRUE or FALSE as needed.", 'widgetwrangler'); ?></li>
+                <li><a href="https://codex.wordpress.org/Conditional_Tags" target="_blank"><?php _e('More Conditional Tags'); ?></a></li>
             </ul>
         </div>
 		<?php
@@ -629,6 +630,10 @@ class WidgetPostType {
                 <?php
             }
             ?>
+            <h4><?php _e('Starter Template'); ?></h4>
+            <p><?php _e('You can copy this template to your theme with one of the suggested file names above. The file name chosen determines what widgets your new template will apply to.'); ?></p>
+            <p><?php _e('For example, if your file name includes the corral slug, then the template will only apply to widgets in that corral. If your file name includes the widget ID or slug, then the template will only apply to that widget.'); ?></p>
+            <pre class="code"><?php print htmlentities( file_get_contents( WW_PLUGIN_DIR.'/templates/widget-1x.php' ) ); ?></pre>
         </div>
         <?php
 	}
