@@ -261,7 +261,7 @@ class AdminPagePresets extends AdminPage {
 
 	    $form = new Form(array(
             'field_prefix' => 'create',
-            'action' => 'edit.php?post_type=widget&page=presets&ww_action=create&noheader=true',
+            'action' => $this->actionPath('create'),
             'fields' => array(
 	            'variety' => array(
 		            'type' => 'select',
@@ -318,7 +318,7 @@ class AdminPagePresets extends AdminPage {
     function formEdit( $preset ) {
         $form = new Form(array(
             'style' => 'table',
-            'action' => 'edit.php?post_type=widget&page=presets&ww_action=update_data&noheader=true',
+            'action' => $this->actionPath('update_data'),
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -397,7 +397,7 @@ class AdminPagePresets extends AdminPage {
 
 	    $form = new Form(array(
 		    'style' => 'table',
-		    'action' => 'edit.php?post_type=widget&page=presets&ww_action=delete&noheader=true',
+		    'action' => $this->actionPath('delete'),
 		    'fields' => array(
 			    'submit' => array(
 				    'type' => 'submit',

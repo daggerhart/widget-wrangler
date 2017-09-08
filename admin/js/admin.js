@@ -21,8 +21,6 @@
          * Js confirm with data Attribute
          */
         $('input[data-confirm]').click(function(event) {
-           event.preventDefault();
-
            return confirm( $(this).data('confirm') );
         });
 

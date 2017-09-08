@@ -150,6 +150,17 @@ class AdminPage {
 	}
 
 	/**
+     * Standard action path creation.
+     *
+	 * @param $action
+	 *
+	 * @return string
+	 */
+	function actionPath( $action ) {
+	    return "{$this->pagePath()}&ww_action={$action}&noheader=true";
+    }
+
+	/**
 	 * Route the page navigation
 	 */
 	function route() {

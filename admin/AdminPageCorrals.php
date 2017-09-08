@@ -58,7 +58,7 @@ class AdminPageCorrals extends AdminPage {
 	function formCreate() {
 	    $form = new Form(array(
             'style' => 'table',
-            'action' => 'edit.php?post_type=widget&page=corrals&ww_action=create&noheader=true',
+            'action' => $this->actionPath('create'),
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -115,7 +115,7 @@ class AdminPageCorrals extends AdminPage {
 	    $items = ob_get_clean();
 
         $form = new Form(array(
-            'action' => 'edit.php?post_type=widget&page=corrals&ww_action=sort&noheader=true',
+            'action' => $this->actionPath('sort'),
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -158,7 +158,7 @@ class AdminPageCorrals extends AdminPage {
     function formUpdate($name, $slug) {
 	    $form = new Form(array(
             'style' => 'table',
-		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=update&noheader=true',
+		    'action' => $this->actionPath('update'),
             'fields' => array(
                 'ww-update-submit' => array(
 	                'type' => 'submit',
@@ -218,7 +218,7 @@ class AdminPageCorrals extends AdminPage {
 	 */
     function formDelete($slug) {
 	    $form = new Form(array(
-		    'action' => 'edit.php?post_type=widget&page=corrals&ww_action=delete&noheader=true',
+		    'action' => $this->actionPath('delete'),
             'fields' => array(
                 'ww-delete-slug' => array(
 	                'type' => 'hidden',

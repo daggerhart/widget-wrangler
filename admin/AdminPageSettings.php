@@ -54,7 +54,7 @@ class AdminPageSettings extends AdminPage {
 	 */
 	function page() {
 		$settings_form = new Form(array(
-			'action' => $this->pagePath() . '&ww_action=save&noheader=true',
+			'action' => $this->actionPath('save'),
 			'field_prefix' => 'settings',
 			'style' => 'box',
 			'fields' => array(
@@ -131,7 +131,7 @@ class AdminPageSettings extends AdminPage {
 
 		$setup_theme_form = new Form(array(
             'style' => 'box',
-            'action' => $this->pagePath() . '&ww_action=theme_setup&noheader=true',
+            'action' => $this->actionPath('theme_setup'),
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -147,7 +147,7 @@ class AdminPageSettings extends AdminPage {
         ));
 		$reset_widgets_form = new Form(array(
             'style' => 'box',
-            'action' => $this->pagePath() . '&ww_action=reset&noheader=true',
+            'action' => $this->actionPath('reset'),
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -163,7 +163,7 @@ class AdminPageSettings extends AdminPage {
         ));
 		$reset_settings_form = new Form(array(
             'style' => 'box',
-            'action' => $this->pagePath() . '&ww_action=reset_settings&noheader=true',
+            'action' => $this->actionPath('reset_settings'),
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',

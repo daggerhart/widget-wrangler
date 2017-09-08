@@ -90,7 +90,7 @@ class AdminPageSidebars extends AdminPage {
 
 		$form = new Form(array(
 			'style' => 'table',
-			'action' => 'edit.php?post_type=widget&page=sidebars&ww_action=update&noheader=true',
+			'action' => $this->actionPath('update'),
 			'field_prefix' => 'ww-data',
 		));
 
