@@ -81,96 +81,105 @@ class TaxonomiesUi {
       wp_redirect($_SERVER['HTTP_REFERER']);
     }
   }
-  
-  //
-  function ww_form_meta()
-  {
-    if (isset($_GET['tag_ID']))
-    { ?>
-      <input value="<?php print $_GET['tag_ID']; ?>" type="hidden" id="ww_ajax_context_id" />
-      <?php
-    }
-    else if (isset($_GET['taxonomy']))
-    { ?>
-      <input value="<?php print $_GET['taxonomy']; ?>" type="hidden" id="ww_ajax_context_id" />
-      <?php
-    }
-  }
-  
-  //
-  // widget form on taxonomy (term list) screen
-  // 
-  function _taxonomy_form( $taxonomy ) {
-    
-    if (isset($this->settings['taxonomies'][$taxonomy]) &&
-        $taxonomies = get_taxonomies(array('name' => $taxonomy), 'objects'))
-    {
-      $tax = array_pop($taxonomies);
-      $override_default_checked = "";
-      
-      $where = array(
-        'type' => 'taxonomy',
-        'variety' => 'taxonomy',
-        'extra_key' => $taxonomy,
-      );
-      
-       // allow for presets
-      if ($tax_data = Extras::get($where))
-      {
-        if ( isset( $tax_data->data['override_default'] ) ){
-          $override_default_checked = 'checked="checked"';
-        }
-        
-        if (isset($tax_data->data['preset_id']) && $tax_data->data['preset_id'] != 0) {
-          $preset = Presets::get($tax_data->data['preset_id']);
-          $widgets = $preset->widgets;
-        }
-        else {
-          $widgets = $tax_data->widgets;
-        }
-      }
-      else {
-        $preset = Presets::getCore('default');
-        $widgets = $preset->widgets;
-      }
-      
-      $page_widgets = $widgets;
 
-      if (isset($preset)){
-        Presets::$current_preset_id = $preset->id;
-      }
-      
-      $form = array(
-        'title' => __('Widget Wrangler', 'widgetwrangler'),
-        'description' => __('Here you can override the default widgets for all terms in this taxonomy.', 'widgetwrangler'),
-        'attributes' => array(
-          'action' => 'edit.php?post_type=widget&page=ww_save_taxonomy_form&noheader=true',
-          ),
-        'submit_button' => array(
-          'attributes' => array(
-            'value' => __('Save Widgets', 'widgetwrangler'),
-            ),
-          ),
-        );
 
-      ob_start();
-        ?>
-        <input type="hidden" name="taxonomy" value="<?php print $taxonomy; ?>" />
-        <div class="ww-box">
-            <h3><?php _e('Widgets'); ?></h3>
-          <div>
-            <p>
-              <label><input type="checkbox" name="override_default" <?php print $override_default_checked; ?> /> - <?php _e('Enable these widgets as the default widgets for terms in this taxonomy.', 'widgetwrangler'); ?></label>
-            </p>
-            <?php SortableWidgetsUi::metaBox( $page_widgets ); ?>
-          </div>
-        </div>
-        <?php
-      $form['content'] = ob_get_clean();
-      
-      print AdminUi::form($form);
-    }
-  }
+	function ww_form_meta()
+	{
+		if (isset($_GET['tag_ID']))
+		{ ?>
+            <input value="<?php print $_GET['tag_ID']; ?>" type="hidden" id="ww_ajax_context_id" />
+			<?php
+		}
+		else if (isset($_GET['taxonomy']))
+		{ ?>
+            <input value="<?php print $_GET['taxonomy']; ?>" type="hidden" id="ww_ajax_context_id" />
+			<?php
+		}
+	}
+
+	/**
+     * Widget form on taxonomy (term list) screen
+     *
+	 * @param $taxonomy
+	 */
+	function _taxonomy_form( $taxonomy ) {
+
+		if (isset($this->settings['taxonomies'][$taxonomy]) &&
+		    $taxonomies = get_taxonomies(array('name' => $taxonomy), 'objects'))
+		{
+			$tax = array_pop($taxonomies);
+			$override_default_checked = "";
+
+			$where = array(
+				'type' => 'taxonomy',
+				'variety' => 'taxonomy',
+				'extra_key' => $taxonomy,
+			);
+
+			// allow for presets
+			if ($tax_data = Extras::get($where))
+			{
+				if ( isset( $tax_data->data['override_default'] ) ){
+					$override_default_checked = 'checked="checked"';
+				}
+
+				if (isset($tax_data->data['preset_id']) && $tax_data->data['preset_id'] != 0) {
+					$preset = Presets::get($tax_data->data['preset_id']);
+					$widgets = $preset->widgets;
+				}
+				else {
+					$widgets = $tax_data->widgets;
+				}
+			}
+			else {
+				$preset = Presets::getCore('default');
+				$widgets = $preset->widgets;
+			}
+
+			$page_widgets = $widgets;
+
+			if (isset($preset)){
+				Presets::$current_preset_id = $preset->id;
+			}
+
+			ob_start();
+			SortableWidgetsUi::metaBox( $page_widgets );
+			$sortable_widgets = ob_get_clean();
+
+			$form = new Form(array(
+				'action' => 'edit.php?post_type=widget&page=ww_save_taxonomy_form&noheader=true',
+				'style' => 'box',
+				'fields' => array(
+					'opening' => array(
+						'type' => 'markup',
+						'title' => __('Widget Wrangler'),
+						'description' => __('Here you can override the default widgets for all terms in this taxonomy.', 'widgetwrangler'),
+					),
+					'taxonomy' => array(
+						'type' => 'hidden',
+						'value' => $taxonomy,
+					),
+					'override_default' => array(
+						'type' => 'checkbox',
+						'title' => __('Set as taxonomy default widgets'),
+						'help' => __('Enable these widgets as the default widgets for terms in this taxonomy.'),
+					),
+					'save_widgets' => array(
+						'type' => 'submit',
+						'value' => __('Save Widgets', 'widgetwrangler'),
+						'class' => 'button button-large button-primary',
+					),
+					'widgets' => array(
+						'type' => 'markup',
+						'value' => $sortable_widgets,
+						'title' => __('Widgets'),
+					),
+				)
+			));
+
+			print $form->render();
+		}
+	}
 
   //
   // save taxonomy widget data

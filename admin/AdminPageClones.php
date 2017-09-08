@@ -84,7 +84,7 @@ class AdminPageClones extends AdminPage {
                     <div class='ww-box-toggle-content'>
                         <?php
                             $form = new Form(array(
-                                'action' => $this->pageUrl().'&ww_action=insert&noheader=true',
+                                'action' => $this->pagePath() . '&ww_action=insert&noheader=true',
                                 'fields' => array(
                                     'ww-classname' => array(
                                         'type' => 'hidden',

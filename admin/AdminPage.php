@@ -27,7 +27,7 @@ class AdminPage {
 	 *
 	 * @return string
 	 */
-	function parent() {
+	function parentSlug() {
 		return 'edit.php?post_type=widget';
 	}
 
@@ -86,15 +86,6 @@ class AdminPage {
 	}
 
 	/**
-	 * Whether or not to output this page with a form template.
-	 *
-	 * @return bool
-	 */
-	function isForm() {
-		return false;
-	}
-
-	/**
 	 * AdminPage constructor.
 	 *
 	 * @param $settings
@@ -124,8 +115,8 @@ class AdminPage {
 	 * WordPress hook admin_menu.
 	 */
 	function menu() {
-		if ($this->parent() && $this->slug()) {
-			$this->page_hook = add_submenu_page( $this->parent(), $this->title(), $this->menuTitle(), $this->capability(), $this->slug(), array( $this, 'route' ));
+		if ( $this->parentSlug() && $this->slug()) {
+			$this->page_hook = add_submenu_page( $this->parentSlug(), $this->title(), $this->menuTitle(), $this->capability(), $this->slug(), array( $this, 'route' ));
 		}
 	}
 
@@ -154,8 +145,8 @@ class AdminPage {
 	 *
 	 * @return string
 	 */
-	function pageUrl() {
-		return $this->parent() . '&page=' .$this->slug();
+	function pagePath() {
+		return $this->parentSlug() . '&page=' . $this->slug();
 	}
 
 	/**
@@ -182,12 +173,7 @@ class AdminPage {
 			exit;
 		}
 
-		if ( $this->isForm() ){
-			$this->showForm();
-		}
-		else {
-			$this->showPage();
-		}
+		$this->showPage();
 	}
 
 	/**
@@ -198,22 +184,7 @@ class AdminPage {
 			$this->page();
 		$content = ob_get_clean();
 
-		print AdminUi::page(array(
-			'title' => $this->title(),
-			'description' => $this->description(),
-			'content' => $content,
-		));
-	}
-
-	/**
-	 * Output the templated form.
-	 */
-	function showForm() {
-		ob_start();
-			$this->form();
-		$content = ob_get_clean();
-
-		print AdminUi::form(array(
+		print $this->templatePage(array(
 			'title' => $this->title(),
 			'description' => $this->description(),
 			'content' => $content,
@@ -225,10 +196,86 @@ class AdminPage {
 	 */
 	function page() {}
 
+
 	/**
-	 * Override in child to produce form output.
+	 * Page wrapper template
+	 *
+	 * @param array $page
+	 *
+	 * @return string
 	 */
-	function form() {}
+	function templatePage($page = array()) {
+		$default_page = array(
+			'title' => '',
+			'description' => '',
+			'content' => '',
+		);
+		$page = array_replace($default_page, $page);
+		ob_start();
+		?>
+		<div class="wrap">
+			<h2><?php printf( __('%s', 'widgetwrangler'), $page['title']); ?></h2>
+			<?php
+			print $this->templateMessages();
+			print $this->templateDescription($page['description']);
+			?>
+			<div>
+				<?php print $page['content']; ?>
+			</div>
+			<div class="ww-clear-gone">&nbsp;</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Template messages.
+	 *
+	 * @return string
+	 */
+	function templateMessages() {
+		$messages = AdminMessages::instance()->get();
+
+		ob_start();
+		if ( !empty( $messages ) ) {
+			?>
+			<div id="message">
+				<?php foreach ( $messages as $message ) { ?>
+					<div class="<?php print $message['type']; ?> notice is-dismissible">
+						<p><?php print $message['message']; ?></p>
+					</div>
+				<?php } ?>
+			</div>
+			<?php
+		}
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Template descriptions.
+	 *
+	 * @param $descriptions array
+	 *
+	 * @return string
+	 */
+	function templateDescription( $descriptions ) {
+		ob_start();
+		if ( !empty( $descriptions ) ) {
+			if ( !is_array($descriptions) ){
+				$descriptions = array($descriptions);
+			}
+			?>
+			<div class="ww-box description">
+				<?php foreach ( $descriptions as $description ) { ?>
+					<p><?php print $description; ?></p>
+				<?php } ?>
+			</div>
+			<?php
+		}
+
+		return ob_get_clean();
+	}
 
 	/**
 	 * Standard action result array

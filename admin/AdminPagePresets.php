@@ -213,7 +213,7 @@ class AdminPagePresets extends AdminPage {
 
 		// we have a preset to load
 		if ($current_preset_id && $current_preset = Presets::get($current_preset_id)){
-			$current_preset_message = "This page is currently using the <a href='".$this->parent()."&page=presets&preset_id=".$current_preset->id."'>".$current_preset->data['name']."</a>  Widgets.";
+			$current_preset_message = "This page is currently using the <a href='".$this->pagePath() . "&preset_id=" . $current_preset->id . "'>" . $current_preset->data['name'] . "</a>  Widgets.";
 		}
 
 		$preset_options = array(0 => __('- No Preset'));

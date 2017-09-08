@@ -217,12 +217,12 @@ class Form {
 	}
 
 	/**
-	 * Opening form html
+	 * Opening form html and form style html.
 	 *
 	 * @return string
 	 */
 	function open(){
-		$output = '<form ' . $this->attributes( $this->get_form_attributes() ). '>';
+		$output = $this->form_open();
 
 		$style = $this->get_form_style();
 
@@ -234,7 +234,7 @@ class Form {
 	}
 
 	/**
-	 * Closing form html
+	 * Closing form html and form style html.
 	 *
 	 * @return string
 	 */
@@ -247,10 +247,28 @@ class Form {
 			$output.= call_user_func( $style['form_close'] );
 		}
 
-		$output.= '</form>';
+		$output.= $this->form_close();
 
 		return $output;
 	}
+
+	/**
+     * Form html open.
+     *
+	 * @return string
+	 */
+	function form_open() {
+	    return '<form ' . $this->attributes( $this->get_form_attributes() ). '>';
+    }
+
+	/**
+     * Form html close.
+     *
+	 * @return string
+	 */
+    function form_close() {
+	    return '</form>';
+    }
 
 	/**
      * Render an entire form that is instantiated with fields.

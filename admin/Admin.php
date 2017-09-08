@@ -20,7 +20,6 @@ class Admin {
 	function __construct($settings){
 
 		include_once WW_PLUGIN_DIR.'/admin/AdminMessages.php';
-		include_once WW_PLUGIN_DIR.'/admin/AdminUi.php';
 		include_once WW_PLUGIN_DIR.'/admin/Form.php';
 
 		include_once WW_PLUGIN_DIR.'/admin/AdminPage.php';
@@ -139,7 +138,7 @@ class Admin {
   function _save_post_widgets($post_id)
   {
     // skip quick edit
-    if (isset($_REQUEST['_inline_edit'])) { return; }
+    if (isset($_REQUEST['_inline_edit'])) { return $post_id; }
     
     // don't know what is being saved if not a post_type, so we do nothing
     if (!isset($_POST['post_type'])){

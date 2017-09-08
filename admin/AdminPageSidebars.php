@@ -54,7 +54,7 @@ class AdminPageSidebars extends AdminPage {
 		parent::menu();
 
 		if ( !$this->settings['theme_compat']) {
-			remove_submenu_page($this->parent(), $this->slug());
+			remove_submenu_page($this->parentSlug(), $this->slug());
 		}
 	}
 
@@ -64,20 +64,21 @@ class AdminPageSidebars extends AdminPage {
 	 * @return array
 	 */
 	function actionUpdate() {
-		if ( isset($_POST['ww-data']['sidebars'] ) ) {
-			// clean up a little
-			$sidebars = array();
-			foreach ($_POST['ww-data']['sidebars'] as $slug => $sidebar){
-				$sidebars[$slug] = array();
-				foreach ($sidebar as $k => $v){
-					$sidebars[$slug][$k] = str_replace("\\", '', $v);
-				}
-			}
-			update_option('ww_alter_sidebars', $sidebars);
-			return $this->result(__('Sidebars modified.'));
-		}
+		if ( empty( $_POST['ww-data']['sidebars'] ) || !is_array( $_POST['ww-data']['sidebars'] ) ) {
+			return $this->error( __('Error: Form data missing or malformed.') );
+        }
 
-		return $this->error(__('Something went wrong...'));
+        // clean up a little
+        $sidebars = array();
+        foreach ($_POST['ww-data']['sidebars'] as $slug => $sidebar){
+            $sidebars[$slug] = array();
+            foreach ($sidebar as $k => $v){
+                $sidebars[$slug][$k] = str_replace("\\", '', $v);
+            }
+        }
+        update_option('ww_alter_sidebars', $sidebars);
+
+        return $this->result( __('Sidebars modified.') );
 	}
 
 	/**
@@ -89,10 +90,19 @@ class AdminPageSidebars extends AdminPage {
 
 		$form = new Form(array(
 			'style' => 'table',
-			'field_prefix' => 'ww-data[sidebars]',
+			'action' => 'edit.php?post_type=widget&page=sidebars&ww_action=update&noheader=true',
+			'field_prefix' => 'ww-data',
 		));
 
-		ob_start();
+		print $form->form_open();
+
+		print $form->render_field(array(
+            'type' => 'submit',
+            'name' => 'save',
+            'value' => __('Update Sidebars', 'widgetwrangler'),
+            'class' => 'button button-large button-primary',
+        ));
+
 		foreach ($altered_sidebars as $slug => $sidebar)
 		{
 			$original = (isset($wp_registered_sidebars[$slug])) ? $wp_registered_sidebars[$slug] : FALSE;
@@ -105,7 +115,7 @@ class AdminPageSidebars extends AdminPage {
                     print $form->render_field(array(
                         'type' => 'hidden',
                         'name' => 'slug',
-                        'name_prefix' => "[{$slug}]",
+                        'name_prefix' => "[sidebars][{$slug}]",
                         'value' => $slug,
                     ));
 
@@ -115,14 +125,14 @@ class AdminPageSidebars extends AdminPage {
                         'type' => 'checkbox',
                         'title' => __('Alter Sidebar'),
                         'name' => 'ww_alter',
-                        'name_prefix' => "[{$slug}]",
+                        'name_prefix' => "[sidebars][{$slug}]",
                         'value' => !empty($sidebar['ww_alter']),
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
                         'title' => __('Before Widget'),
                         'name' => 'before_widget',
-                        'name_prefix' => "[{$slug}]",
+                        'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['before_widget'] ),
                         'class' => 'regular-text code',
                     ));
@@ -130,7 +140,7 @@ class AdminPageSidebars extends AdminPage {
                         'type' => 'text',
                         'title' => __('Before Title'),
                         'name' => 'before_title',
-                        'name_prefix' => "[{$slug}]",
+                        'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['before_title'] ),
                         'class' => 'regular-text code',
                     ));
@@ -138,7 +148,7 @@ class AdminPageSidebars extends AdminPage {
                         'type' => 'text',
                         'title' => __('After Title'),
                         'name' => 'after_title',
-                        'name_prefix' => "[{$slug}]",
+                        'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['after_title'] ),
                         'class' => 'regular-text code',
                     ));
@@ -146,7 +156,7 @@ class AdminPageSidebars extends AdminPage {
                         'type' => 'text',
                         'title' => __('After Widget'),
                         'name' => 'after_widget',
-                        'name_prefix' => "[{$slug}]",
+                        'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['after_widget'] ),
                         'class' => 'regular-text code',
                     ));
@@ -163,22 +173,7 @@ class AdminPageSidebars extends AdminPage {
 			<?php
 		}
 
-		$content = ob_get_clean();
-
-		$page = array(
-			'title' => '',
-			'description' => '',
-			'content' => $content,
-			'attributes' => array(
-				'action' => 'edit.php?post_type=widget&page=sidebars&ww_action=update&noheader=true',
-			),
-			'submit_button' => array(
-				'attributes' => array(
-					'value' => __('Update Sidebars', 'widgetwrangler'),
-				),
-			),
-		);
-		print AdminUi::form($page);
+		print $form->form_close();
 	}
 
 }

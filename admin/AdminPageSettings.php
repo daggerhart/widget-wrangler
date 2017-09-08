@@ -54,7 +54,7 @@ class AdminPageSettings extends AdminPage {
 	 */
 	function page() {
 		$settings_form = new Form(array(
-			'action' => $this->pageUrl().'&ww_action=save&noheader=true',
+			'action' => $this->pagePath() . '&ww_action=save&noheader=true',
 			'field_prefix' => 'settings',
 			'style' => 'box',
 			'fields' => array(
@@ -131,7 +131,7 @@ class AdminPageSettings extends AdminPage {
 
 		$setup_theme_form = new Form(array(
             'style' => 'box',
-            'action' => $this->pageUrl().'&ww_action=theme_setup&noheader=true',
+            'action' => $this->pagePath() . '&ww_action=theme_setup&noheader=true',
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -147,7 +147,7 @@ class AdminPageSettings extends AdminPage {
         ));
 		$reset_widgets_form = new Form(array(
             'style' => 'box',
-            'action' => $this->pageUrl().'&ww_action=reset&noheader=true',
+            'action' => $this->pagePath() . '&ww_action=reset&noheader=true',
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -163,7 +163,7 @@ class AdminPageSettings extends AdminPage {
         ));
 		$reset_settings_form = new Form(array(
             'style' => 'box',
-            'action' => $this->pageUrl().'&ww_action=reset_settings&noheader=true',
+            'action' => $this->pagePath() . '&ww_action=reset_settings&noheader=true',
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -326,12 +326,14 @@ class AdminPageSettings extends AdminPage {
 
 		foreach( $taxonomies as $slug => $taxonomy ){
 			if ($taxonomy->show_ui) {
-				// taken from get_edit_term_link
-				// https://core.trac.wordpress.org/browser/tags/3.9.1/src/wp-includes/link-template.php#L894
-				$args = array( 'taxonomy' => $slug );
-
-				$edit_link= add_query_arg( $args, admin_url( 'edit-tags.php' ) );
 				$options[ $slug ] = $taxonomy->label;
+
+				if ( !empty( $this->settings['taxonomies'][ $slug ] ) ) {
+					// taken from get_edit_term_link
+					// https://core.trac.wordpress.org/browser/tags/3.9.1/src/wp-includes/link-template.php#L894
+					$edit_link = add_query_arg( array( 'taxonomy' => $slug ), admin_url( 'edit-tags.php' ) );
+					$options[ $slug ].= sprintf( ' - <a href="%s">%s</a>', $edit_link, __('edit') );
+                }
 			}
 		}
 
