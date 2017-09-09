@@ -73,8 +73,6 @@ class Admin {
 	 */
     function admin_init() {
 
-        add_action( 'widget_wrangler_form_meta' , array( $this, 'ww_form_meta' ) );
-
         wp_register_style('ww-admin', plugins_url('css/admin.css', __FILE__), array(), WW_SCRIPT_VERSION );
 
 	    wp_register_script('ww-admin',
@@ -120,18 +118,6 @@ class Admin {
 	/* -------------------------------------------- Sortable Widgets --------------------------*/
 
 
-
-	//
-  function ww_form_meta(){
-    // add the post_id hidden input when editing an enabled post
-    // for ajax handling
-    if (Utils::editingEnabledPostType())
-    { ?>
-      <input value="<?php print get_the_ID(); ?>" type="hidden" id="ww_ajax_context_id" />
-      <?php
-    }
-  }
-
   /*
    * Hook into saving a page
    * Save the post meta for this post
@@ -174,7 +160,7 @@ class Admin {
 		  update_post_meta( $post_id, 'ww_post_widgets', $widgets);
 	  }
 
-    $new_preset_id = (isset($_POST['ww-post-preset-id-new'])) ? (int)$_POST['ww-post-preset-id-new'] : 0;
+    $new_preset_id = (isset($_POST['ww-preset-id-new'])) ? (int)$_POST['ww-preset-id-new'] : 0;
     
     if ($new_preset_id !== FALSE){
       update_post_meta( $post_id, 'ww_post_preset_id', (int) $new_preset_id);

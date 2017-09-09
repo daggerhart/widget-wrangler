@@ -27,7 +27,6 @@ class TaxonomyUi extends AdminPage {
 			// alter the form and add some ajax functionality
 			add_filter( 'widget_wrangler_preset_ajax_op', array( $plugin, 'ww_preset_ajax_op') );
 			add_action( 'wp_ajax_ww_form_ajax', array( $plugin, 'ww_form_ajax' ) );
-			add_action( 'widget_wrangler_form_meta' , array( $plugin, 'ww_form_meta' ) );
 
 			add_action( 'admin_enqueue_scripts', array( $plugin, 'enqueue' ));
 			add_action( "after-{$_GET['taxonomy']}-table", array( $plugin, 'formTaxonomy' ) );
@@ -161,15 +160,6 @@ class TaxonomyUi extends AdminPage {
 		Taxonomies::saveWidgets('taxonomy', $_POST['taxonomy'], $data);
 
 		return $this->result( __('Success.') );
-	}
-
-	/**
-	 * Provide the contextual ID to the wrangler form.
-	 */
-	function ww_form_meta() {
-		?>
-        <input value="<?php print $_GET['taxonomy']; ?>" type="hidden" id="ww_ajax_context_id" />
-		<?php
 	}
 
 	/**

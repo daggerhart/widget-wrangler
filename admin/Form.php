@@ -144,6 +144,11 @@ class Form {
 				'form_close' => array( $this, 'form_close_flat' ),
 				'field_wrapper' => array( $this, 'field_wrapper_box' ),
 			),
+			'inline' => array(
+				'form_open' => array( $this, 'form_open_flat' ),
+				'form_close' => array( $this, 'form_close_flat' ),
+				'field_wrapper' => array( $this, 'field_wrapper_inline' ),
+			),
 			'table' => array(
 				'form_open' => array( $this, 'form_open_table' ),
 				'form_close' => array( $this, 'form_close_table' ),
@@ -650,6 +655,42 @@ class Form {
                 <p class="description"><?php echo $field['help']; ?></p>
 			<?php endif; ?>
         </div>
+		<?php
+	}
+
+	/**
+	 * Inline form style
+	 *
+	 * @param $field
+	 * @param $field_html
+	 */
+	function field_wrapper_inline( $field, $field_html ){
+	    ?>
+        <span id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
+             class="ww-field-wrapper">
+
+            <?php if ( !empty( $field['title'] ) && $field['label_first']) : ?>
+                <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
+                    <?php echo $field['title']; ?>
+                </label>
+            <?php endif; ?>
+
+			<?php if ( !empty( $field['description'] ) ) : ?>
+                <p class="description"><?php echo $field['description']; ?></p>
+			<?php endif; ?>
+
+			<?php echo $field_html; ?>
+
+		    <?php if ( !empty( $field['title'] ) && !$field['label_first']) : ?>
+                <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
+                    <?php echo $field['title']; ?>
+                </label>
+            <?php endif; ?>
+
+			<?php if ( !empty($field['help']) ) : ?>
+                <p class="description"><?php echo $field['help']; ?></p>
+			<?php endif; ?>
+        </span>
 		<?php
 	}
 

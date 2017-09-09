@@ -34,7 +34,7 @@ class Taxonomies {
 		$widgets = apply_filters('widget_wrangler_save_widgets_alter', $widgets);
 
 		// get the new preset id, if set
-		$new_preset_id = (isset($_POST['ww-post-preset-id-new'])) ? (int)$_POST['ww-post-preset-id-new'] : 0;
+		$new_preset_id = (isset($_POST['ww-preset-id-new'])) ? (int)$_POST['ww-preset-id-new'] : 0;
 
 		$where = array(
 			'type' => 'taxonomy',

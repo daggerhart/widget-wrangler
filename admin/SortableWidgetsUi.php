@@ -27,6 +27,7 @@ class SortableWidgetsUi {
             'data' => array(
 	            'ajaxURL' => admin_url( 'admin-ajax.php' ),
 	            'allWidgets' => Widgets::all(),
+	            'context' => Utils::context(),
             )
         );
 		wp_localize_script( 'ww-sortable-widgets', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
@@ -63,11 +64,17 @@ class SortableWidgetsUi {
 	 *
 	 * @return string
 	 */
-	function box_wrapper( $widgets ){
+	function box_wrapper( $widgets ) {
+
+		$context = Utils::context();
+
 		ob_start();
 		// meta_box interior
 		?>
 		<div id="widget-wrangler-form-meta">
+            <?php if ( $context['id'] ) : ?>
+                <input value="<?php print $context['id']; ?>" type="hidden" id="ww_ajax_context_id" />
+            <?php endif; ?>
 			<?php do_action('widget_wrangler_form_meta'); ?>
 			<input value='true' type='hidden' name='widget-wrangler-edit' />
 			<?php wp_nonce_field( 'widget-wrangler-sortable-list-box-save' , 'ww-sortable-list-box' ); ?>
@@ -77,7 +84,7 @@ class SortableWidgetsUi {
 			<div id='widget-wrangler-form' class='new-admin-panel'>
 				<div class='outer'>
 					<div id="widget_wrangler_form_top">
-						<?php do_action('widget_wrangler_form_top', Utils::pageContext()); ?>
+						<?php do_action('widget_wrangler_form_top', $context); ?>
 					</div>
                     <div id='ww-edited-message'>
                         <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
@@ -85,10 +92,6 @@ class SortableWidgetsUi {
 					<?php
 						print $this->theme_sortable_corrals( $widgets );
 					?>
-					<div id="widget_wrangler_form_bottom">
-						<?php do_action('widget_wrangler_form_bottom'); ?>
-					</div>
-
 				</div>
 			</div>
 		</div>
@@ -248,48 +251,71 @@ class SortableWidgetsUi {
 	}
 
 	/**
-	 * Implements widget_wrangler_form_bottom hook
+	 * Implements widget_wrangler_form_top hook
 	 *
 	 * Allow user to add any widget to any corral
 	 */
 	function add_new_widget(){
+		$context = Utils::context();
+		$form = new Form(array(
+            'style' => 'inline'
+        ));
+		$preset_id = 0;
+		$preset_message = "No preset selected. This page is wrangling widgets on its own.";
+
+		if ( !empty( $context['preset'] ) ) {
+			$preset_id = $context['preset']->id;
+			$preset_message = "This page is currently using the <a href='edit.php?post_type=widget&page=presets&preset_id=" . $preset_id . "'>" . $context['preset']->data['name'] . "</a>  Widgets.";
+		}
+
 		?>
-		<div class="">
-			<h3><?php _e('Add Widget', 'widgetwrangler'); ?></h3>
-			<div class="">
-				<select id="ww-add-new-widget-widget">
-					<option value="0">- <?php _e('Select a Widget', 'widgetwrangler'); ?> -</option>
-					<?php foreach ( $this->all_widgets as $widget ){ ?>
-						<?php if ( ! $widget->hide_from_wrangler ) : ?>
-						<option value="<?php print esc_attr( $widget->ID ); ?>"><?php print $widget->post_title; ?></option>
-						<?php endif; ?>
-					<?php } ?>
-				</select>
-				<select id="ww-add-new-widget-corral">
-					<option value="0">- <?php _e('Select a Corral', 'widgetwrangler'); ?> -</option>
-					<?php foreach(Corrals::all() as $corral_slug => $corral_name) { ?>
-						<option value="<?php print esc_attr( $corral_slug ); ?>"><?php print $corral_name; ?></option>
-					<?php } ?>
-				</select>
-				<span id="ww-add-new-widget-button" class="button button-large"><?php _e('Add Widget to Corral', 'widgetwrangler'); ?></span>
-                <p class="description"><?php _e('Select a widget you would like to add, and the corral where you would like to add it. Click the button Add Widget to Corral.', 'widgetwrangler'); ?></p>
-            </div>
+        <p id="ww-post-preset-message"><?php print $preset_message; ?></p>
+        <?php
+            // do not show preset selection on the presets admin page
+            if ( empty( $_GET['page'] ) || $_GET['page'] != 'presets' ) {
+	            print $form->render_field(array(
+		            'type' => 'hidden',
+		            'name' => 'widget_wrangler_preset_ajax_op',
+		            'value' => apply_filters('widget_wrangler_preset_ajax_op', 'replace_edit_page_widgets'),
+	            ));
+	            print $form->render_field(array(
+		            'type' => 'select',
+		            'name' => 'ww-preset-id-new',
+		            'title' => __('Preset') .'<span class="ajax-working spinner"></span>',
+		            'help' => __("Select the Preset you would like to control widgets on this page, or select '- No Preset -' to allow this page to control its own widgets."),
+		            'options' => array( 0 => __('- No Preset -') ) + Presets::asOptions(),
+		            'value' => $preset_id,
+	            ));
+            }
+            print $form->render_field(array(
+                'type' => 'select',
+                'title' => __('Add Widget'),
+                'name' => 'ww-add-new-widget-widget',
+                'options' => array( 0 => __('- Select a Widget -') ) + Widgets::asOptions( $this->all_widgets ),
+            ));
+            print $form->render_field(array(
+                'type' => 'select',
+                'name' => 'ww-add-new-widget-corral',
+                'options' => array( 0 => __('- Select a Corral -') ) + Corrals::all(),
+            ));
+        ?>
+        <span id="ww-add-new-widget-button" class="button button-large"><?php _e('Add Widget to Corral', 'widgetwrangler'); ?></span>
+        <p class="description"><?php _e('Select a widget you would like to add, and the corral where you would like to add it. Click the button Add Widget to Corral.', 'widgetwrangler'); ?></p>
 
-			<script type="text/html" id="tmpl-add-widget">
-				<?php
-				$tmpl_widget = array(
-					'weight' => '__widget-weight__',
-					'id' => '__widget-ID__',
-					'title' => '__widget-post_title__',
-					'corral' => array(
-						'slug' => '__widget-corral_slug__',
-					),
-				);
+        <script type="text/html" id="tmpl-add-widget">
+            <?php
+            $tmpl_widget = array(
+                'weight' => '__widget-weight__',
+                'id' => '__widget-ID__',
+                'title' => '__widget-post_title__',
+                'corral' => array(
+                    'slug' => '__widget-corral_slug__',
+                ),
+            );
 
-				print $this->sortable_corral_item( $tmpl_widget, '__ROW-INDEX__' );
-				?>
-			</script>
-		</div>
+            print $this->sortable_corral_item( $tmpl_widget, '__ROW-INDEX__' );
+            ?>
+        </script>
 		<?php
 		//
 	}

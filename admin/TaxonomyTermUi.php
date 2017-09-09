@@ -32,7 +32,6 @@ class TaxonomyTermUi {
 		     !empty( $settings['taxonomies'] ) &&
 		     !empty( $settings['taxonomies'][ $_GET['taxonomy'] ] ) )
 		{
-			add_action( 'widget_wrangler_form_meta' , array( $plugin, 'ww_form_meta' ) );
 			add_action ( $_GET['taxonomy'] . '_edit_form_fields', array( $plugin, 'formTerm'), 10, 2);
 		}
 
@@ -102,15 +101,6 @@ class TaxonomyTermUi {
 		}
 
 		Taxonomies::saveWidgets('term', $_POST['tag_ID']);
-	}
-
-	/**
-	 * Provide the contextual ID to the wrangler form.
-	 */
-	function ww_form_meta() {
-		?>
-		<input value="<?php print $_GET['tag_ID']; ?>" type="hidden" id="ww_ajax_context_id" />
-		<?php
 	}
 
 	/**

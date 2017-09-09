@@ -50,6 +50,43 @@ class Settings {
 	}
 
 	/**
+	 * Singleton.
+	 *
+	 * @return \WidgetWrangler\Settings
+	 */
+	public static function instance() {
+	 	$instance = null;
+
+	 	if ( empty( $instance ) ) {
+	 		$instance = new self();
+	    }
+
+	    return $instance;
+	}
+
+	/**
+	 * Helper function to determine if enabled post type.
+	 *
+	 * @param $post_type
+	 *
+	 * @return bool
+	 */
+	function isEnabledPostType( $post_type ) {
+		return !empty( $this->post_types[ $post_type ] );
+	}
+
+	/**
+	 * Helper function to determine if enabled taxonomy.
+	 *
+	 * @param $taxonomy
+	 *
+	 * @return bool
+	 */
+	function isEnabledTaxonomy( $taxonomy ) {
+		return !empty( $this->taxonomies[ $taxonomy ] );
+	}
+
+	/**
 	 * Save the stored values to the option row
 	 */
 	function save(){

@@ -14,7 +14,7 @@ class Utils {
 	 * @return array|null
 	 */
 	public static function pageWidgets() {
-		$context = self::pageContext();
+		$context = self::context();
 		$widgets = apply_filters('widget_wrangler_find_all_page_widgets', null, $context);
 
 		if ( empty( $widgets ) ) {
@@ -171,37 +171,41 @@ class Utils {
 	 *
 	 * @return array
 	 */
-	public static function pageContext() {
-		$settings = new Settings();
+	public static function context() {
 		$context = array(
-			'post' => get_post(),
+			'id' => null,
+			'post' => null,
 			'preset' => null,
 			'term' => null,
+			'taxonomy' => null,
 			'widgets' => null,
 		);
 
-		// admin page for presets
+		// Admin page for presets
 		if ( is_admin() && isset( $_REQUEST['preset_id'] ) ) {
 			$context['preset'] = Presets::get( $_REQUEST['preset_id'] );
 			$context['widgets'] = $context['preset']->widgets;
 			return $context;
 		}
 
-		// Single page/post
-		if ( $context['post'] ) {
-			// enabled post_types only
-			if ( !empty( $settings->values['post_types'][ get_post_type( $context['post']) ] ) ) {
-				$context = array_replace( $context, self::getSinglePageContext( $context['post']->ID ) );
-			}
+		// Single page/post: admin & frontend
+		$post = get_post();
+		if ( $post ) {
+			$context = array_replace( $context, self::getSingleContext( $post->ID ) );
 		}
 
-		// Taxonomy terms
-		if ((is_tax() || is_category() || is_tag()) && $term = get_queried_object() ) {
-			// enabled taxonomies only
-			if ( !empty( $settings->values['taxonomies'][ $term->taxonomy ] ) ) {
-				$context['term'] = $term->term_id;
-				$context = array_replace( $context, self::getTermPageContext( $term ) );
+		// Taxonomy &/ term: admin
+		if ( is_admin() && ( !empty( $_GET['taxonomy'] ) ) ) {
+			$context = array_replace( $context, self::getTaxonomyContext( $_GET['taxonomy'] ) );
+
+			// term
+			if ( !empty( $_GET['tag_ID'] ) ) {
+				$context = array_replace( $context, self::getTermContext( $_GET['tag_ID'] ) );
 			}
+		}
+		// Taxonomy &/ term: frontend
+		else if ((is_tax() || is_category() || is_tag()) && $term = get_queried_object() ) {
+			$context = array_replace( $context, self::getTermContext( $term->term_id ) );
 		}
 
 		// Postspage: blog home, not "is_front()"
@@ -220,21 +224,26 @@ class Utils {
 	}
 
 	/**
+	 * Get the preset and widgets for a single post.
+	 *
 	 * @param $post_id
 	 *
 	 * @return array
 	 */
-	public static function getSinglePageContext( $post_id ) {
-		$context = array(
-			'preset' => null,
-			'widgets' => maybe_unserialize( get_post_meta( $post_id, 'ww_post_widgets', TRUE ) ),
-		);
+	public static function getSingleContext( $post_id ) {
+		$context = array();
 
-		$preset_id = get_post_meta( $post_id, 'ww_post_preset_id', TRUE );
+		if ( Settings::instance()->isEnabledPostType( get_post_type( $post_id ) ) ) {
+			$context['post'] = get_post( $post_id );
+			$context['id'] = $context['post']->ID;
+			$context['widgets'] = maybe_unserialize( get_post_meta( $post_id, 'ww_post_widgets', TRUE ) );
 
-		if ( !empty( $preset_id ) ) {
-			$context['preset'] = Presets::get( $preset_id );
-			$context['widgets'] = $context['preset']->widgets;
+			$preset_id = get_post_meta( $post_id, 'ww_post_preset_id', TRUE );
+
+			if ( !empty( $preset_id ) ) {
+				$context['preset'] = Presets::get( $preset_id );
+				$context['widgets'] = $context['preset']->widgets;
+			}
 		}
 
 		return $context;
@@ -243,37 +252,60 @@ class Utils {
 	/**
 	 * Get the preset and widgets for a taxonomy term page.
 	 *
-	 * @param $term
+	 * @param $term_id
 	 *
 	 * @return array
 	 */
-	public static function getTermPageContext( $term ) {
-		$context = array(
-			'preset' => null,
-			'widgets' => null,
-		);
+	public static function getTermContext( $term_id ) {
+		$context = array();
+		$term = get_term( $term_id );
 
-		$extra = Extras::get(array(
-			'type' => 'taxonomy',
-			'variety' => 'term',
-			'extra_key' => $term->term_id,
-		));
+		if ( $term && Settings::instance()->isEnabledTaxonomy( $term->taxonomy ) ) {
+			$context['term'] = $term;
+			$context['id'] = $term->term_id;
 
-		// see if this term has widgets set
-		if ( $extra ) {
-			$context['widgets'] = $extra->widgets;
+			$extra = Extras::get(array(
+				'type' => 'taxonomy',
+				'variety' => 'term',
+				'extra_key' => $term->term_id,
+			));
 
-			if ( !empty( $extra->data['preset_id'] ) ) {
-				$context['preset'] = Presets::get( $extra->data['preset_id'] );
-				$context['widgets'] = $context['preset']->widgets;
+			// see if this term has widgets set
+			if ( $extra ) {
+				$context['widgets'] = $extra->widgets;
+
+				if ( !empty( $extra->data['preset_id'] ) ) {
+					$context['preset'] = Presets::get( $extra->data['preset_id'] );
+					$context['widgets'] = $context['preset']->widgets;
+				}
+			}
+			// otherwise see if the taxonomy is overriding
+			else {
+				$context = self::getTaxonomyContext( $term->taxonomy );
 			}
 		}
-		// otherwise see if the taxonomy is overriding
-		else {
+
+		return $context;
+	}
+
+	/**
+	 * Get the preset and widgets about a given taxonomy.
+	 *
+	 * @param $taxonomy
+	 *
+	 * @return array
+	 */
+	public static function getTaxonomyContext( $taxonomy ) {
+		$context = array();
+
+		if ( Settings::instance()->isEnabledTaxonomy( $taxonomy ) ) {
+			$context['taxonomy'] = get_taxonomy( $taxonomy );
+			$context['id'] = $taxonomy;
+
 			$extra = Extras::get(array(
 				'type' => 'taxonomy',
 				'variety' => 'taxonomy',
-				'extra_key' => $term->taxonomy,
+				'extra_key' => $taxonomy,
 			));
 
 			if ( $extra && isset( $extra->data['override_default'] ) ) {

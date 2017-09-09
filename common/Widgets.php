@@ -106,4 +106,23 @@ class Widgets extends Db {
 		return false;
 	}
 
+	/**
+	 * @return array
+	 */
+	public static function asOptions( $widgets = array() ) {
+		$options = array();
+
+		if ( empty( $widgets ) ) {
+			$widgets = self::all();
+		}
+
+		foreach( $widgets as $id => $widget ) {
+			if ( ! $widget->hide_from_wrangler ) {
+				$options[ $id ] = $widget->post_title;
+			}
+		}
+
+		return $options;
+	}
+
 }

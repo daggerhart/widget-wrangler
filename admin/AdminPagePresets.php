@@ -68,7 +68,6 @@ class AdminPagePresets extends AdminPage {
 	 * Implements action 'admin_init'
 	 */
 	function init(){
-		add_action( 'widget_wrangler_form_top', array( $this, 'ww_form_top' ));
 		add_action( 'wp_ajax_ww_form_ajax', array( $this, 'ww_form_ajax' ) );
 		add_action( 'widget_wrangler_save_widgets_alter', array( $this, 'ww_save_widgets_alter' ) );
 
@@ -166,7 +165,7 @@ class AdminPagePresets extends AdminPage {
 	 */
 	function ww_save_widgets_alter($widgets){
 		// '0' handles itself
-		$new_preset_id = (isset($_POST['ww-post-preset-id-new'])) ? (int)$_POST['ww-post-preset-id-new'] : 1;
+		$new_preset_id = (isset($_POST['ww-preset-id-new'])) ? (int)$_POST['ww-preset-id-new'] : 1;
 		$new_preset_widgets = NULL;
 
 		// attempt to load that new preset
@@ -187,56 +186,6 @@ class AdminPagePresets extends AdminPage {
 		}
 
 		return $widgets;
-	}
-
-	/**
-	 * Preset wrangler meta box form.
-	 *
-	 * @param $context
-	 */
-	function ww_form_top( $context ) {
-		$preset_ajax_op = 'replace_edit_page_widgets';
-		// allow other addons to manage their own ajax
-		$preset_ajax_op = apply_filters('widget_wrangler_preset_ajax_op', $preset_ajax_op);
-
-		$all = Presets::all();
-		$current_preset_id = 0;
-		$current_preset = NULL;
-		$current_preset_message = "No preset selected. This page is wrangling widgets on its own.";
-
-		// we have a preset to load
-		if ( !empty( $context['preset'] ) && $current_preset = $context['preset'] ) {
-		    $current_preset_id = $current_preset->id;
-			$current_preset_message = "This page is currently using the <a href='".$this->pagePath() . "&preset_id=" . $current_preset->id . "'>" . $current_preset->data['name'] . "</a>  Widgets.";
-		}
-
-		$preset_options = array(0 => __('- No Preset -'));
-
-		foreach( $all as $preset ) {
-			$preset_options[ $preset->id ] = $preset->data['name'];
-		}
-
-		?>
-        <div id='ww-post-preset'>
-            <span id="ww-post-preset-message"><?php print $current_preset_message; ?></span>
-            <?php
-				$form = new Form();
-				print $form->render_field(array(
-                    'type' => 'hidden',
-                    'name' => 'widget_wrangler_preset_ajax_op',
-                    'value' => $preset_ajax_op,
-                ));
-				print $form->render_field(array(
-					'type' => 'select',
-					'name' => 'ww-post-preset-id-new',
-					'title' => __('Preset') .'<span class="ajax-working spinner"></span>',
-					'help' => __("Select the Preset you would like to control widgets on this page, or select '- No Preset -' to allow this page to control its own widgets."),
-					'options' => $preset_options,
-					'value' => $current_preset_id,
-				));
-            ?>
-        </div>
-		<?php
 	}
 
 	/**
@@ -523,7 +472,7 @@ class AdminPagePresets extends AdminPage {
                         <input type="hidden" name="preset-variety" value="<?php print $this_preset->variety; ?>" />
 
                         <div id="widget_wrangler_form_top">
-                            <?php do_action('widget_wrangler_form_top', Utils::pageContext()); ?>
+                            <?php do_action('widget_wrangler_form_top', Utils::context()); ?>
                         </div>
                         <div id='ww-edited-message'>
                             <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>

@@ -144,7 +144,7 @@ WidgetWrangler.sortable.init = function() {
 WidgetWrangler.ajax = {
 	
 	init: function() {
-		$('select[name="ww-post-preset-id-new"]').live('change' , WidgetWrangler.ajax.replace_edit_widgets);
+		$('select[name="ww-preset-id-new"]').live('change' , WidgetWrangler.ajax.replace_edit_widgets);
 	},
 	
 	replace_edit_widgets: function() {
@@ -160,7 +160,7 @@ WidgetWrangler.ajax = {
       var post_data_form = {
         'action': 'ww_form_ajax',
         'op': preset_ajax_op, 
-        'preset_id': $('select[name="ww-post-preset-id-new"]').val(),
+        'preset_id': $('select[name="ww-preset-id-new"]').val(),
         'context_id': $('input#ww_ajax_context_id').val(),
       };
       
@@ -206,8 +206,8 @@ WidgetWrangler.ajax = {
 
     init: function(){
       $('#ww-add-new-widget-button').click( function(){
-        var $widget = $('#ww-add-new-widget-widget');
-        var $corral = $('#ww-add-new-widget-corral');
+        var $widget = $('select[name=ww-add-new-widget-widget]');
+        var $corral = $('select[name=ww-add-new-widget-corral]');
 
         if ( $widget.val() === '0' ){}
         else if ( $corral.val() === '0' ){}

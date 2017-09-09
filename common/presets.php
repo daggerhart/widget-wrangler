@@ -161,4 +161,19 @@ class Presets {
 		return $varieties;
 	}
 
+	/**
+	 * All presets as a simple options array.
+	 *
+	 * @return array
+	 */
+	public static function asOptions() {
+		$options = array();
+
+		foreach( self::all() as $preset ) {
+			$options[ $preset->id ] = $preset->data['name'];
+		}
+
+		return $options;
+	}
+
 }
