@@ -1,4 +1,5 @@
 <?php
+use WidgetWrangler\Context;
 
 /**
  * For themes that implement this directly
@@ -26,6 +27,6 @@ function ww_the_widget($wp_widget_class, $instance = array()){
  * Check if corral contains active widgets
  */
 function ww_is_active_corral($corral_slug) {
-  $page_widgets = \WidgetWrangler\Utils::pageWidgets();
+  $page_widgets = Context::pageWidgets();
   return ( isset($page_widgets[$corral_slug]) && !empty($page_widgets[$corral_slug]) );
 }

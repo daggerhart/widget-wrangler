@@ -9,13 +9,13 @@ namespace WidgetWrangler;
 class WidgetPostType {
 	// public meta fields
 	var $meta_box_fields = array(
-		"ww-adv-enabled",
-		"ww-parse",
-		"ww-wpautop",
-		"ww-adv-template",
-		"ww-hide-title",
-		"ww-hide-from-wrangler",
-		"ww-custom-template-suggestion",
+		'ww-adv-enabled',
+		'ww-parse',
+		'ww-wpautop',
+		'ww-adv-template',
+		'ww-hide-title',
+		'ww-hide-from-wrangler',
+		'ww-custom-template-suggestion',
 		'ww-override-output-html',
 		'ww-html-wrapper-element',
 		'ww-html-wrapper-id',
@@ -112,8 +112,9 @@ class WidgetPostType {
 			'title' => __('Widget Title', 'widgetwrangler'),
 			'ww_type' => __('Type', 'widgetwrangler'),
 			'ww_description' => __('Description', 'widgetwrangler'),
-			'ww_rewrite_output' => __('Rewrite Output', 'widgetwrangler'),
-			'ww_shortcode' => __('Shortcode', 'widgetwrangler'),
+			'ww_advanced_parsing' => __('Advanced Parsing', 'widgetwrangler'),
+			'ww_status' => __('Status'),
+			'ww_shortcode' => __('Shortcodes', 'widgetwrangler'),
 		);
 
 		return $columns;
@@ -133,11 +134,15 @@ class WidgetPostType {
 				print (!empty($widget_type) ? $widget_type : 'standard');
 				break;
 
+            case 'ww_status':
+                print $post->post_status;
+                break;
+
 			case 'ww_description':
 				the_excerpt();
 				break;
 
-			case 'ww_rewrite_output':
+			case 'ww_advanced_parsing':
 				$rewrite = get_post_meta($post->ID, 'ww-adv-enabled', true);
 				print (!empty($rewrite) ? $rewrite : '&nbsp;');
 				break;

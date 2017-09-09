@@ -6,7 +6,7 @@ namespace WidgetWrangler;
  * Class WidgetWranglerWidgets
  * @package WidgetWrangler
  */
-class Widgets extends Db {
+class Widgets {
 
 	/**
 	 * Returns all published widgets
@@ -15,26 +15,17 @@ class Widgets extends Db {
 	 *
 	 * @return array
 	 */
-	public static function all($post_status = array('publish')) {
-
-		if (!is_array($post_status)) { $post_status = array($post_status); }
-		$status = implode("','", $post_status);
-
-		$db = self::db();
-
-		$query = "
-			SELECT `ID`
-			FROM {$db->posts}
-			WHERE `post_type` = 'widget' AND `post_status` IN ('$status')";
-		$results = $db->get_results($query);
+	public static function all( $post_status = array('publish') ) {
+		$results = get_posts(array(
+			'posts_per_page' => -1,
+			'post_type' => 'widget',
+			'post_status' => $post_status,
+		));
 
 		$widgets = array();
-		$i=0;
-		$total = count($results);
 
-		while($i < $total){
-			$widgets[$results[$i]->ID] = self::get($results[$i]->ID);
-			$i++;
+		foreach( $results as $widget ) {
+			$widgets[ $widget->ID ] = self::get( $widget );
 		}
 
 		return $widgets;
@@ -43,26 +34,22 @@ class Widgets extends Db {
 	/**
 	 * Retrieve and return a single widget by its ID
 	 *
-	 * @param $widget_id
+	 * @param $widget int | \WP_Post
 	 * @param bool $widget_status
 	 *
 	 * @return object|false
 	 */
-	public static function get( $widget_id, $widget_status = false ) {
+	public static function get( $widget, $widget_status = false ) {
 		// make sure method called with parameter
-		if ( empty( $widget_id ) ) { return false; }
+		if ( empty( $widget ) ) { return false; }
 
-		$db = self::db();
-		$status = $widget_status ? "`post_status` = '".$widget_status."' AND" : "";
+		$widget = get_post( $widget );
 
-		$query = "
-			SELECT `ID`,`post_name`,`post_title`,`post_content`,`post_status`
-            FROM `{$db->posts}`
-            WHERE `post_type` = 'widget' AND {$status} `ID` = {$widget_id}
-            LIMIT 1";
+		if ($widget && $widget_status && $widget->post_status != $widget_status ) {
+			return false;
+		}
 
-		if ($widget = $db->get_row($query)) {
-
+		if ( $widget ) {
 			// do this first so the following get_post_meta queries are pulled from cache
 			$widget->widget_meta  = get_post_meta($widget->ID);
 
@@ -71,7 +58,8 @@ class Widgets extends Db {
 			$widget->parse        = get_post_meta($widget->ID,'ww-parse', TRUE);
 			$widget->wpautop      = get_post_meta($widget->ID,'ww-wpautop', TRUE);
 			$widget->widget_type  = get_post_meta($widget->ID,'ww-widget-type', TRUE);
-			if (empty($widget->widget_type)){
+
+			if ( empty( $widget->widget_type ) ) {
 				$widget->widget_type = "standard";
 			}
 
@@ -107,7 +95,11 @@ class Widgets extends Db {
 	}
 
 	/**
-	 * @return array
+	 * Get a list of widgets to be used as options in a select list.
+	 *
+	 * @param array $widgets
+	 *
+	 * @return array Simple key -> value pairs of widget id and widget title.
 	 */
 	public static function asOptions( $widgets = array() ) {
 		$options = array();

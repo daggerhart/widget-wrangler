@@ -25,6 +25,7 @@ License: GPL2
 */
 
 define('WW_VERSION', '2.3.0');
+define('WW_DB_VERSION', '2001');
 define('WW_SCRIPT_VERSION', '2.3.0');
 
 define('WW_PLUGIN_FILE', __FILE__);
@@ -74,10 +75,9 @@ class Widget_Wrangler {
 	 * Construct the widget wrangler object.
 	 *  - add dependencies
 	 */
-	function __construct(){
-		// core
+	function __construct() {
+		include_once WW_PLUGIN_DIR.'/common/Context.php';
 		include_once WW_PLUGIN_DIR.'/common/Corrals.php';
-		include_once WW_PLUGIN_DIR.'/common/Db.php';
 		include_once WW_PLUGIN_DIR.'/common/Display.php';
 		include_once WW_PLUGIN_DIR.'/common/Extras.php';
 		include_once WW_PLUGIN_DIR.'/common/Presets.php';
@@ -91,7 +91,6 @@ class Widget_Wrangler {
 		include_once WW_PLUGIN_DIR.'/includes/backwards-compat-functions.inc';
 		include_once WW_PLUGIN_DIR.'/includes/wp-widget-ww-corral.php';
 		include_once WW_PLUGIN_DIR.'/includes/wp-widget-ww-widget.php';
-
 	}
 
 	/**
@@ -110,7 +109,7 @@ class Widget_Wrangler {
 		add_action( 'init', array( $plugin, 'register_post_types' ) );
 
 		// let all plugins load before gathering addons
-		add_action( 'plugins_loaded' , array( $plugin, 'wp_plugins_loaded' ) );
+		add_action( 'plugins_loaded' , array( $plugin, 'plugins_loaded' ) );
 
 		return $plugin;
 	}
@@ -120,7 +119,7 @@ class Widget_Wrangler {
 	 *
 	 *  - Register the corral and widget WP_Widget(s)
 	 */
-	function widgets_init(){
+	function widgets_init() {
 		register_widget( 'WidgetWrangler_Corral_Widget' );
 		register_widget( 'WidgetWrangler_Widget_Widget' );
 	}
@@ -128,7 +127,7 @@ class Widget_Wrangler {
 	/**
 	 * WordPress hook plugins_loaded
 	 */
-	function wp_plugins_loaded(){
+	function plugins_loaded() {
 		load_plugin_textdomain( 'widgetwrangler', FALSE, basename( WW_PLUGIN_DIR ) . '/languages/' );
 
 		// initialize core
@@ -151,7 +150,7 @@ class Widget_Wrangler {
 	/**
 	 * WordPress wp_loaded hook
 	 */
-	function wp_loaded(){
+	function wp_loaded() {
 		if ( !is_admin()) {
 			global $wp_registered_sidebars;
 			$wp_registered_sidebars = Utils::alteredSidebars();

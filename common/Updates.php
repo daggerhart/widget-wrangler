@@ -6,29 +6,83 @@ namespace WidgetWrangler;
  * Class Update
  * @package WidgetWrangler
  */
-class Updates extends Db {
+class Updates {
+
+	/**
+	 * Simple wrapper to retrieve global $wpdb object with local modifications
+	 *
+	 * @return \wpdb
+	 */
+	public static function db() {
+		global $wpdb;
+		return $wpdb;
+	}
 
 	/**
 	 * Check for updates and perform as necessary
 	 */
 	public static function update() {
+		$old_version = self::getDbVersion();
+
 		// upgrade, if an old version exists
-		if ( $old_version = get_option( 'ww_version', FALSE ) ){
-			if ( version_compare( $old_version, WW_VERSION, '<') ){
+		if ( version_compare( $old_version, WW_DB_VERSION, '<') ){
 
-				// upgrade from 1x to 2x
-				if ( version_compare( $old_version, 2, '<' ) ){
-					self::update2000();
+			// these are 2 legacy updates that will be deleted eventually.
+			self::update2000();
+			self::update2001();
+
+			// automatically detect updates and execute them
+			$updates = self::getUpdates();
+
+			foreach ($updates as $update) {
+				call_user_func( $update );
+			}
+
+			update_option('ww_version', WW_VERSION);
+			update_option('ww_db_version', WW_DB_VERSION);
+		}
+	}
+
+	/**
+	 * Get Widget Wrangler's database version
+	 *
+	 * @return string
+	 */
+	public static function getDbVersion() {
+		// add db version if missing
+		$db_version = get_option( 'ww_db_version', FALSE );
+
+		if ( !$db_version ) {
+			update_option('ww_db_version', WW_DB_VERSION );
+			$db_version = WW_DB_VERSION;
+		}
+
+		return $db_version;
+	}
+
+	/**
+	 * Get an array of update methods that need to be executed.
+	 *
+	 * @return array
+	 */
+	public static function getUpdates() {
+		$old_version = self::getDbVersion();
+		$updates = array();
+
+		if ( version_compare( $old_version, WW_DB_VERSION, '<') ) {
+			$difference = (int) WW_DB_VERSION - (int) $old_version;
+
+			for ( $i = 1; $i <= $difference; $i++ ) {
+				$next_version = ( (int) $old_version + $i );
+				$next_update = '\WidgetWrangler\Updates::update'. $next_version;
+
+				if ( is_callable( $next_update ) ) {
+					$updates[ $next_version ] = $next_update;
 				}
-
-				// abandonment of pro
-				if ( get_option('ww_pro_license_status', FALSE ) ){
-					self::update2001();
-				}
-
-				update_option('ww_version', WW_VERSION);
 			}
 		}
+
+		return $updates;
 	}
 
 	/**
@@ -38,6 +92,7 @@ class Updates extends Db {
 		$settings = new Settings();
 		add_option('ww_settings', $settings->default_settings);
 		add_option('ww_version', WW_VERSION);
+		add_option('ww_db_version', WW_DB_VERSION);
 		Extras::ensureTable();
 		Presets::installCore();
 	}
@@ -49,7 +104,7 @@ class Updates extends Db {
 	 */
 	public static function previouslyPro() {
 		$status = get_option('ww_pro_license_status', FALSE );
-		if ( ! $status ){
+		if ( ! $status ) {
 			return FALSE;
 		}
 
@@ -59,8 +114,13 @@ class Updates extends Db {
 	/**
 	 * Big upgrade with a lot of 1-time changes
 	 */
-	protected static function update2000() {
-		// check to make sure array options aren't over serialized
+	public static function update2000() {
+		$old_version = get_option( 'ww_version', WW_VERSION );
+
+		if ( version_compare( $old_version, 2, '>=' ) ) {
+			return;
+		}
+			// check to make sure array options aren't over serialized
 		$options = array('ww_default_widgets', 'ww_postspage_widgets', 'ww_settings', 'ww_sidebars');
 		foreach ($options as $option){
 			if ($v = get_option($option)){
@@ -99,9 +159,9 @@ class Updates extends Db {
 	/**
 	 * Migration after abandonment of "Pro" version
 	 */
-	protected static function update2001() {
+	public static function update2001() {
 		// only modifications are for versions that used to be PRO
-		if ( self::previouslyPro() ){
+		if ( get_option('ww_pro_license_status', FALSE ) && self::previouslyPro() ){
 			$settings = new Settings();
 
 			// this site used to be a paid-for WW Pro version

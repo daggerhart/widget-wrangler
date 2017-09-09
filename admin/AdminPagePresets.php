@@ -354,7 +354,7 @@ class AdminPagePresets extends AdminPage {
 		$all = Presets::all();
 		$preset_id = 1;
 		$preset = Presets::getCore('default');
-        $context = Utils::context();
+        $context = Context::context();
 		$sortable = new SortableWidgetsUi();
 
 		if ( $context['preset'] ) {

@@ -28,7 +28,7 @@ class SortableWidgetsUi {
 
 		$data = array(
             'allWidgets' => Widgets::all(array('publish', 'draft')),
-            'context' => Utils::context(),
+            'context' => Context::context(),
         );
 		wp_localize_script( 'ww-sortable-widgets', 'WidgetWranglerData', $data );
 	}
@@ -49,7 +49,7 @@ class SortableWidgetsUi {
 	 */
 	public static function metaBox( $widgets = null ) {
 	    if ( !$widgets ){
-		    $widgets = Utils::pageWidgets();
+		    $widgets = Context::pageWidgets();
 	    }
 
 		$sortable = new self();
@@ -65,7 +65,7 @@ class SortableWidgetsUi {
 	 * @return string
 	 */
 	function form( $widgets ) {
-		$context = Utils::context();
+		$context = Context::context();
 
 		ob_start();
 		?>
@@ -97,7 +97,7 @@ class SortableWidgetsUi {
 	 * Allow user to select preset and add any widget to any corral.
 	 */
 	function formTop() {
-		$context = Utils::context();
+		$context = Context::context();
 		$form = new Form(array( 'style' => 'inline' ));
 		$preset_id = 0;
 		$preset_message = __('No preset selected. This page is wrangling widgets on its own.');

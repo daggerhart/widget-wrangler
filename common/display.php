@@ -176,7 +176,7 @@ class Display {
    */
   function dynamic_corral($corral_slug = 'default', $wp_widget_args = array('before_widget' => '', 'before_title' => '', 'after_title' => '', 'after_widget' => ''))
   {
-  	$page_widgets = Utils::pageWidgets();
+  	$page_widgets = Context::pageWidgets();
     $corral_html = '';
     
     // only if page_widgets were found
