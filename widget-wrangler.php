@@ -39,7 +39,6 @@ use WidgetWrangler\Admin;
 use WidgetWrangler\Display;
 use WidgetWrangler\Presets;
 use WidgetWrangler\Settings;
-use WidgetWrangler\Taxonomies;
 use WidgetWrangler\Updates;
 use WidgetWrangler\Utils;
 use WidgetWrangler\Widgets;
