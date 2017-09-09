@@ -73,6 +73,7 @@ div.notice p {
     float: right;
     content: "\f140";
     font: 400 20px/1 dashicons;
+    cursor: pointer;
 }
 
 .ww-clear-gone {
@@ -113,6 +114,14 @@ div.notice p {
 
 .ww-column.col-25 { width: 24%; }
 .ww-column.col-75 { width: 74%; }
+
+@media screen and (max-width: 600px) {
+    .ww-columns .ww-column {
+        width: 100%;
+        float: none;
+        clear: both;
+    }
+}
 
 .ww-list-links, .ww-list-links li {
     padding: 0;
@@ -195,6 +204,13 @@ a.anchor {
     margin: 12px 0 0;
     min-height: 4em;
     width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+    .ww-field-inline {
+        display: block;
+        width: 100%;
+    }
 }
 
 /******************************************************
@@ -300,7 +316,7 @@ li.ww-item.ww-dragging {
     margin-top: 5px;
 }
 
-#widget_wrangler_form_top .description {
+.form-top .description {
     padding-left: 12px;
     border-left: 5px solid #eee;
     margin: 16px 12px;
@@ -312,7 +328,11 @@ li.ww-item.ww-dragging {
     border: 1px solid #cc0;
     border-left-width: 10px;
 }
-
+#ww_admin_meta_box > h2 img {
+    display: block;
+    float: left;
+    margin-right: 8px;
+}
 /******************************************************
  * TinyMCE
  *****************************************************/

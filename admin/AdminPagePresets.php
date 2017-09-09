@@ -390,44 +390,30 @@ class AdminPagePresets extends AdminPage {
 	 * Admin Manage presets form
 	 */
 	function page() {
-		// prepare preset data
-		$preset_id = 1;
-
-		if(isset($_GET['preset_id'])) {
-			if (is_numeric($_GET['preset_id']) && $_GET['preset_id'] > 1){
-				$preset_id = $_GET['preset_id'];
-			}
-		}
-
 		$all = Presets::all();
-		$this_preset = Presets::get($preset_id);
-		$varieties  = Presets::varieties();
-		$preset_variety  = $varieties[$this_preset->variety];
-
-		// themes draggable widgets
+		$preset_id = 1;
+		$preset = Presets::getCore('default');
+        $context = Utils::context();
 		$sortable = new SortableWidgetsUi();
 
-		// need to remove the normal preset form_top. can't select preset for preset
-		remove_action( 'widget_wrangler_form_top', array( $this, 'ww_form_top' ));
-
+		if ( $context['preset'] ) {
+			$preset = $context['preset'];
+			$preset_id = $preset->id;
+		}
 		ob_start();
 		?>
         <div class="ww-columns">
             <div class="ww-column col-25">
                 <div class="ww-box">
-                    <h3>Presets</h3>
+                    <h3><?php _e('Presets'); ?></h3>
                     <ul class="ww-list-links">
-                        <?php
-                        foreach($all as $preset)
-                        {
-                            $classes = ($preset_id == $preset->id) ? 'active' : '';
+                        <?php foreach($all as $item) {
+                            $classes = ($preset_id == $item->id) ? 'active' : '';
                             ?>
                             <li class="<?php print $classes; ?>">
-                                <a href="<?php print $this->pagePath(); ?>&preset_id=<?php print $preset->id; ?>"><?php print $preset->data['name']; ?><?php print ($preset->variety == 'core') ? ' <small>('.$preset->variety.')</small>' : ''; ?></a>
+                                <a href="<?php print $this->pagePath(); ?>&preset_id=<?php print $item->id; ?>"><?php print $item->data['name']; ?><?php print ($item->variety == 'core') ? ' <small>('.$item->variety.')</small>' : ''; ?></a>
                             </li>
-                            <?php
-                        }
-                        ?>
+                        <?php } ?>
                     </ul>
                 </div>
                 <div class="ww-box">
@@ -436,52 +422,51 @@ class AdminPagePresets extends AdminPage {
                 </div>
             </div>
             <div class="ww-column col-75">
-                <?php
-                // can't change the names of core presets
-                if($preset_variety['slug'] == 'core')
-                { ?>
+                <?php if ( $preset->variety == 'core') { ?>
                     <div class="ww-box">
-                        <h3><?php print $this_preset->data['name']; ?></h3>
+                        <h3><?php print $preset->data['name']; ?></h3>
                     </div>
-                    <?php
-                }
-                else
-                { ?>
+                <?php } else { ?>
                     <div class="ww-box ww-box-toggle">
-                        <h3><?php print $this_preset->data['name']; ?></h3>
+                        <h3><?php print $preset->data['name']; ?></h3>
                         <div class="ww-box-toggle-content">
                             <?php
-                            print $this->formEdit($this_preset);
-                            print $this->formDelete($this_preset);
+                            print $this->formEdit($preset);
+                            print $this->formDelete($preset);
                             ?>
                         </div>
                     </div>
-                    <?php
-                }
-                ?>
+                <?php } ?>
 
                 <div class="ww-box">
                     <h3><?php _e('Widgets'); ?></h3>
+                    <?php
 
-                    <form action='edit.php?post_type=widget&page=presets&ww_action=update_widgets&noheader=true' method='post' name='widget-wrangler-form'>
+                    $form = new Form(array(
+	                    'action' => $this->actionPath('update_widgets'),
+	                    'fields' => array(
+		                    'submit' => array(
+			                    'type' => 'submit',
+			                    'value' => __('Save Preset'),
+			                    'class' => 'ww-pull-right button button-primary button-large',
+		                    ),
+		                    'preset-id' => array(
+			                    'type' => 'hidden',
+			                    'value' => $preset->id,
+		                    ),
+		                    'preset-variety' => array(
+			                    'type' => 'hidden',
+			                    'value' => $preset->variety,
+		                    ),
+		                    'wrangler' => array(
+			                    'type' => 'markup',
+			                    'value' => $sortable->form( $preset->widgets ),
+                            ),
+	                    )
+                    ));
 
-                        <input class='ww-pull-right-box-out button button-primary button-large' type='submit' value='Save Preset'>
-                        <input type='hidden' name='widget-wrangler-edit' value='true' />
-                        <input type='hidden' name='ww_noncename' id='ww_noncename' value='<?php print wp_create_nonce( plugin_basename(__FILE__) ); ?>' />
-                        <input type="hidden" name="preset-id" value="<?php print $this_preset->id; ?>" />
-                        <input type="hidden" name="preset-variety" value="<?php print $this_preset->variety; ?>" />
-
-                        <div id="widget_wrangler_form_top">
-                            <?php do_action('widget_wrangler_form_top', Utils::context()); ?>
-                        </div>
-                        <div id='ww-edited-message'>
-                            <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
-                        </div>
-
-                        <div>
-                            <?php print $sortable->theme_sortable_corrals( $this_preset->widgets ); ?>
-                        </div>
-                    </form>
+                    print $form->render();
+                    ?>
                 </div>
             </div>
         </div>

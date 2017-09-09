@@ -372,6 +372,7 @@ class Form {
 			$field['class'] = array( $field['class'] );
 		}
 		$field['class'][] = 'ww-field';
+		$field['class'][] = 'ww-field-' . $this->form_args['style'];
 		$field['class'][] = 'ww-field-type-' . $field['type'];
 		$field['class'] = implode( ' ', $field['class'] );
 
@@ -581,7 +582,7 @@ class Form {
 	function field_wrapper_table( $field, $field_html ){
 		?>
         <tr  id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
-             class="ww-field-wrapper">
+             class="ww-field-wrapper ww-field-wrapper-table">
             <th scope="row">
                 <?php if ( !empty( $field['title'] ) ) : ?>
                     <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
@@ -631,7 +632,7 @@ class Form {
 	function field_wrapper_flat( $field, $field_html ){
 	    ?>
         <div id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
-             class="ww-field-wrapper">
+             class="ww-field-wrapper ww-field-wrapper-flat">
 
             <?php if ( !empty( $field['title'] ) && $field['label_first']) : ?>
                 <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
@@ -667,7 +668,7 @@ class Form {
 	function field_wrapper_inline( $field, $field_html ){
 	    ?>
         <span id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
-             class="ww-field-wrapper">
+             class="ww-field-wrapper ww-field-wrapper-inline">
 
             <?php if ( !empty( $field['title'] ) && $field['label_first']) : ?>
                 <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
@@ -703,7 +704,7 @@ class Form {
 	function field_wrapper_box( $field, $field_html ){
 	    ?>
         <div id="<?php echo esc_attr( $field['id'] ) ;?>--wrapper"
-             class="ww-field-wrapper ww-box">
+             class="ww-field-wrapper ww-field-wrapper-box ww-box">
 
             <h3>
                 <label for="<?php echo esc_attr( $field['id'] ); ?>" class="ww-field-label">
