@@ -55,7 +55,6 @@ use WidgetWrangler\Widgets;
 actions
 - widget_wrangler_form_meta  (doesn't get replaced on ajax)
 - widget_wrangler_form_top
-- widget_wrangler_form_bottom
  */
 class Widget_Wrangler {
 

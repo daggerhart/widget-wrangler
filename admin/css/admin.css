@@ -300,6 +300,11 @@ li.ww-item.ww-dragging {
     margin-top: 5px;
 }
 
+#widget_wrangler_form_top .description {
+    padding-left: 12px;
+    border-left: 5px solid #eee;
+    margin: 16px 12px;
+}
 #ww-edited-message { display: none; }
 #ww-edited-message p {
     margin: 0;

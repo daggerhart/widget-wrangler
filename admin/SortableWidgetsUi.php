@@ -24,13 +24,12 @@ class SortableWidgetsUi {
 		wp_enqueue_script('ww-sortable-widgets');
 
 		$data = array(
-            'data' => array(
-	            'ajaxURL' => admin_url( 'admin-ajax.php' ),
-	            'allWidgets' => Widgets::all(),
-	            'context' => Utils::context(),
-            )
+            'ajaxURL' => admin_url( 'admin-ajax.php' ),
+            'allWidgets' => Widgets::all(),
+            'context' => Utils::context(),
         );
-		wp_localize_script( 'ww-sortable-widgets', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
+		//wp_localize_script( 'ww-sortable-widgets', 'WidgetWrangler', array('l10n_print_after' => 'WidgetWrangler = '.json_encode( $data ).';') );
+		wp_localize_script( 'ww-sortable-widgets', 'WidgetWranglerData', $data );
 	}
 
 	/**
@@ -71,30 +70,28 @@ class SortableWidgetsUi {
 		ob_start();
 		// meta_box interior
 		?>
-		<div id="widget-wrangler-form-meta">
-            <?php if ( $context['id'] ) : ?>
-                <input value="<?php print $context['id']; ?>" type="hidden" id="ww_ajax_context_id" />
-            <?php endif; ?>
-			<?php do_action('widget_wrangler_form_meta'); ?>
-			<input value='true' type='hidden' name='widget-wrangler-edit' />
-			<?php wp_nonce_field( 'widget-wrangler-sortable-list-box-save' , 'ww-sortable-list-box' ); ?>
-		</div>
+        <div id='widget-wrangler-form'>
+            <div id="widget-wrangler-form-meta">
+                <?php if ( $context['id'] ) : ?>
+                    <input value="<?php print $context['id']; ?>" type="hidden" id="ww_ajax_context_id" />
+                <?php endif; ?>
+                <?php do_action('widget_wrangler_form_meta'); ?>
+                <input value='true' type='hidden' name='widget-wrangler-edit' />
+                <?php wp_nonce_field( 'widget-wrangler-sortable-list-box-save' , 'ww-sortable-list-box' ); ?>
+            </div>
 
-		<div id="widget-wrangler-form-wrapper">
-			<div id='widget-wrangler-form' class='new-admin-panel'>
-				<div class='outer'>
-					<div id="widget_wrangler_form_top">
-						<?php do_action('widget_wrangler_form_top', $context); ?>
-					</div>
-                    <div id='ww-edited-message'>
-                        <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
-                    </div>
-					<?php
-						print $this->theme_sortable_corrals( $widgets );
-					?>
-				</div>
-			</div>
-		</div>
+            <div id="widget-wrangler-form-content">
+                <div id="widget_wrangler_form_top">
+                    <?php do_action('widget_wrangler_form_top', $context); ?>
+                </div>
+                <div id='ww-edited-message'>
+                    <p><em>* <?php _e("Widget changes will not be updated until you save.", 'widgetwrangler'); ?></em></p>
+                </div>
+                <?php
+                    print $this->theme_sortable_corrals( $widgets );
+                ?>
+            </div>
+        </div>
 		<?php
 		return ob_get_clean();
 	}
@@ -196,7 +193,7 @@ class SortableWidgetsUi {
 		?>
 		<div id="ww-corral-<?php print $corral_slug; ?>-wrapper">
 			<h3><?php print $corral_name; ?></h3>
-			<ul name='<?php print $corral_slug; ?>' id='ww-corral-<?php print $corral_slug; ?>-items' class='inner ww-sortable' width='100%'>
+			<ul data-corralslug='<?php print $corral_slug; ?>' id='ww-corral-<?php print $corral_slug; ?>-items' class='inner ww-sortable'>
 				<?php
 					foreach ( $corral_widgets as $i => $widget ){
 						print $this->sortable_corral_item( $widget, $corral_slug.'-'.$i);
@@ -231,7 +228,7 @@ class SortableWidgetsUi {
 
 		ob_start();
 		?>
-		<li class='ww-item <?php print $corral_slug; ?> nojs' width='100%'>
+		<li class='ww-item <?php print $corral_slug; ?>' width='100%'>
 			<input  name='ww-data[widgets][<?php print $row_index; ?>][weight]' type='text' class='ww-widget-weight'  size='2' value='<?php print $weight; ?>' />
 			<input  name='ww-data[widgets][<?php print $row_index; ?>][id]' type='hidden' class='ww-widget-id' value='<?php print $widget_details['id']; ?>' />
 			<select name='ww-data[widgets][<?php print $row_index; ?>][sidebar]'>
