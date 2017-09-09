@@ -25,6 +25,23 @@ class Utils {
 	}
 
 	/**
+	 * Get the widget data assigned to a single post.
+	 *
+	 * @param $post_id
+	 *
+	 * @return array|mixed
+	 */
+	public static function getPostWidgets( $post_id ) {
+		$widgets = maybe_unserialize( get_post_meta( $post_id, 'ww_post_widgets', TRUE ) );
+
+		if ( empty( $widgets ) ) {
+			$widgets = array();
+		}
+
+		return $widgets;
+	}
+
+	/**
 	 * Alter WP Sidebars
 	 *
 	 * @param bool $force_alter
@@ -203,8 +220,9 @@ class Utils {
 				$context = array_replace( $context, self::getTermContext( $_GET['tag_ID'] ) );
 			}
 		}
+
 		// Taxonomy &/ term: frontend
-		else if ((is_tax() || is_category() || is_tag()) && $term = get_queried_object() ) {
+		if ((is_tax() || is_category() || is_tag()) && $term = get_queried_object() ) {
 			$context = array_replace( $context, self::getTermContext( $term->term_id ) );
 		}
 
@@ -236,7 +254,7 @@ class Utils {
 		if ( Settings::instance()->isEnabledPostType( get_post_type( $post_id ) ) ) {
 			$context['post'] = get_post( $post_id );
 			$context['id'] = $context['post']->ID;
-			$context['widgets'] = maybe_unserialize( get_post_meta( $post_id, 'ww_post_widgets', TRUE ) );
+			$context['widgets'] = self::getPostWidgets( $post_id );
 
 			$preset_id = get_post_meta( $post_id, 'ww_post_preset_id', TRUE );
 

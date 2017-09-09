@@ -1,4 +1,6 @@
 
+var WidgetWranglerData =  WidgetWranglerData || { context: {} };
+
 (function ($) {
 
     $(document).ready(function(){
@@ -129,41 +131,32 @@
      * Ajax call to get preset form content and replace that of the current form.
      */
     function replaceFormContents() {
-        var preset_ajax_op = $('input[name="widget_wrangler_preset_ajax_op"]').val();
-        if (preset_ajax_op){
-            // show throbber
-            $('.ajax-working').show().css('visibility', 'visible');
+        // show throbber, it gets replace on success.
+        $('.ajax-working').show().css('visibility', 'visible');
 
-            // store original message
-            var original_message = $('#ww-post-preset-message').html();
+        // store original message
+        var original_message = $('#ww-post-preset-message').html();
 
-            // prepare post data
-            var post_data_form = {
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
                 'action': 'ww_form_ajax',
-                'op': preset_ajax_op,
                 'preset_id': $('select[name="ww-preset-id-new"]').val(),
-                'context_id': $('input#ww_ajax_context_id').val(),
-            };
+                'context' : WidgetWranglerData.context || {}
+            },
+            success: function (data){
+                // replace panel contents with new widgets
+                $('#widget-wrangler-form-content').html(data);
 
-            // make ajax call
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: post_data_form,
-                //dataType: 'json',
-                success: function (data){
-                    // replace panel contents with new widgets
-                    $('#widget-wrangler-form-content').html(data);
+                // restore original messages
+                $('#ww-post-preset-message').html(original_message);
 
-                    // restore original messages
-                    $('#ww-post-preset-message').html(original_message);
-
-                    showMessage();
-                    refresh();
-                },
-                error: function(s,m) {}
-            });
-        }
+                showMessage();
+                refresh();
+            },
+            error: function(s,m) {}
+        });
     }
 
     /**

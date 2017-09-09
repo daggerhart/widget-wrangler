@@ -48,6 +48,7 @@ class Admin {
 
 		add_action( 'wp_loaded', array( $plugin, 'loaded' ) );
 		add_action( 'admin_init', array( $plugin, 'admin_init' ) );
+		add_action( 'wp_ajax_ww_form_ajax', array( $plugin, 'ww_form_ajax' ) );
 
 		AdminPageClones::register($settings);
 		AdminPageCorrals::register($settings);
@@ -115,8 +116,58 @@ class Admin {
         }
     }
 
-	/* -------------------------------------------- Sortable Widgets --------------------------*/
+	/**
+	 *
+	 */
+    function ww_form_ajax() {
+		if ( empty( $_POST['context'] ) ) {
+			exit;
+		}
 
+		$context = $_POST['context'];
+		$widgets = array();
+
+	    // if we changed to a preset, load those widgets
+	    if ( ! empty( $_POST['preset_id'] ) ) {
+		    $preset = Presets::get( $_POST['preset_id']);
+		    $widgets = $preset->widgets;
+	    }
+    	// default
+	    else if ( !empty( $context['post'] ) ) {
+		    $widgets = Utils::getPostWidgets( $context['id'] );
+	    }
+	    // term
+	    else if ( !empty( $context['term'] ) ) {
+		    $widgets = Presets::getCore('default')->widgets;
+
+		    $where = array(
+			    'type' => 'taxonomy',
+			    'variety' => 'term',
+			    'extra_key' => $context['id'],
+		    );
+
+		    if ( $term_data = Extras::get( $where ) ) {
+			    $widgets = $term_data->widgets;
+		    }
+	    }
+	    // taxonomy
+	    else if ( !empty( $context['taxonomy'] && empty( $context['term'] ) ) ) {
+		    $widgets = Presets::getCore('default')->widgets;
+
+		    $where = array(
+			    'type' => 'taxonomy',
+			    'variety' => 'taxonomy',
+			    'extra_key' => $context['id'],
+		    );
+
+		    if ( $term_data = Extras::get( $where ) ) {
+			    $widgets = $term_data->widgets;
+		    }
+	    }
+
+	    SortableWidgetsUi::metaBox( $widgets );
+	    exit;
+    }
 
   /*
    * Hook into saving a page

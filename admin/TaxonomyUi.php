@@ -24,10 +24,6 @@ class TaxonomyUi extends AdminPage {
 		     !empty( $settings['taxonomies'] ) &&
 		     !empty( $settings['taxonomies'][ $_GET['taxonomy'] ] ) )
 		{
-			// alter the form and add some ajax functionality
-			add_filter( 'widget_wrangler_preset_ajax_op', array( $plugin, 'ww_preset_ajax_op') );
-			add_action( 'wp_ajax_ww_form_ajax', array( $plugin, 'ww_form_ajax' ) );
-
 			add_action( 'admin_enqueue_scripts', array( $plugin, 'enqueue' ));
 			add_action( "after-{$_GET['taxonomy']}-table", array( $plugin, 'formTaxonomy' ) );
 		}
@@ -122,8 +118,8 @@ class TaxonomyUi extends AdminPage {
 					),
 					'override_default' => array(
 						'type' => 'checkbox',
-						'title' => __('Set as taxonomy default widgets'),
-						'help' => __('Enable these widgets as the default widgets for terms in this taxonomy.'),
+						'title' => __('Set taxonomy default widgets'),
+						'help' => __('Enable these widgets as the default widgets for terms in this taxonomy. If not checked, these widgets will never be displayed.'),
                         'value' => !empty( $tax_data->data['override_default'] ),
 					),
 					'save_widgets' => array(
@@ -160,64 +156,6 @@ class TaxonomyUi extends AdminPage {
 		Taxonomies::saveWidgets('taxonomy', $_POST['taxonomy'], $data);
 
 		return $this->result( __('Success.') );
-	}
-
-	/**
-	 * Override the preset ajax op
-	 *
-	 * @param $op
-	 *
-	 * @return string
-	 */
-	function ww_preset_ajax_op($op){
-		if ( isset($_POST['op']) && $_POST['op'] == 'replace_edit_taxonomy_widgets' ) {
-			$op = 'replace_edit_taxonomy_widgets';
-		}
-
-		return $op;
-	}
-
-
-	/**
-	 * Answer the ajax request for preset changes on a term form.
-	 */
-	function ww_form_ajax(){
-		if ( isset( $_POST['op'] ) && $_POST['op'] == 'replace_edit_taxonomy_widgets'){
-			if (isset($_POST['context_id'])) {
-				$taxonomy = $_POST['context_id'];
-				$preset_id = 0;
-
-				if (isset($_POST['preset_id']) && is_numeric($_POST['preset_id'])){
-					$preset_id = $_POST['preset_id'];
-				}
-
-				// if we changed to a preset, load those widgets
-				if ($preset_id && $preset = Presets::get($preset_id)){
-					$widgets = $preset->widgets;
-				}
-				// else, attempt to load tag widgets
-				else {
-					$where = array(
-						'type' => 'taxonomy',
-						'variety' => 'taxonomy',
-						'extra_key' => $taxonomy,
-					);
-
-					if ($term_data = Extras::get($where)){
-						$widgets = $term_data->widgets;
-					}
-					else {
-						$widgets = Presets::getCore('default')->widgets;
-					}
-				}
-				ob_start();
-				SortableWidgetsUi::metaBox( $widgets );
-				$output = ob_get_clean();
-
-				print $output;
-			}
-			exit;
-		}
 	}
     
 }

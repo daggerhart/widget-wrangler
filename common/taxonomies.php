@@ -27,8 +27,8 @@ class Taxonomies {
 	 * @param array $additional_data
 	 */
 	public static function saveWidgets($variety, $extra_key, $additional_data = array()){
-		//
-		$widgets = Utils::serializeWidgets($_POST['ww-data']['widgets']);
+		$widgets = ( !empty( $_POST['ww-data'] ) && !empty( $_POST['ww-data']['widgets'] ) ) ? $_POST['ww-data']['widgets'] : array();
+		$widgets = Utils::serializeWidgets($widgets);
 
 		// let presets addon do it's stuff
 		$widgets = apply_filters('widget_wrangler_save_widgets_alter', $widgets);
@@ -54,18 +54,18 @@ class Taxonomies {
 			$values['data'] += $additional_data;
 		}
 
-		// doesn't exist, create it before update
-		if (!Extras::get($where)){
-			$values['data'] = serialize($values['data']);
-			Extras::insert($values);
-		}
-
 		if ( $widgets ) {
 			// no preset, save widgets
 			$values['widgets'] = $widgets;
 
 			// force the 'zero' preset because these widgets are custom
 			$values['data']['preset_id'] = 0;
+		}
+
+		// doesn't exist, create it before update
+		if (!Extras::get($where)){
+			$values['data'] = serialize($values['data']);
+			Extras::insert($values);
 		}
 
 		if ( $new_preset_id ) {

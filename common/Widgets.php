@@ -43,14 +43,14 @@ class Widgets extends Db {
 	/**
 	 * Retrieve and return a single widget by its ID
 	 *
-	 * @param $post_id
+	 * @param $widget_id
 	 * @param bool $widget_status
 	 *
 	 * @return object|false
 	 */
-	public static function get( $post_id, $widget_status = false ) {
+	public static function get( $widget_id, $widget_status = false ) {
 		// make sure method called with parameter
-		if ( empty( $post_id ) ) { return false; }
+		if ( empty( $widget_id ) ) { return false; }
 
 		$db = self::db();
 		$status = $widget_status ? "`post_status` = '".$widget_status."' AND" : "";
@@ -58,7 +58,7 @@ class Widgets extends Db {
 		$query = "
 			SELECT `ID`,`post_name`,`post_title`,`post_content`,`post_status`
             FROM `{$db->posts}`
-            WHERE `post_type` = 'widget' AND {$status} `ID` = {$post_id}
+            WHERE `post_type` = 'widget' AND {$status} `ID` = {$widget_id}
             LIMIT 1";
 
 		if ($widget = $db->get_row($query)) {

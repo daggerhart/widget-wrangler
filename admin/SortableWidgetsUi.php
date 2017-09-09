@@ -10,6 +10,9 @@ class SortableWidgetsUi {
 
 	private $all_widgets = array();
 
+	/**
+	 * SortableWidgetsUi constructor.
+	 */
 	function __construct(){
 		add_action( 'widget_wrangler_form_top', array( $this, 'formTop' ) );
 
@@ -24,8 +27,7 @@ class SortableWidgetsUi {
 		wp_enqueue_script('ww-sortable-widgets');
 
 		$data = array(
-            'ajaxURL' => admin_url( 'admin-ajax.php' ),
-            'allWidgets' => Widgets::all(),
+            'allWidgets' => Widgets::all(array('publish', 'draft')),
             'context' => Utils::context(),
         );
 		wp_localize_script( 'ww-sortable-widgets', 'WidgetWranglerData', $data );
@@ -69,9 +71,6 @@ class SortableWidgetsUi {
 		?>
         <div id='widget-wrangler-form'>
             <div class="form-meta">
-                <?php if ( $context['id'] ) : ?>
-                    <input value="<?php print $context['id']; ?>" type="hidden" id="ww_ajax_context_id" />
-                <?php endif; ?>
                 <?php do_action('widget_wrangler_form_meta'); ?>
                 <?php wp_nonce_field( 'widget-wrangler-sortable-list-box-save' , 'ww-sortable-list-box' ); ?>
             </div>
@@ -118,11 +117,6 @@ class SortableWidgetsUi {
 				'type' => 'markup',
 				'name' => 'message',
 				'value' => "<p id='ww-post-preset-message'>{$preset_message}</p>",
-			));
-			print $form->render_field(array(
-				'type' => 'hidden',
-				'name' => 'widget_wrangler_preset_ajax_op',
-				'value' => apply_filters('widget_wrangler_preset_ajax_op', 'replace_edit_page_widgets'),
 			));
 			print $form->render_field(array(
 				'type' => 'select',

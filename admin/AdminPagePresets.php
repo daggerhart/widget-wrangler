@@ -68,9 +68,7 @@ class AdminPagePresets extends AdminPage {
 	 * Implements action 'admin_init'
 	 */
 	function init(){
-		add_action( 'wp_ajax_ww_form_ajax', array( $this, 'ww_form_ajax' ) );
 		add_action( 'widget_wrangler_save_widgets_alter', array( $this, 'ww_save_widgets_alter' ) );
-
 	}
 
 	/**
@@ -96,11 +94,8 @@ class AdminPagePresets extends AdminPage {
 			return $this->error( __('Error: No preset variety.') );
 		}
 
-        if ( empty( $_POST['ww-data'] ) || empty( $_POST['ww-data']['widgets'] ) ) {
-	        return $this->error( __('Error: No widgets.') );
-        }
-
-        $active_widgets = Utils::serializeWidgets($_POST['ww-data']['widgets']);
+        $widgets = ( !empty( $_POST['ww-data'] ) && !empty( $_POST['ww-data']['widgets'] ) ) ? $_POST['ww-data']['widgets'] : array();
+        $active_widgets = Utils::serializeWidgets( $widgets );
         $preset_id = intval( $_POST['preset-id'] );
         $preset_variety = $_POST['preset-variety'];
         $preset_widgets = (!empty($active_widgets)) ? $active_widgets : serialize(array());
@@ -120,40 +115,6 @@ class AdminPagePresets extends AdminPage {
         Extras::update($data, $where);
 
         return $this->result(__('Preset updated.'));
-	}
-
-	/**
-	 * Ajax form templates
-	 */
-	function ww_form_ajax() {
-		if (isset($_POST['op']) && $_POST['op'] == 'replace_edit_page_widgets'){
-			// legit post ids only
-			if (isset($_POST['context_id']) && is_numeric($_POST['context_id']) && $_POST['context_id'] > 0)
-			{
-				$post_id = $_POST['context_id'];
-				$preset_id = 0;
-
-				if (isset($_POST['preset_id']) && is_numeric($_POST['preset_id'])){
-					$preset_id = $_POST['preset_id'];
-				}
-
-				// if we changed to a preset, load those widgets
-				if ($preset_id && $preset = Presets::get($preset_id)){
-					$widgets = $preset->widgets;
-				}
-				// else, attempt to load page widgets
-				else {
-					$page_widgets = get_post_meta($post_id, 'ww_post_widgets', TRUE);
-					$widgets = ($page_widgets != '') ? maybe_unserialize($page_widgets) : array();
-				}
-
-				ob_start();
-				SortableWidgetsUi::metaBox( $widgets );
-				$output = ob_get_clean();
-				print $output;
-			}
-			exit;
-		}
 	}
 
 	/**
@@ -441,7 +402,6 @@ class AdminPagePresets extends AdminPage {
                 <div class="ww-box">
                     <h3><?php _e('Widgets'); ?></h3>
                     <?php
-
                     $form = new Form(array(
 	                    'action' => $this->actionPath('update_widgets'),
 	                    'fields' => array(

@@ -23,8 +23,6 @@ class TaxonomyTermUi {
 		$plugin = new self( $settings );
 
 		add_action( 'edited_term', array( $plugin, 'actionSaveTerm' ) );
-		add_filter( 'widget_wrangler_preset_ajax_op', array( $plugin, 'ww_preset_ajax_op') );
-		add_action( 'wp_ajax_ww_form_ajax', array( $plugin, 'ww_form_ajax' ) );
 
 		// add our form to term edit form if this taxonomy is enabled
 		if ( !empty( $_GET['taxonomy'] ) &&
@@ -103,62 +101,4 @@ class TaxonomyTermUi {
 		Taxonomies::saveWidgets('term', $_POST['tag_ID']);
 	}
 
-	/**
-	 * Override the preset ajax op
-	 *
-	 * @param $op
-	 *
-	 * @return string
-	 */
-	function ww_preset_ajax_op($op){
-		if ( isset( $_POST['op'] ) && $_POST['op'] == 'replace_edit_taxonomy_term_widgets' ) {
-			$op = 'replace_edit_taxonomy_term_widgets';
-		}
-
-		return $op;
-	}
-
-	/**
-	 * Answer the ajax request for preset changes on a term form.
-	 */
-	function ww_form_ajax(){
-		if ( isset($_POST['op'] ) && $_POST['op'] == 'replace_edit_taxonomy_term_widgets'){
-			// legit post ids only
-			if (isset($_POST['context_id']) && is_numeric($_POST['context_id']) && $_POST['context_id'] > 0)
-			{
-				$tag_id = $_POST['context_id'];
-				$preset_id = 0;
-
-				if (isset($_POST['preset_id']) && is_numeric($_POST['preset_id'])){
-					$preset_id = $_POST['preset_id'];
-				}
-
-				// if we changed to a preset, load those widgets
-				if ($preset_id && $preset = Presets::get($preset_id)){
-					$widgets = $preset->widgets;
-				}
-				// else, attempt to load tag widgets
-				else {
-					$where = array(
-						'type' => 'taxonomy',
-						'variety' => 'term',
-						'extra_key' => $tag_id,
-					);
-
-					if ($term_data = Extras::get($where)){
-						$widgets = $term_data->widgets;
-					}
-					else {
-						$widgets = Presets::getCore('default')->widgets;
-					}
-				}
-				ob_start();
-				SortableWidgetsUi::metaBox( $widgets );
-				$output = ob_get_clean();
-
-				print $output;
-			}
-			exit;
-		}
-	}
 }
