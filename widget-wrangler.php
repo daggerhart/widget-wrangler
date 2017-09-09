@@ -82,7 +82,6 @@ class Widget_Wrangler {
 		include_once WW_PLUGIN_DIR.'/common/Extras.php';
 		include_once WW_PLUGIN_DIR.'/common/Presets.php';
 		include_once WW_PLUGIN_DIR.'/common/Settings.php';
-		include_once WW_PLUGIN_DIR.'/common/Taxonomies.php';
 		include_once WW_PLUGIN_DIR.'/common/Updates.php';
 		include_once WW_PLUGIN_DIR.'/common/Utils.php';
 		include_once WW_PLUGIN_DIR.'/common/Widgets.php';
@@ -134,7 +133,6 @@ class Widget_Wrangler {
 		$this->settings = new Settings();
 		$this->display = Display::register( $this->settings->values );
 		Presets::register();
-		Taxonomies::register();
 
 
 		// initialize admin stuff

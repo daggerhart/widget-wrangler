@@ -153,7 +153,7 @@ class TaxonomyUi extends AdminPage {
 			'override_default' => (int) !empty($_POST['override_default']),
 		);
 
-		Taxonomies::saveWidgets('taxonomy', $_POST['taxonomy'], $data);
+		Admin::saveTaxonomyWidgets( 'taxonomy', $_POST['taxonomy'], $data );
 
 		return $this->result( __('Success.') );
 	}

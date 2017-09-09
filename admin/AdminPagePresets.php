@@ -52,26 +52,6 @@ class AdminPagePresets extends AdminPage {
 	}
 
 	/**
-	 * @param $settings
-	 *
-	 * @return AdminPage
-	 */
-	public static function register( $settings ) {
-		$plugin  = parent::register( $settings );
-
-		add_action('admin_init', array( $plugin, 'init') );
-
-		return $plugin;
-	}
-
-	/**
-	 * Implements action 'admin_init'
-	 */
-	function init(){
-		add_action( 'widget_wrangler_save_widgets_alter', array( $this, 'ww_save_widgets_alter' ) );
-	}
-
-	/**
 	 * @see AdminPage::enqueue()
 	 */
 	function enqueue() {
@@ -95,7 +75,7 @@ class AdminPagePresets extends AdminPage {
 		}
 
         $widgets = ( !empty( $_POST['ww-data'] ) && !empty( $_POST['ww-data']['widgets'] ) ) ? $_POST['ww-data']['widgets'] : array();
-        $active_widgets = Utils::serializeWidgets( $widgets );
+        $active_widgets = Admin::serializeWidgets( $widgets );
         $preset_id = intval( $_POST['preset-id'] );
         $preset_variety = $_POST['preset-variety'];
         $preset_widgets = (!empty($active_widgets)) ? $active_widgets : serialize(array());
@@ -115,38 +95,6 @@ class AdminPagePresets extends AdminPage {
         Extras::update($data, $where);
 
         return $this->result(__('Preset updated.'));
-	}
-
-	/**
-     * Widget Wrangler hook on widgets save.
-     *
-	 * @param $widgets
-	 *
-	 * @return bool
-	 */
-	function ww_save_widgets_alter($widgets){
-		// '0' handles itself
-		$new_preset_id = (isset($_POST['ww-preset-id-new'])) ? (int)$_POST['ww-preset-id-new'] : 1;
-		$new_preset_widgets = NULL;
-
-		// attempt to load that new preset
-		if ($new_preset_id && $new_preset = Presets::get($new_preset_id)){
-			$new_preset_widgets = serialize($new_preset->widgets);
-		}
-
-		// if the widgets to be saved are not the same as the selected preset's widgets
-		//   then the user loaded a preset, and changed some widgets
-		if ($widgets != $new_preset_widgets){
-			// force the 'zero' preset because these widgets are custom
-			$new_preset_id = 0;
-		}
-
-		// if new_preset_id is not zero, then a preset was selected and we don't want to save widgets
-		if ($new_preset_id !== 0){
-			$widgets = false;
-		}
-
-		return $widgets;
 	}
 
 	/**

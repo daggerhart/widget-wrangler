@@ -61,65 +61,6 @@ class Utils {
 	}
 
 	/**
-	 * Cleanup stored widget data in case of over serialization
-	 *
-	 * @param $corrals
-	 *
-	 * @return mixed
-	 */
-	public static function unserializeWidgets($corrals) {
-		// problem with over serialized options
-		$corrals = maybe_unserialize( $corrals );
-		$corrals = maybe_unserialize( $corrals );
-
-		if (isset( $corrals['disabled'] ) ) {
-			unset( $corrals['disabled'] );
-		}
-
-		foreach ($corrals as $corral_slug => $corral_widgets) {
-			foreach ($corral_widgets as $i => $widget) {
-				if (isset( $widget['name'] ) ) {
-					unset( $corrals[ $corral_slug ][ $i ]['name'] );
-				}
-			}
-		}
-
-		return $corrals;
-	}
-
-	/**
-	 * Take data from $_POST submit and convert in to serialized array as string
-	 *
-	 * @param $submitted_widget_data
-	 *
-	 * @return string
-	 */
-	public static function serializeWidgets($submitted_widget_data) {
-
-		$all_widgets = Widgets::all(array('publish', 'draft'));
-		$active_widgets = array();
-
-		if ( ! empty( $submitted_widget_data ) ) {
-			foreach ( $submitted_widget_data as $key => $details ) {
-				// get rid of any hashes
-				if ( isset( $all_widgets[ $details['id'] ] ) && isset( $details['weight'] ) && isset( $details['sidebar'] ) ) {
-					// if something was submitted without a weight, make it neutral
-					if ( $details['weight'] < 1 ) {
-						$details['weight'] = $key;
-					}
-
-					$active_widgets[ $details['sidebar'] ][] = array(
-						'id'     => $details['id'],
-						'weight' => $details['weight'],
-					);
-				}
-			}
-		}
-
-		return serialize($active_widgets);
-	}
-
-	/**
 	 * Callable for usort - Sort an array by a property named "weight"
 	 *
 	 * @param $a

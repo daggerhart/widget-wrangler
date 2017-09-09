@@ -41,33 +41,6 @@ class Extras {
 	}
 
 	/**
-	 * Wrapper for wpdb->insert
-	 *  - ensure data is serialized
-	 *
-	 * @param (array) - ww_extra data that needs to be inserted into the db.
-	 *
-	 * @return int|false
-	 *   - as $wpdb->insert.  false on failure
-	 */
-	public static function insert($data) {
-		$db = self::db();
-
-		// make sure this is not an object
-		$data = (array) $data;
-
-		// handle data types
-		if (isset($data['data']) && is_array($data['data'])){
-			$data['data'] = serialize($data['data']);
-		}
-		if (isset($data['widgets']) && is_array($data['widgets'])){
-			$data['widgets'] = serialize($data['widgets']);
-		}
-
-		$db->insert( $db->ww_extras_table, $data );
-		return $db->insert_id;
-	}
-
-	/**
 	 * Get data from the ww_extras table
 	 *
 	 * @param array $where
@@ -125,6 +98,33 @@ class Extras {
 	}
 
 	/**
+	 * Wrapper for wpdb->insert
+	 *  - ensure data is serialized
+	 *
+	 * @param (array) - ww_extra data that needs to be inserted into the db.
+	 *
+	 * @return int|false
+	 *   - as $wpdb->insert.  false on failure
+	 */
+	public static function insert($data) {
+		$db = self::db();
+
+		// make sure this is not an object
+		$data = (array) $data;
+
+		// handle data types
+		if ( !empty( $data['data'] ) ) {
+			$data['data'] = maybe_serialize($data['data']);
+		}
+		if ( isset( $data['widgets'] ) && is_array( $data['widgets'] ) ) {
+			$data['widgets'] = Admin::serializeWidgets( $data['widgets'] );
+		}
+
+		$db->insert( $db->ww_extras_table, $data );
+		return $db->insert_id;
+	}
+
+	/**
 	 * Wrapper for wpdb->update
 	 *  - ensure data is serialized
 	 *
@@ -141,12 +141,13 @@ class Extras {
 		$data = (array) $data;
 
 		// handle data types
-		if (isset($data['data']) && is_array($data['data'])){
-			$data['data'] = serialize($data['data']);
+		if ( !empty( $data['data'] ) ) {
+			$data['data'] = maybe_serialize($data['data']);
 		}
-		if (isset($data['widgets']) && is_array($data['widgets'])){
-			$data['widgets'] = serialize($data['widgets']);
+		if ( isset( $data['widgets'] ) && is_array( $data['widgets'] ) ) {
+			$data['widgets'] = Admin::serializeWidgets( $data['widgets'] );
 		}
+
 		return $db->update($db->ww_extras_table, $data, $where);
 	}
 

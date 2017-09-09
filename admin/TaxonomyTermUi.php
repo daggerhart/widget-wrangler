@@ -98,7 +98,7 @@ class TaxonomyTermUi {
 			return;
 		}
 
-		Taxonomies::saveWidgets('term', $_POST['tag_ID']);
+		Admin::saveTaxonomyWidgets( 'term', $_POST['tag_ID'] );
 	}
 
 }

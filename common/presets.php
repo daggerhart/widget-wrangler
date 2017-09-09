@@ -62,7 +62,7 @@ class Presets {
 			$data['extra_key'] = $where['extra_key'];
 			$data['data'] = serialize(array('name' => 'Default'));
 
-			$existing_widgets = Utils::unserializeWidgets(get_option('ww_default_widgets', array()));
+			$existing_widgets = Admin::unserializeWidgets( get_option( 'ww_default_widgets', array() ) );
 			$data['widgets'] = serialize($existing_widgets);
 
 			Extras::insert($data);
@@ -74,7 +74,7 @@ class Presets {
 			$data['extra_key'] = $where['extra_key'];
 			$data['data'] = serialize(array('name' => 'Posts Page'));
 
-			$existing_widgets = Utils::unserializeWidgets(get_option('ww_postspage_widgets', array()));
+			$existing_widgets = Admin::unserializeWidgets( get_option( 'ww_postspage_widgets', array() ) );
 			$data['widgets'] = serialize($existing_widgets);
 
 			Extras::insert($data);

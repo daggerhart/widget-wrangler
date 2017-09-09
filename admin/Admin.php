@@ -73,7 +73,6 @@ class Admin {
 	 * WP hook admin_init
 	 */
     function admin_init() {
-
         wp_register_style('ww-admin', plugins_url('css/admin.css', __FILE__), array(), WW_SCRIPT_VERSION );
 
 	    wp_register_script('ww-admin',
@@ -110,14 +109,14 @@ class Admin {
                 }
 
                 if (isset($_POST['post_type']) && $_POST['post_type'] == $enabled_post_type){
-                    add_action( 'save_post', array( $this, '_save_post_widgets' ) );
+                    add_action( 'save_post', array( $this, 'savePostWidgets' ) );
                 }
             }
         }
     }
 
 	/**
-	 *
+	 * Ajax response for changing presets on the wrangler.
 	 */
     function ww_form_ajax() {
 		if ( empty( $_POST['context'] ) ) {
@@ -169,53 +168,183 @@ class Admin {
 	    exit;
     }
 
-  /*
-   * Hook into saving a page
-   * Save the post meta for this post
-   */
-  function _save_post_widgets($post_id)
-  {
-    // skip quick edit
-    if (isset($_REQUEST['_inline_edit'])) { return $post_id; }
-    
-    // don't know what is being saved if not a post_type, so we do nothing
-    if (!isset($_POST['post_type'])){
-      return $post_id;
-    }
-    
-    // Ensure this is an enabled post_type and user can edit it
-    $settings = $this->settings;  
-    if (!in_array($_POST['post_type'], $settings['post_types']) || !current_user_can('edit_post', $post_id)){
-      return $post_id;
-    }
-    
-    // verify this came from the our screen and with proper authorization,
-    // because save_post can be triggered at other times
-    if ( ! isset( $_POST['ww-sortable-list-box'] ) || ! wp_verify_nonce( $_POST['ww-sortable-list-box'], 'widget-wrangler-sortable-list-box-save' ) ) {
-      return $post_id;
-    }
-    
-    // If this is an auto save routine, our form has not been submitted, so we dont want to do anything
-    if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
-      return $post_id;
-    }
+	/**
+	 * Standardized detection of submitted wrangler data.
+	 *
+	 * @return array
+	 */
+	public static function getSubmittedWranglerData() {
+		$widgets = NULL;
+		$preset_id = 0;
+		$submitted_widgets = ( ! empty( $_POST['ww-data'] ) && ! empty( $_POST['ww-data']['widgets'] ) ) ? $_POST['ww-data']['widgets'] : array();
+		$submitted_preset_id = isset( $_POST['ww-preset-id-new'] ) ? intval( $_POST['ww-preset-id-new'] ) : 0;
 
-    // OK, we're authenticated:
-    // we need to find and save the data
-    $widgets = Utils::serializeWidgets($_POST['ww-data']['widgets']);
+		if ( $submitted_preset_id ) {
+			$preset = Presets::get( $submitted_preset_id );
 
-    // allow other plugins to modify the widgets or save other things
-    $widgets = apply_filters('widget_wrangler_save_widgets_alter', $widgets);
+			// if the submitted widgets match the submitted preset widgets,
+			// then the user chose a preset, do not record the submitted widgets.
+			if ( $preset->widgets === $submitted_widgets ) {
+				$preset_id = $submitted_preset_id;
+			}
+		}
 
-	  if ($widgets){
-		  update_post_meta( $post_id, 'ww_post_widgets', $widgets);
-	  }
+		// if the preset_id is still 0, record the submitted widgets.
+		if ( ! $preset_id ) {
+			$widgets = $submitted_widgets;
+		}
 
-    $new_preset_id = (isset($_POST['ww-preset-id-new'])) ? (int)$_POST['ww-preset-id-new'] : 0;
-    
-    if ($new_preset_id !== FALSE){
-      update_post_meta( $post_id, 'ww_post_preset_id', (int) $new_preset_id);
-    }
-  }
+		return array(
+			'preset_id' => $preset_id,
+			'widgets' => $widgets,
+		);
+	}
+
+	/**
+	 * Take data from $_POST submit and convert in to serialized array as string
+	 *
+	 * @param $submitted_widget_data
+	 *
+	 * @return string
+	 */
+	public static function serializeWidgets( $submitted_widget_data ) {
+		$all_widgets = Widgets::all( array( 'publish', 'draft' ) );
+		$active_widgets = array();
+
+		if ( ! empty( $submitted_widget_data ) ) {
+			foreach ( $submitted_widget_data as $key => $details ) {
+				// get rid of any hashes
+				if ( isset( $all_widgets[ $details['id'] ] ) && isset( $details['weight'] ) && isset( $details['sidebar'] ) ) {
+					// if something was submitted without a weight, make it neutral
+					if ( $details['weight'] < 1 ) {
+						$details['weight'] = $key;
+					}
+
+					$active_widgets[ $details['sidebar'] ][] = array(
+						'id' => $details['id'],
+						'weight' => $details['weight'],
+					);
+				}
+			}
+		}
+
+		return serialize( $active_widgets );
+	}
+
+	/**
+	 * Cleanup stored widget data in case of over serialization
+	 *
+	 * @param $corrals
+	 *
+	 * @return mixed
+	 */
+	public static function unserializeWidgets( $corrals ) {
+		// problem with over serialized options
+		$corrals = maybe_unserialize( $corrals );
+		$corrals = maybe_unserialize( $corrals );
+
+		if ( isset( $corrals['disabled'] ) ) {
+			unset( $corrals['disabled'] );
+		}
+
+		foreach ( $corrals as $corral_slug => $corral_widgets ) {
+			foreach ( $corral_widgets as $i => $widget ) {
+				if ( isset( $widget['name'] ) ) {
+					unset( $corrals[ $corral_slug ][ $i ]['name'] );
+				}
+			}
+		}
+
+		return $corrals;
+	}
+
+	/**
+	 * Hook into saving a page
+	 * Save the post meta for this post
+	 *
+	 * @param $post_id
+	 *
+	 * @return int
+	 */
+	function savePostWidgets($post_id) {
+		// skip quick edit
+		if (isset($_REQUEST['_inline_edit'])) { return $post_id; }
+
+		// don't know what is being saved if not a post_type, so we do nothing
+		if (!isset($_POST['post_type'])){
+			return $post_id;
+		}
+
+		// Ensure this is an enabled post_type and user can edit it
+		$settings = $this->settings;
+		if (!in_array($_POST['post_type'], $settings['post_types']) || !current_user_can('edit_post', $post_id)){
+			return $post_id;
+		}
+
+		// verify this came from the our screen and with proper authorization,
+		// because save_post can be triggered at other times
+		if ( ! isset( $_POST['ww-sortable-list-box'] ) || ! wp_verify_nonce( $_POST['ww-sortable-list-box'], 'widget-wrangler-sortable-list-box-save' ) ) {
+			return $post_id;
+		}
+
+		// If this is an auto save routine, our form has not been submitted, so we dont want to do anything
+		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) {
+			return $post_id;
+		}
+
+		// OK, we're authenticated:
+		// we need to find and save the data
+		$submitted = self::getSubmittedWranglerData();
+
+		if ( $submitted['widgets'] ) {
+			$widgets = self::serializeWidgets( $submitted['widgets'] );
+			update_post_meta( $post_id, 'ww_post_widgets', $widgets);
+		}
+
+		update_post_meta( $post_id, 'ww_post_preset_id', (int) $submitted['preset_id'] );
+
+		return $post_id;
+	}
+
+	/**
+	 * Save widgets from a wrangler form
+	 *
+	 * @param $variety
+	 * @param $extra_key
+	 * @param array $additional_data
+	 */
+	public static function saveTaxonomyWidgets( $variety, $extra_key, $additional_data = array() ) {
+		$submitted = Admin::getSubmittedWranglerData();
+
+		$where = array(
+			'type' => 'taxonomy',
+			'variety' => $variety,
+			'extra_key' => $extra_key,
+		);
+
+		$values = array(
+			'type' => 'taxonomy',
+			'variety' => $variety,
+			'extra_key' => $extra_key,
+			'data' => array( 'preset_id' => $submitted['preset_id'] ),
+			'widgets' => $submitted['widgets'],
+		);
+
+		if ( ! empty( $additional_data ) ) {
+			$values['data'] += $additional_data;
+		}
+
+		if ( $submitted['preset_id'] ) {
+			// don't save widgets because they are preset widgets
+			unset( $values['widgets'] );
+		}
+
+		// doesn't exist, create it before update
+		if ( ! Extras::get( $where ) ) {
+			Extras::insert( $values );
+		}
+
+		Extras::update( $values, $where );
+	}
 
 }
