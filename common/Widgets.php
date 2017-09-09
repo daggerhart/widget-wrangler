@@ -105,4 +105,5 @@ class Widgets extends Db {
 
 		return false;
 	}
+
 }

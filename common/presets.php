@@ -24,14 +24,6 @@ class Presets {
 		// wp hooks
 		add_action( 'admin_init', array( $plugin, 'wp_admin_init' ) );
 
-		// ww hooks
-
-		// early, so it will prevent the singular filter
-		// presets override the ww_posts_widgets
-		add_filter( 'widget_wrangler_find_all_page_widgets', array( $plugin, 'ww_find_standard_preset_widgets' ), 0 );
-		// last, to ensure that nothing else was found
-		add_filter( 'widget_wrangler_find_all_page_widgets', array( $plugin, 'ww_find_core_preset_widgets' ), 999 );
-
 		return $plugin;
 	}
 
@@ -167,53 +159,6 @@ class Presets {
 		}
 
 		return $varieties;
-	}
-
-	/**
-	 * Handle determining the widgets for a single post using a preset
-	 *
-	 * @param array|null - array if widgets previously found, null if not
-	 *
-	 * @return array|null
-	 */
-	function ww_find_standard_preset_widgets($widgets){
-		if (is_null($widgets) && (is_singular() || is_admin())) {
-			global $post;
-			if (isset($post) && $post_preset_id = get_post_meta($post->ID, 'ww_post_preset_id', TRUE)){
-				if ($post_preset = self::get($post_preset_id)){
-					$widgets = $post_preset->widgets;
-				}
-			}
-		}
-
-		return $widgets;
-	}
-
-	/**
-	 * Handle determining the widgets for non-post routes using a preset
-	 *
-	 * @param array|null - array if widgets previously found, null if not
-	 *
-	 * @return array|null
-	 */
-	function ww_find_core_preset_widgets($widgets){
-		// only take over with core widgets if no other widgets have been found
-		if (is_null($widgets)){
-			$found_widgets = null;
-
-			if(is_home() && $preset = self::getCore('postspage')){
-				$found_widgets = $preset->widgets;
-			}
-			else if ($preset = self::getCore('default')) {
-				$found_widgets = $preset->widgets;
-			}
-
-			if ($found_widgets){
-				$widgets = $found_widgets;
-			}
-		}
-
-		return $widgets;
 	}
 
 }

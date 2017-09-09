@@ -45,6 +45,7 @@ class Settings {
 		 // help with over serialization in previous versions
 		 $this->values = maybe_unserialize($this->values);
 		 $this->values = array_replace( $this->default_settings, $this->values );
+
 		 return $this;
 	}
 

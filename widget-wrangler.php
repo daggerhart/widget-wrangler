@@ -113,9 +113,6 @@ class Widget_Wrangler {
 		// let all plugins load before gathering addons
 		add_action( 'plugins_loaded' , array( $plugin, 'wp_plugins_loaded' ) );
 
-		// singular page widget detection
-		add_filter( 'widget_wrangler_find_all_page_widgets', array( $plugin, '_find_singular_page_widgets' ), 10 );
-
 		return $plugin;
 	}
 
@@ -203,25 +200,6 @@ class Widget_Wrangler {
 			'query_var' => 'widget',
 			'menu_icon' => WW_PLUGIN_URL.'/admin/images/lasso-menu.png'
 		));
-	}
-
-	/**
-	 * Detect if the current page being viewed is wrangling own widgets
-	 *
-	 * @param array|null - $widgets found by the system
-	 *
-	 * @return array
-	 */
-	function _find_singular_page_widgets($widgets){
-		// don't replace any widgets already found
-		if (is_null($widgets) && (is_singular() || is_admin())) {
-			global $post;
-			// single page widgets wrangling on their own
-			if (isset($post) && $widgets_string = get_post_meta($post->ID,'ww_post_widgets', TRUE)) {
-				$widgets = unserialize( $widgets_string );
-			}
-		}
-		return $widgets;
 	}
 
 	/**
