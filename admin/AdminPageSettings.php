@@ -132,6 +132,9 @@ class AdminPageSettings extends AdminPage {
 		$setup_theme_form = new Form(array(
             'style' => 'box',
             'action' => $this->actionPath('theme_setup'),
+            'attributes' => array(
+                'id' => 'setup-theme-tool',
+            ),
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
@@ -280,7 +283,7 @@ class AdminPageSettings extends AdminPage {
 
 			// assign a new corral widget instances
 			$new_widget_ww_sidebar[$i] = array(
-				'title' => '',
+				'title' => $sidebar_details['name'],
 				'sidebar' => $corral_slug,
 			);
 
@@ -298,7 +301,7 @@ class AdminPageSettings extends AdminPage {
 			return $this->result( sprintf( __('New corrals created: %s'), implode(', ', $new_corrals) ) );
         }
 
-        return $this->error( __('All sidebars already have corrals assigned.') );
+        return $this->result( __('No new corrals created. Appropriate Corrals have been assigned to their sidebars.') );
 	}
 
 	/**

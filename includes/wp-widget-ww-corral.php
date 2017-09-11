@@ -1,8 +1,5 @@
 <?php
 
-use WidgetWrangler\Corrals;
-use WidgetWrangler\Display;
-use WidgetWrangler\Settings;
 
 /**
  * Widget Wrangler Sidebar Widget class.
@@ -18,7 +15,7 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 	function __construct()
 	{
 		// Widget settings.
-		$widget_ops = array( 'classname' => 'widget-wrangler-widget-classname', 'description' => __('A single Widget Wrangler Corral (Sidebar)', 'widgetwrangler') );
+		$widget_ops = array( 'classname' => 'widget-wrangler-widget-classname', 'description' => __('A single Widget Wrangler Corral', 'widgetwrangler') );
 
 		// Widget control settings.
 		$control_ops = array( 'id_base' => 'widget-wrangler-sidebar');
@@ -35,8 +32,8 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 	 */
 	function widget( $args, $instance )
 	{
-		$settings = new Settings();
-		$display = new Display($settings->values);
+		$settings = new WidgetWrangler\Settings();
+		$display = new WidgetWrangler\Display($settings->values);
 		$display->dynamic_corral($instance['sidebar'], $args);
 	}
 
@@ -51,8 +48,13 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 	function update( $new_instance, $old_instance )
 	{
 		$instance = $old_instance;
-		$instance['title'] = $new_instance['title'];
-		$instance['sidebar'] = $new_instance['sidebar'];
+		$corrals = WidgetWrangler\Corrals::all();
+
+		if ( !empty( $corrals[ $new_instance['sidebar'] ] ) ) {
+			$instance['title'] = $corrals[ $new_instance['sidebar'] ];
+			$instance['sidebar'] = $new_instance['sidebar'];
+        }
+
 		return $instance;
 	}
 
@@ -63,10 +65,11 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 	 */
 	function form( $instance )
 	{
+	    var_dump($instance);
 		// Set up some default widget settings.
 		$defaults = array( 'title' => __('Widget Wrangler Corral', 'widgetwrangler'), 'sidebar' => '' );
 		$instance = wp_parse_args( (array) $instance, $defaults );
-		$corrals = Corrals::all();
+		$corrals = WidgetWrangler\Corrals::all();
 		$corral_title = !empty($instance['sidebar']) && !empty($corrals[$instance['sidebar']]) ? $corrals[$instance['sidebar']] : '';
 		?>
 		<?php // Widget Title: Hidden Input ?>

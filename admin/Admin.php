@@ -25,6 +25,7 @@ class Admin {
 		include_once WW_PLUGIN_DIR.'/admin/AdminPage.php';
 		include_once WW_PLUGIN_DIR.'/admin/AdminPageClones.php';
 		include_once WW_PLUGIN_DIR.'/admin/AdminPageCorrals.php';
+		include_once WW_PLUGIN_DIR.'/admin/AdminPageDocumentation.php';
 		include_once WW_PLUGIN_DIR.'/admin/AdminPagePresets.php';
 		include_once WW_PLUGIN_DIR.'/admin/AdminPageSettings.php';
 		include_once WW_PLUGIN_DIR.'/admin/AdminPageSidebars.php';
@@ -55,6 +56,7 @@ class Admin {
 		AdminPagePresets::register($settings);
 		AdminPageSettings::register($settings);
 		AdminPageSidebars::register($settings);
+		AdminPageDocumentation::register($settings);
 		TaxonomyUi::register($settings);
 		TaxonomyTermUi::register($settings);
 

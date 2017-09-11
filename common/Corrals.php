@@ -46,7 +46,7 @@ class Corrals {
 	 */
 	public static function add( $name, $slug = null ) {
 		if ( !$slug ) {
-			$slug = WidgetWranglerUtils::makeSlug( $name );
+			$slug = Utils::makeSlug( $name );
 		}
 
 		$all = self::all();
