@@ -205,7 +205,7 @@ class SortableWidgetsUi {
 					'status' => $widget->post_status,
 					'display_logic' => $widget->display_logic_enabled,
 					'corral' => array(
-						'title' => Corrals::all()[ $corral_slug ],
+						'title' => Corrals::get( $corral_slug ),
 						'slug' => $corral_slug,
 					),
 					'notes' => array(),
@@ -250,7 +250,7 @@ class SortableWidgetsUi {
 	 * @return string
 	 */
 	function templateCorral( $corral_widgets, $corral_slug ){
-		$corral_name = Corrals::all()[ $corral_slug ];
+		$corral_name = Corrals::get( $corral_slug );
 		$no_widgets_style = count( $corral_widgets ) ? 'style="display:none"' : '';
 
 		ob_start();
@@ -297,7 +297,7 @@ class SortableWidgetsUi {
 			<input  name='ww-data[widgets][<?php print $row_index; ?>][id]' type='hidden' class='ww-widget-id' value='<?php print $widget_details['id']; ?>' />
 			<select name='ww-data[widgets][<?php print $row_index; ?>][sidebar]'>
 				<option value='disabled'><?php _e('Remove', 'widgetwrangler'); ?></option>
-				<?php foreach( Corrals::all() as $this_corral_slug => $corral_name ){ ?>
+				<?php foreach( Corrals::all() as $this_corral_slug => $corral_name ) { ?>
 					<option name='<?php print $this_corral_slug; ?>'
 					        value='<?php print $this_corral_slug; ?>'
 						    <?php selected( $this_corral_slug, $corral_slug ); ?>>

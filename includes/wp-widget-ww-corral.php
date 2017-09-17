@@ -32,7 +32,7 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 	 */
 	function widget( $args, $instance )
 	{
-		$settings = new WidgetWrangler\Settings();
+		$settings = \WidgetWrangler\Settings::instance();
 		$display = new WidgetWrangler\Display($settings->values);
 		$display->dynamic_corral($instance['sidebar'], $args);
 	}
@@ -48,7 +48,7 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 	function update( $new_instance, $old_instance )
 	{
 		$instance = $old_instance;
-		$corrals = WidgetWrangler\Corrals::all();
+		$corrals = \WidgetWrangler\Corrals::all();
 
 		if ( !empty( $corrals[ $new_instance['sidebar'] ] ) ) {
 			$instance['title'] = $corrals[ $new_instance['sidebar'] ];
@@ -62,14 +62,17 @@ class WidgetWrangler_Corral_Widget extends WP_Widget {
 	 * Displays the widget settings controls on the widget panel.
 	 * Make use of the get_field_id() and get_field_name() function
 	 * when creating your form elements. This handles the confusing stuff.
+	 *
+	 * @param array $instance
+	 *
+	 * @return string|void
 	 */
 	function form( $instance )
 	{
-	    var_dump($instance);
 		// Set up some default widget settings.
 		$defaults = array( 'title' => __('Widget Wrangler Corral', 'widgetwrangler'), 'sidebar' => '' );
 		$instance = wp_parse_args( (array) $instance, $defaults );
-		$corrals = WidgetWrangler\Corrals::all();
+		$corrals = \WidgetWrangler\Corrals::all();
 		$corral_title = !empty($instance['sidebar']) && !empty($corrals[$instance['sidebar']]) ? $corrals[$instance['sidebar']] : '';
 		?>
 		<?php // Widget Title: Hidden Input ?>

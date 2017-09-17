@@ -39,7 +39,7 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
 	function widget( $args, $instance )
 	{
 		if ($widget = Widgets::get($instance['post_id'])){
-			$settings = new Settings();
+			$settings = Settings::instance();
 			$display = new Display($settings->values);
 			print $display->theme_single_widget($widget, $args);
 		}

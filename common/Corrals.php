@@ -19,6 +19,24 @@ class Corrals {
 	}
 
 	/**
+	 * Get a single corral name by slug.
+	 *
+	 * @param $slug
+	 *
+	 * @return string
+	 */
+	public static function get( $slug ) {
+		$all = self::all();
+		$corral = '';
+
+		if ( !empty( $all[$slug] ) ) {
+			$corral = $all[$slug];
+		}
+
+		return $corral;
+	}
+
+	/**
 	 * Reorder the corrals
 	 *
 	 * @param array $new_order

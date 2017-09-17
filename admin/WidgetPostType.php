@@ -559,7 +559,7 @@ class WidgetPostType {
 	 * Templates meta box.
 	 */
 	function meta_box_templates() {
-		$settings = new Settings();
+		$settings = Settings::instance();
 		$display = new Display($settings->values);
 
 		if ($widget = Widgets::get($this->post_id)){

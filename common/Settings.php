@@ -40,14 +40,7 @@ class Settings {
 	/**
 	 * WidgetWranglerSettings constructor.
 	 */
-	 function __construct(){
-		 $this->values = get_option( $this->option_name, $this->default_settings );
-		 // help with over serialization in previous versions
-		 $this->values = maybe_unserialize($this->values);
-		 $this->values = array_replace( $this->default_settings, $this->values );
-
-		 return $this;
-	}
+	 private function __construct(){}
 
 	/**
 	 * Singleton.
@@ -61,7 +54,18 @@ class Settings {
 	 		$instance = new self();
 	    }
 
+	    $instance->refresh();
 	    return $instance;
+	}
+
+	/**
+	 * Load the option and merge with default values.
+	 */
+	public function refresh() {
+		$this->values = get_option( $this->option_name, $this->default_settings );
+		// help with over serialization in previous versions
+		$this->values = maybe_unserialize($this->values);
+		$this->values = array_replace( $this->default_settings, $this->values );
 	}
 
 	/**

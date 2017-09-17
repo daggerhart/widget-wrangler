@@ -92,7 +92,7 @@ class Utils {
 	 * @return bool
 	 */
 	public static function editingEnabledPostType() {
-		$settings = new Settings();
+		$settings = Settings::instance();
 
 		if ((isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit') &&
 		     isset($_REQUEST['post']))

@@ -221,7 +221,7 @@ class AdminPageSettings extends AdminPage {
 	 * Reset Widget Wrangler settings values back to default.
 	 */
 	function actionResetSettings() {
-		$settings = new Settings();
+		$settings = Settings::instance();
 		$settings->values = $settings->default_settings;
 		$settings->save();
 		$this->settings = $settings->values;
@@ -237,7 +237,7 @@ class AdminPageSettings extends AdminPage {
 	        return $this->error();
         }
 
-		$settings = new Settings();
+		$settings = Settings::instance();
 
 		// copy submitted fields to the settings object
 	    foreach ($settings->values as $key => $value) {

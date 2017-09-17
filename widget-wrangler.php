@@ -129,7 +129,7 @@ class Widget_Wrangler {
 		load_plugin_textdomain( 'widgetwrangler', FALSE, basename( WW_PLUGIN_DIR ) . '/languages/' );
 
 		// initialize core
-		$this->settings = new Settings();
+		$this->settings = Settings::instance();
 		$this->display = Display::register( $this->settings->values );
 		Presets::register();
 

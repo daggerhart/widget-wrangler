@@ -89,7 +89,7 @@ class Updates {
 	 * Installation.
 	 */
 	public static function install() {
-		$settings = new Settings();
+		$settings = Settings::instance();
 		add_option('ww_settings', $settings->default_settings);
 		add_option('ww_version', WW_VERSION);
 		add_option('ww_db_version', WW_DB_VERSION);
@@ -129,7 +129,7 @@ class Updates {
 			}
 		}
 
-		$settings = new Settings();
+		$settings = Settings::instance();
 
 		// add new default settings
 		foreach ( $settings->default_settings as $key => $value ) {
@@ -162,7 +162,7 @@ class Updates {
 	public static function update2001() {
 		// only modifications are for versions that used to be PRO
 		if ( get_option('ww_pro_license_status', FALSE ) && self::previouslyPro() ){
-			$settings = new Settings();
+			$settings = Settings::instance();
 
 			// this site used to be a paid-for WW Pro version
 			$settings->previously_pro = 1;
