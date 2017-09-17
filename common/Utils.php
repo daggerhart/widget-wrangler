@@ -87,6 +87,21 @@ class Utils {
 	}
 
 	/**
+	 * Get a post ID by post_name (slug).
+	 *
+	 * @param $slug
+	 *
+	 * @param string $type
+	 * @param string $status
+	 *
+	 * @return null|string
+	 */
+	public static function getPostIdBySlug( $slug, $type = 'widget', $status = 'publish' ) {
+		global $wpdb;
+		return $wpdb->get_var($wpdb->prepare("SELECT ID FROM {$wpdb->posts} WHERE post_name = '%s' AND post_type = '%s' AND post_status = 'publish' LIMIT 1", $slug, $type, $status));
+	}
+
+	/**
 	 * Determine if we are editing a post type with widget wrangler enabled.
 	 *
 	 * @return bool
