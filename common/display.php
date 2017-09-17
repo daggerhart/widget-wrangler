@@ -52,6 +52,7 @@ class Display {
 	 */
 	function __construct( $settings ) {
 		$this->settings = $settings;
+		$this->theme_compat = !empty( $this->settings['theme_compat'] ) ? 1 : 0;
 	}
 
 	/**
@@ -76,19 +77,9 @@ class Display {
 		add_action( 'dynamic_sidebar_before', array( $plugin, 'dynamic_sidebar_before'), -10, 2 );
 		add_action( 'dynamic_sidebar_after', array( $plugin, 'dynamic_sidebar_after'), 10, 2 );
 
-		add_action( 'wp', array( $plugin, 'wp_loaded'));
-
 		return $plugin;
 	}
-
-	/**
-	 * WordPress hook wp
-	 *  - need theme compatibility check to happen a little later
-	 */
-	function wp_loaded(){
-		$this->theme_compat = !empty( $this->settings['theme_compat'] ) ? 1 : 0;
-	}
-
+	
 	/**
 	 * Get wp sidebar details
 	 *
@@ -316,7 +307,7 @@ class Display {
 		// standard
 		else{
 			// maybe they don't want auto p ?
-			if ($widget->wpautop == "on"){
+			if ($widget->wpautop){
 				$widget->post_content = wpautop($widget->post_content);
 			}
 
@@ -372,8 +363,7 @@ class Display {
 			$output = theme('ww_widget', $args);
 
 			// handle final theme compat issues if the widget is in a corral,
-			if ($this->doing_corral && $this->theme_compat)
-			{
+			if ($this->doing_corral && $this->theme_compat) {
 				$theme_compat =  $widget->wp_widget_args['before_widget'];
 
 				// title can also be NULL with clones
@@ -444,9 +434,7 @@ class Display {
 
 			// theme compatibility
 			// adv parse w/o templating doesn't have separate title
-			if (!$widget->override_output_html &&
-			    $this->theme_compat)
-			{
+			if (!$widget->override_output_html && $this->theme_compat) {
 				$output = $widget->wp_widget_args['before_widget'].$output.$widget->wp_widget_args['after_widget'];
 			}
 			// tokens

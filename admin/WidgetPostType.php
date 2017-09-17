@@ -93,7 +93,7 @@ class WidgetPostType {
 			}
 
 			if ($this->settings['override_elements_enabled']) {
-			    add_meta_box('ww-overrides', __('Override HTML Output', 'widgetwrangler'), array($this, 'meta_box_parse'), 'widget', 'normal', 'high');
+			    add_meta_box('ww-overrides', __('Override HTML Output', 'widgetwrangler'), array($this, 'meta_box_overrides'), 'widget', 'normal', 'high');
 			}
 
 			add_meta_box('ww-display-logic', __('Display Logic', 'widgetwrangler'), array($this, 'meta_box_display_logic'), 'widget', 'normal', 'high');
@@ -475,24 +475,28 @@ class WidgetPostType {
         <p class="description"><?php _e("Alter the html output of a templated widget.  Doesn't apply to advanced parsing unless templating is selected.", 'widgetwrangler'); ?></p>
 		<?php
 		$values = $this->get_meta_values();
+		$options = array_combine($this->settings['override_elements'], $this->settings['override_elements']);
+		$options = array('_none_' => __('- None -') ) + $options;
+
 		$form = new Form( array(
 			'field_prefix' => 'ww-data',
+            'style' => 'table',
 		) );
 
-		$options = $this->settings['override_elements'];
-
+		print $form->form_open_table();
 		print $form->render_field(array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-override-output-html',
-			'title' => __( 'Override the HTML output of this widget with the values below.  This will override theme compatibility.' ),
+			'title' => __( 'Override HTML' ),
+			'description' => __('The values below will determine HTML output. This will override theme compatibility for this widget.'),
 			'value' => $values['ww-override-output-html'],
 		));
 		print $form->render_field(array(
 			'type'  => 'select',
 			'name'  => 'ww-wrapper-element',
 			'title' => __( 'Wrapper Element' ),
-			'value' => $values['ww-wrapper-element'],
-			'options' => $this->ensure_in_array($options, $values['ww-wrapper-element']),
+			'value' => $values['ww-html-wrapper-element'],
+			'options' => $this->arrayKeyValueEnsure($options, $values['ww-html-wrapper-element']),
 		));
 		print $form->render_field(array(
 			'type'  => 'text',
@@ -512,7 +516,7 @@ class WidgetPostType {
 			'name'  => 'ww-html-title-element',
 			'title' => __( 'Title Element' ),
 			'value' => $values['ww-html-title-element'],
-			'options' => $this->ensure_in_array($options, $values['ww-html-title-element']),
+			'options' => $this->arrayKeyValueEnsure($options, $values['ww-html-title-element']),
 		));
 		print $form->render_field(array(
 			'type'  => 'text',
@@ -526,7 +530,7 @@ class WidgetPostType {
 			'name'  => 'ww-html-content-element',
 			'title' => __( 'Content Element' ),
 			'value' => $values['ww-html-content-element'],
-			'options' => $this->ensure_in_array($options, $values['ww-html-content-element']),
+			'options' => $this->arrayKeyValueEnsure($options, $values['ww-html-content-element']),
 		));
 		print $form->render_field(array(
 			'type'  => 'text',
@@ -535,6 +539,7 @@ class WidgetPostType {
 			'help' => __('Separate multiple classes with spaces.'),
 			'value' => $values['ww-html-content-classes'],
 		));
+		print $form->form_close_table();
 	}
 
 	/**
@@ -545,11 +550,11 @@ class WidgetPostType {
 	 *
 	 * @return array
 	 */
-	function ensure_in_array($array, $value) {
+	function arrayKeyValueEnsure($array, $value) {
 		$value = trim($value);
 
 		if (!in_array($value, $array) && !empty($value)) {
-			$array[] = $value;
+			$array[$value] = $value;
 		}
 
 		return $array;
