@@ -110,21 +110,14 @@ class AdminPageSettings extends AdminPage {
 					'title' => __('Deprecated: Enable overriding widget HTML from the Post UI.'),
 					'help' => __('This is a deprecated feature that is only here for legacy systems.'),
 					'value' => $this->settings['override_elements_enabled'],
-					'access' => ( $this->settings['override_elements_enabled'] ),
+					'access' => ( $this->settings['previously_pro'] ),
 				),
 				'override_elements' => array(
 					'type' => 'textarea',
 					'title' => __('Deprecated: HTML Override Elements'),
 					'help' => __('Allowed elements for override a widget\'s html output.  Place one element per line.'),
-					'value' => $this->settings['override_elements'],
-					'access' => ( $this->settings['override_elements_enabled'] ),
-				),
-				'shortcode_tinymce' => array(
-					'type' => 'checkbox',
-					'title' => __('Deprecated: tinyMCE Shortcode Button'),
-					'help' => __('Do not use this feature. Instead, try this plugin: ').'<a href="https://wordpress.org/plugins/shortcode-ui/">Shortcode UI</a>',
-					'value' => $this->settings['shortcode_tinymce'],
-					'access' => ( $this->settings['shortcode_tinymce'] ),
+					'value' => implode( "\n", $this->settings['override_elements'] ),
+					'access' => ( $this->settings['previously_pro'] ),
 				),
 			)
 		));
@@ -209,7 +202,7 @@ class AdminPageSettings extends AdminPage {
 	/**
 	 * Reset all pages to use the default widget settings
 	 */
-	function actionResetWidgets(){
+	function actionResetWidgets() {
 		global $wpdb;
 		$query = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'ww_post_widgets' OR `meta_key` = 'ww_post_preset_id'";
 		$wpdb->query($query);
@@ -257,7 +250,7 @@ class AdminPageSettings extends AdminPage {
 	 *  - create a corral for each wp sidebar,
 	 *  - place corral widget inside of each wp sidebar
 	 */
-	function actionThemeSetup(){
+	function actionThemeSetup() {
 		global $wp_registered_sidebars;
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 		$corrals = Corrals::all();
@@ -315,6 +308,11 @@ class AdminPageSettings extends AdminPage {
 		$post_types['page'] = 'page';
 		unset($post_types['widget']);
 		ksort($post_types);
+
+		foreach ($post_types as $id => $name ) {
+		    $post_types[$id] = ucfirst( $name );
+        }
+
 		return $post_types;
 	}
 
@@ -342,4 +340,5 @@ class AdminPageSettings extends AdminPage {
 
 		return $options;
 	}
+
 }

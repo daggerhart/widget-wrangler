@@ -33,7 +33,6 @@ class Admin {
 		include_once WW_PLUGIN_DIR.'/admin/SortableWidgetsUi.php';
 		include_once WW_PLUGIN_DIR.'/admin/TaxonomyUi.php';
 		include_once WW_PLUGIN_DIR.'/admin/TaxonomyTermUi.php';
-		include_once WW_PLUGIN_DIR.'/admin/TinymceShortcode.php';
 		include_once WW_PLUGIN_DIR.'/admin/WidgetPostType.php';
 
 		$this->settings = $settings;
@@ -67,7 +66,6 @@ class Admin {
 	 * WP hook wp_loaded
 	 */
 	function loaded() {
-		TinymceShortcode::register($this->settings);
 		WidgetPostType::register($this->settings);
     }
 
