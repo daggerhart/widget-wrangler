@@ -345,6 +345,9 @@ li.ww-item.ww-dragging {
  * Documentation
  *****************************************************/
 
+.ww-docs .col-75 .ww-box {
+    max-width: 750px;
+}
 .ww-docs .ww-box > * {
     padding: 16px 32px;
 }
@@ -365,17 +368,4 @@ li.ww-item.ww-dragging {
     padding-bottom: 4px;
     border-bottom: 1px solid #fafafa;
     margin-bottom: 6px;
-}
-
-/******************************************************
- * TinyMCE
- *****************************************************/
-
-.mce-widget-wrangler-tinymce-button,
-body.widget-wrangler-tinymce-button .mce-floatpanel.mce-menu.mce-fixed{
-  position: absolute !important;
-}
-
-i.mce-i-widget-wrangler-button-icon {
-  background: transparent url('../images/wrangler_icon.png') center center no-repeat;
 }
