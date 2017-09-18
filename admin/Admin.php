@@ -97,7 +97,7 @@ class Admin {
         if (!empty($this->settings['post_types'])){
             foreach($this->settings['post_types'] as $enabled_post_type){
                 add_meta_box('ww_admin_meta_box',
-                    '<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />' . __('Widget Wrangler'),
+                    '<img src="'.WW_PLUGIN_URL.'/admin/images/lasso-small-black.png" />' . __('Widget Wrangler', 'widgetwrangler'),
                     '\WidgetWrangler\SortableWidgetsUi::postMetaBox',
                     $enabled_post_type,
                     'normal',

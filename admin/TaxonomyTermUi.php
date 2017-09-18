@@ -75,7 +75,7 @@ class TaxonomyTermUi {
 				</th>
 				<td>
 					<div class="ww-box">
-						<h3><?php _e('Widgets'); ?></h3>
+						<h3><?php _e('Widgets', 'widgetwrangler'); ?></h3>
 						<div>
 							<?php
 							SortableWidgetsUi::metaBox( $widgets );

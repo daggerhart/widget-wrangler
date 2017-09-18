@@ -12,14 +12,14 @@ class AdminPagePresets extends AdminPage {
 	 * @see AdminPage::title()
 	 */
 	function title() {
-		return __('Presets');
+		return __('Presets', 'widgetwrangler');
 	}
 
 	/**
 	 * @see AdminPage::menuTitle()
 	 */
 	function menuTitle() {
-		return __('Presets');
+		return __('Presets', 'widgetwrangler');
 	}
 
 	/**
@@ -34,8 +34,8 @@ class AdminPagePresets extends AdminPage {
 	 */
 	function description() {
 		return array(
-			__('Presets are pre-configured sets of Widgets assigned to Corrals. This makes a collection of widgets reusable on many pages without having to edit them individually.'),
-            __('If you edit a preset here, the updates will apply to all pages using the preset.'),
+			__('Presets are pre-configured sets of Widgets assigned to Corrals. This makes a collection of widgets reusable on many pages without having to edit them individually.', 'widgetwrangler'),
+            __('If you edit a preset here, the updates will apply to all pages using the preset.', 'widgetwrangler'),
 		);
 	}
 
@@ -67,11 +67,11 @@ class AdminPagePresets extends AdminPage {
 	 */
 	function actionUpdateWidgets() {
 		if ( empty( $_POST['preset-id'] ) ) {
-			return $this->error( __('Error: No preset id.') );
+			return $this->error( __('Error: No preset id.', 'widgetwrangler') );
 		}
 
 		if ( empty( $_POST['preset-variety'] ) ) {
-			return $this->error( __('Error: No preset variety.') );
+			return $this->error( __('Error: No preset variety.', 'widgetwrangler') );
 		}
 
         $widgets = ( !empty( $_POST['ww-data'] ) && !empty( $_POST['ww-data']['widgets'] ) ) ? $_POST['ww-data']['widgets'] : array();
@@ -94,7 +94,7 @@ class AdminPagePresets extends AdminPage {
         // save the widgets
         Extras::update($data, $where);
 
-        return $this->result(__('Preset updated.'));
+        return $this->result(__('Preset updated.', 'widgetwrangler'));
 	}
 
 	/**
@@ -117,12 +117,12 @@ class AdminPagePresets extends AdminPage {
             'fields' => array(
 	            'variety' => array(
 		            'type' => 'select',
-		            'title' => __('Variety'),
+		            'title' => __('Variety', 'widgetwrangler'),
 		            'options' => $options,
 	            ),
 	            'save' => array(
 		            'type' => 'submit',
-		            'value' => __('Create New Preset'),
+		            'value' => __('Create New Preset', 'widgetwrangler'),
 		            'class' => 'button button-primary button-large',
 	            )
             ),
@@ -136,7 +136,7 @@ class AdminPagePresets extends AdminPage {
 	 */
 	function actionCreate() {
 		if ( empty( $_POST['create'] ) || empty( $_POST['create']['variety'] ) ) {
-			return $this->error( __('Error: Missing data.') );
+			return $this->error( __('Error: Missing data.', 'widgetwrangler') );
 		}
 
 		switch( $_POST['create']['variety'] ) {
@@ -150,7 +150,7 @@ class AdminPagePresets extends AdminPage {
 
 				$new_preset_id = Extras::insert($data);
 
-				return $this->result( __('New Preset Created.'), $this->pageUrl().'&preset_id='.$new_preset_id );
+				return $this->result( __('New Preset Created.', 'widgetwrangler'), $this->pageUrl().'&preset_id='.$new_preset_id );
 				break;
 		}
 
@@ -171,7 +171,7 @@ class AdminPagePresets extends AdminPage {
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
-                    'value' => __('Update'),
+                    'value' => __('Update', 'widgetwrangler'),
                     'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'preset-id' => array(
@@ -184,14 +184,14 @@ class AdminPagePresets extends AdminPage {
                 ),
                 'name' => array(
 	                'type' => 'text',
-	                'title' => __('Name'),
+	                'title' => __('Name', 'widgetwrangler'),
 	                'name_prefix' => 'data',
 	                'value' => $preset->data['name'],
                     'class' => 'regular-text',
                 ),
                 'slug' => array(
 	                'type' => 'markup',
-	                'title' => __('Type'),
+	                'title' => __('Type', 'widgetwrangler'),
 	                'value' => $preset->variety,
                 ),
             )
@@ -207,15 +207,15 @@ class AdminPagePresets extends AdminPage {
 	 */
 	function actionUpdateWidgetsPresetData() {
 		if ( empty( $_POST['preset-id'] ) ) {
-			return $this->error( __('Error: No preset id.') );
+			return $this->error( __('Error: No preset id.', 'widgetwrangler') );
 		}
 
 		if ( empty( $_POST['preset-variety'] ) ) {
-			return $this->error( __('Error: No preset variety.') );
+			return $this->error( __('Error: No preset variety.', 'widgetwrangler') );
 		}
 
 		if ( empty( $_POST['data'] ) || empty( $_POST['data']['name'] ) ) {
-			return $this->error( __('Error: Missing data.') );
+			return $this->error( __('Error: Missing data.', 'widgetwrangler') );
 		}
 
 		$where = array(
@@ -229,10 +229,10 @@ class AdminPagePresets extends AdminPage {
 			$preset->data['name'] = sanitize_text_field($_POST['data']['name']);
 			Extras::update(array( 'data' => $preset->data ), $where);
 
-			return $this->result(sprintf(__('Updated preset name to "%s".'), $preset->data['name']));
+			return $this->result(__('Updated preset name to ', 'widgetwrangler') . $preset->data['name']);
 		}
 
-		return $this->error( __('Error: Preset not found') );
+		return $this->error( __('Error: Preset not found', 'widgetwrangler') );
 	}
 
 	/**
@@ -250,10 +250,10 @@ class AdminPagePresets extends AdminPage {
 		    'fields' => array(
 			    'submit' => array(
 				    'type' => 'submit',
-				    'value' => __('Delete'),
+				    'value' => __('Delete', 'widgetwrangler'),
 				    'class' => 'button button-small disabled',
 				    'attributes' => array(
-					    'data-confirm' => __('Are you sure you want to delete this preset?'),
+					    'data-confirm' => __('Are you sure you want to delete this preset?', 'widgetwrangler'),
 				    ),
 			    ),
 			    'preset-id' => array(
@@ -275,15 +275,15 @@ class AdminPagePresets extends AdminPage {
 	 */
 	function actionDelete(){
 		if ( empty( $_POST['preset-id'] ) ) {
-			return $this->error( __('Error: No preset id.') );
+			return $this->error( __('Error: No preset id.', 'widgetwrangler') );
 		}
 
 		if ( empty( $_POST['preset-variety'] ) ) {
-			return $this->error( __('Error: No preset variety.') );
+			return $this->error( __('Error: No preset variety.', 'widgetwrangler') );
 		}
 
 		if ( $_POST['preset-variety'] == 'core' ) {
-			return $this->error( __('Error: You cannot delete a plugin provided preset.') );
+			return $this->error( __('Error: You cannot delete a plugin provided preset.', 'widgetwrangler') );
 		}
 
 		Extras::delete(array(
@@ -292,7 +292,7 @@ class AdminPagePresets extends AdminPage {
 			'id' => $_POST['preset-id'],
 		));
 
-		return $this->result( __('Preset deleted.'), $this->pageUrl() );
+		return $this->result( __('Preset deleted.', 'widgetwrangler'), $this->pageUrl() );
 	}
 
 	/**
@@ -314,7 +314,7 @@ class AdminPagePresets extends AdminPage {
         <div class="ww-columns">
             <div class="ww-column col-25">
                 <div class="ww-box">
-                    <h3><?php _e('Presets'); ?></h3>
+                    <h3><?php _e('Presets', 'widgetwrangler'); ?></h3>
                     <ul class="ww-list-links">
                         <?php foreach($all as $item) {
                             $classes = ($preset_id == $item->id) ? 'active' : '';
@@ -326,7 +326,7 @@ class AdminPagePresets extends AdminPage {
                     </ul>
                 </div>
                 <div class="ww-box">
-                    <h3><?php _e('Create New'); ?></h3>
+                    <h3><?php _e('Create New', 'widgetwrangler'); ?></h3>
                     <?php print $this->formCreate(); ?>
                 </div>
             </div>
@@ -348,14 +348,14 @@ class AdminPagePresets extends AdminPage {
                 <?php } ?>
 
                 <div class="ww-box">
-                    <h3><?php _e('Widgets'); ?></h3>
+                    <h3><?php _e('Widgets', 'widgetwrangler'); ?></h3>
                     <?php
                     $form = new Form(array(
 	                    'action' => $this->actionPath('update_widgets'),
 	                    'fields' => array(
 		                    'submit' => array(
 			                    'type' => 'submit',
-			                    'value' => __('Save Preset'),
+			                    'value' => __('Save Preset', 'widgetwrangler'),
 			                    'class' => 'ww-pull-right button button-primary button-large',
 		                    ),
 		                    'preset-id' => array(

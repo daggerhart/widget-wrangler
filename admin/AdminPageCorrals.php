@@ -11,14 +11,14 @@ class AdminPageCorrals extends AdminPage {
 	 * @see AdminPage::title()
 	 */
     function title() {
-        return __('Widget Corrals');
+        return __('Widget Corrals', 'widgetwrangler');
     }
 
 	/**
 	 * @see AdminPage::menuTitle()
 	 */
     function menuTitle() {
-	    return __('Corrals');
+	    return __('Corrals', 'widgetwrangler');
     }
 
 	/**
@@ -62,12 +62,12 @@ class AdminPageCorrals extends AdminPage {
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
-                    'value' => __('Create Corral'),
+                    'value' => __('Create Corral', 'widgetwrangler'),
                     'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'ww-new-corral' => array(
                     'type' => 'text',
-                    'title' => __('Corral Name'),
+                    'title' => __('Corral Name', 'widgetwrangler'),
                     'class' => 'regular-text',
                 )
             )
@@ -83,12 +83,12 @@ class AdminPageCorrals extends AdminPage {
 	 */
 	function actionCreate() {
 		if ( empty( $_POST['ww-new-corral'] ) ) {
-			return $this->error( __('Error: No corral name given.') );
+			return $this->error( __('Error: No corral name given.', 'widgetwrangler') );
         }
 
         Corrals::add( $_POST['ww-new-corral'] );
 
-        return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-new-corral']));
+        return $this->result(__('New corral created: ', 'widgetwrangler') . $_POST['ww-new-corral'] );
 	}
 
 	/**
@@ -119,7 +119,7 @@ class AdminPageCorrals extends AdminPage {
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
-                    'value' => __('Save order'),
+                    'value' => __('Save order', 'widgetwrangler'),
                     'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'items' => array(
@@ -144,7 +144,7 @@ class AdminPageCorrals extends AdminPage {
 
         Corrals::reorder($_POST['weight']);
 
-        return $this->result(__('Corrals have been reordered.'));
+        return $this->result(__('Corrals have been reordered.', 'widgetwrangler'));
 	}
 
 	/**
@@ -162,7 +162,7 @@ class AdminPageCorrals extends AdminPage {
             'fields' => array(
                 'ww-update-submit' => array(
 	                'type' => 'submit',
-	                'value' => __('Update'),
+	                'value' => __('Update', 'widgetwrangler'),
 	                'class' => 'ww-pull-right button button-primary button-large',
                 ),
                 'ww-update-old-slug' => array(
@@ -172,13 +172,13 @@ class AdminPageCorrals extends AdminPage {
                 ),
                 'ww-update-corral' => array(
 	                'type' => 'text',
-	                'title' => __('Name'),
+	                'title' => __('Name', 'widgetwrangler'),
 	                'value' => $name,
 	                'class' => 'regular-text',
                 ),
                 'ww-update-slug' => array(
 	                'type' => 'text',
-	                'title' => __('Slug'),
+	                'title' => __('Slug', 'widgetwrangler'),
 	                'value' => $slug,
 	                'class' => 'regular-text disabled',
                 )
@@ -195,20 +195,20 @@ class AdminPageCorrals extends AdminPage {
 	 */
 	function actionUpdate() {
 	    if ( empty( $_POST['ww-update-old-slug'] ) ) {
-		    return $this->error( __('Previous corral name not found.') );
+		    return $this->error( __('Previous corral name not found.', 'widgetwrangler') );
         }
 
 	    if ( empty( $_POST['ww-update-corral'] ) ) {
-		    return $this->error( __('No new corral name found.') );
+		    return $this->error( __('No new corral name found.', 'widgetwrangler') );
         }
 
 	    if ( empty( $_POST['ww-update-slug'] ) ) {
-		    return $this->error( __('No corral slug found.') );
+		    return $this->error( __('No corral slug found.', 'widgetwrangler') );
         }
 
         Corrals::update( $_POST['ww-update-old-slug'],  $_POST['ww-update-corral'], $_POST['ww-update-slug']);
 
-        return $this->result(sprintf(__('New corral "%s" created.'), $_POST['ww-update-corral']));
+        return $this->result( __('New corral created: ') . $_POST['ww-update-corral']);
 	}
 
 	/**
@@ -226,10 +226,10 @@ class AdminPageCorrals extends AdminPage {
                 ),
                 'ww-delete-submit' => array(
 	                'type' => 'submit',
-	                'value' => __('Delete'),
+	                'value' => __('Delete', 'widgetwrangler'),
 	                'class' => 'disabled button button-small',
                     'attributes' => array(
-                        'data-confirm' => __('Are you sure you want to delete this corral?'),
+                        'data-confirm' => __('Are you sure you want to delete this corral?', 'widgetwrangler'),
                     ),
                 ),
             ),
@@ -245,12 +245,12 @@ class AdminPageCorrals extends AdminPage {
 	 */
 	function actionDelete() {
 		if ( empty( $_POST['ww-delete-slug'] ) ) {
-			return $this->error( __('Corral data missing.') );
+			return $this->error( __('Corral data missing.', 'widgetwrangler') );
 		}
 
         Corrals::remove( $_POST['ww-delete-slug'] );
 
-        return $this->result(sprintf(__('Corral "%s" deleted.'), $_POST['ww-delete-slug']));
+        return $this->result(__('Corral deleted: ', 'widgetwrangler') . $_POST['ww-delete-slug']);
 	}
 
 	/**

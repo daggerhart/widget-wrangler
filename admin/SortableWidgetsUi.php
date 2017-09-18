@@ -100,15 +100,13 @@ class SortableWidgetsUi {
 		$context = Context::context();
 		$form = new Form(array( 'style' => 'inline' ));
 		$preset_id = 0;
-		$preset_message = __('No preset selected. This page is wrangling widgets on its own.');
+		$preset_message = __('No preset selected. This page is wrangling widgets on its own.', 'widgetwrangler');
 		$adminPreset = new AdminPagePresets(array());
 
 		if ( !empty( $context['preset'] ) ) {
 			$preset_id = $context['preset']->id;
-			$preset_message = sprintf(
-                __('This page is currently using the %s Widgets.'),
-                "<a href='{$adminPreset->pagePath()}&preset_id={$preset_id}'>{$context['preset']->data['name']}</a>"
-            );
+			$preset_message = __('This page is currently using the Preset: ', 'widgetwrangler') .
+                "<a href='{$adminPreset->pagePath()}&preset_id={$preset_id}'>{$context['preset']->data['name']}</a>";
 		}
 
 		// do not show preset selection on the presets admin page
@@ -121,22 +119,22 @@ class SortableWidgetsUi {
 			print $form->render_field(array(
 				'type' => 'select',
 				'name' => 'ww-preset-id-new',
-				'title' => __('Preset') .'<span class="ajax-working spinner"></span>',
-				'help' => __('Select the Preset you would like to control widgets on this page, or select "- No Preset -" to allow this page to control its own widgets.'),
-				'options' => array( 0 => __('- No Preset -') ) + Presets::asOptions(),
+				'title' => __('Preset', 'widgetwrangler') .'<span class="ajax-working spinner"></span>',
+				'help' => __('Select the Preset you would like to control widgets on this page, or select "- No Preset -" to allow this page to control its own widgets.', 'widgetwrangler'),
+				'options' => array( 0 => __('- No Preset -', 'widgetwrangler') ) + Presets::asOptions(),
 				'value' => $preset_id,
 			));
 		}
 		print $form->render_field(array(
 			'type' => 'select',
-			'title' => __('Add Widget'),
+			'title' => __('Add Widget', 'widgetwrangler'),
 			'name' => 'ww-add-new-widget-widget',
-			'options' => array( 0 => __('- Select a Widget -') ) + Widgets::asOptions( $this->all_widgets ),
+			'options' => array( 0 => __('- Select a Widget -', 'widgetwrangler') ) + Widgets::asOptions( $this->all_widgets ),
 		));
 		print $form->render_field(array(
 			'type' => 'select',
 			'name' => 'ww-add-new-widget-corral',
-			'options' => array( 0 => __('- Select a Corral -') ) + Corrals::all(),
+			'options' => array( 0 => __('- Select a Corral -', 'widgetwrangler') ) + Corrals::all(),
 		));
 		?>
         <span id="ww-add-new-widget-button" class="button button-large"><?php _e('Add', 'widgetwrangler'); ?></span>

@@ -46,7 +46,7 @@ class AdminPage {
 	 * @return string
 	 */
 	function title() {
-		return __('Page Title');
+		return __('Page Title', 'widgetwrangler');
 	}
 
 	/**
@@ -329,7 +329,7 @@ class AdminPage {
 	 */
 	function error( $message = null, $redirect = null ) {
 		if (!$message) {
-			$message = __('Something went wrong, please refresh the page and try again.');
+			$message = __('Something went wrong, please refresh the page and try again.', 'widgetwrangler');
 		}
 		return $this->result($message, $redirect, 'error');
 	}

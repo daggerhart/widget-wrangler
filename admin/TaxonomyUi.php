@@ -109,7 +109,7 @@ class TaxonomyUi extends AdminPage {
 				'fields' => array(
 					'opening' => array(
 						'type' => 'markup',
-						'title' => __('Widget Wrangler'),
+						'title' => __('Widget Wrangler', 'widgetwrangler'),
 						'description' => __('Here you can override the default widgets for all terms in this taxonomy.', 'widgetwrangler'),
 					),
 					'taxonomy' => array(
@@ -118,8 +118,8 @@ class TaxonomyUi extends AdminPage {
 					),
 					'override_default' => array(
 						'type' => 'checkbox',
-						'title' => __('Set taxonomy default widgets'),
-						'help' => __('Enable these widgets as the default widgets for terms in this taxonomy. If not checked, these widgets will never be displayed.'),
+						'title' => __('Set taxonomy default widgets', 'widgetwrangler'),
+						'help' => __('Enable these widgets as the default widgets for terms in this taxonomy. If not checked, these widgets will never be displayed.', 'widgetwrangler'),
                         'value' => !empty( $tax_data->data['override_default'] ),
 					),
 					'save_widgets' => array(
@@ -130,7 +130,7 @@ class TaxonomyUi extends AdminPage {
 					'widgets' => array(
 						'type' => 'markup',
 						'value' => $sortable_widgets,
-						'title' => __('Widgets'),
+						'title' => __('Widgets', 'widgetwrangler'),
 					),
 				)
 			));
@@ -146,7 +146,7 @@ class TaxonomyUi extends AdminPage {
 	 */
 	function actionSaveTaxonomy() {
 		if ( empty( $_POST['taxonomy'] ) ) {
-			return $this->error( __('Missing taxonomy data.') );
+			return $this->error( __('Missing taxonomy data.', 'widgetwrangler') );
 		}
 
 		$data = array(
@@ -155,7 +155,7 @@ class TaxonomyUi extends AdminPage {
 
 		Admin::saveTaxonomyWidgets( 'taxonomy', $_POST['taxonomy'], $data );
 
-		return $this->result( __('Success.') );
+		return $this->result( __('Success.', 'widgetwrangler') );
 	}
     
 }

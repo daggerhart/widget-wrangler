@@ -8,14 +8,14 @@ class AdminPageDocumentation extends AdminPage {
 	 * @see AdminPage::title()
 	 */
 	function title() {
-		return __('Widget Wrangler Documentation');
+		return __('Widget Wrangler Documentation', 'widgetwrangler');
 	}
 
 	/**
 	 * @see AdminPage::menuTitle()
 	 */
 	function menuTitle() {
-		return __('Documentation');
+		return __('Documentation', 'widgetwrangler');
 	}
 
 	/**

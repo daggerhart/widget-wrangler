@@ -12,14 +12,14 @@ class AdminPageClones extends AdminPage {
 	 * @see AdminPage::title()
 	 */
     function title() {
-        return __('Copy WordPress Widgets to Widget Wrangler');
+        return __('Copy WordPress Widgets to Widget Wrangler', 'widgetwrangler');
     }
 
 	/**
 	 * @see AdminPage::menuTitle()
 	 */
     function menuTitle() {
-	    return __('Copy WP Widgets');
+	    return __('Copy WP Widgets', 'widgetwrangler');
     }
 
 	/**
@@ -100,7 +100,7 @@ class AdminPageClones extends AdminPage {
                                     ),
                                     'submit' => array(
                                         'type' => 'submit',
-                                        'value' => __('Create'),
+                                        'value' => __('Create', 'widgetwrangler'),
                                         'class' => 'button button-primary button-large',
                                     ),
                                 ),
@@ -176,7 +176,7 @@ class AdminPageClones extends AdminPage {
 		add_post_meta($new_post_id,'ww-clone-instance', $instance);
 
 		return $this->result(
-			__(sprintf('New copy of %s created', $wp_widget_name)),
+			__('New copy of the following widget created: ', 'widgetwrangler') . $wp_widget_name,
 			get_bloginfo('wpurl')."/wp-admin/post.php?post={$new_post_id}&action=edit"
 		);
 	}

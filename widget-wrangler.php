@@ -164,7 +164,7 @@ class Widget_Wrangler {
 		register_post_type('widget', array(
 			'labels' => array(
 				'name' => __('Widget Wrangler', 'widgetwrangler'),
-				'all_items' => __('All Widgets'),
+				'all_items' => __('All Widgets', 'widgetwrangler'),
 				'singular_name' => __('Widget', 'widgetwrangler'),
 				'add_new' => __('Add New Widget', 'widgetwrangler'),
 				'add_new_item' => __('Add New Widget', 'widgetwrangler'),

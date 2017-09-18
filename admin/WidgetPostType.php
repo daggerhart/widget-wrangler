@@ -113,7 +113,7 @@ class WidgetPostType {
 			'ww_type' => __('Type', 'widgetwrangler'),
 			'ww_description' => __('Description', 'widgetwrangler'),
 			'ww_advanced_parsing' => __('Advanced Parsing', 'widgetwrangler'),
-			'ww_status' => __('Status'),
+			'ww_status' => __('Status', 'widgetwrangler'),
 			'ww_shortcode' => __('Shortcodes', 'widgetwrangler'),
 		);
 
@@ -272,9 +272,9 @@ class WidgetPostType {
 	function meta_box_details() {
 		?>
         <ul>
-            <li><?php _e('Post ID'); ?> <code><?php print $this->post_id;?></code></li>
-            <li><?php _e('Shortcode by ID'); ?><br>- <code>[ww_widget id=<?php print $this->post_id; ?>]</code></li>
-            <li><?php _e('Shortcode by slug'); ?><br>- <code>[ww_widget slug="<?php print get_post()->post_name; ?>"]</code></li>
+            <li><?php _e('Post ID', 'widgetwrangler'); ?> <code><?php print $this->post_id;?></code></li>
+            <li><?php _e('Shortcode by ID', 'widgetwrangler'); ?><br>- <code>[ww_widget id=<?php print $this->post_id; ?>]</code></li>
+            <li><?php _e('Shortcode by slug', 'widgetwrangler'); ?><br>- <code>[ww_widget slug="<?php print get_post()->post_name; ?>"]</code></li>
         </ul>
         <?php
     }
@@ -293,20 +293,20 @@ class WidgetPostType {
 		print $form->render_field(array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-wpautop',
-			'title' => __( 'Automatically add paragraphs to the widget content.' ),
+			'title' => __( 'Automatically add paragraphs to the widget content.', 'widgetwrangler' ),
 			'value' => ($values['ww-wpautop'] || ( $screen->id == 'widget' && $screen->action == 'add' ) ),
 		));
 		print $form->render_field(array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-hide-title',
-			'title' => __( 'Hide this widget title on output.' ),
+			'title' => __( 'Hide this widget title on output.', 'widgetwrangler' ),
 			'value' => $values['ww-hide-title'],
 		));
 		print $form->render_field(array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-hide-from-wrangler',
-			'title' => __( 'Hide this widget from the drag and drop Wrangler.' ),
-			'help' => __('This is useful for widgets that are only meant to be used as shortcodes.'),
+			'title' => __( 'Hide this widget from the drag and drop Wrangler.', 'widgetwrangler' ),
+			'help' => __('This is useful for widgets that are only meant to be used as shortcodes.', 'widgetwrangler'),
 			'value' => $values['ww-hide-from-wrangler'],
 		));
 	}
@@ -324,13 +324,13 @@ class WidgetPostType {
 		print $form->render_field( array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-adv-enabled',
-			'title' => __( 'Enable advanced parsing' ),
+			'title' => __( 'Enable advanced parsing', 'widgetwrangler' ),
 			'value' => $values['ww-adv-enabled'],
 		) );
 		print $form->render_field( array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-adv-template',
-			'title' => __( 'Template the advanced parsing area' ),
+			'title' => __( 'Template the advanced parsing area', 'widgetwrangler' ),
 			'value' => $values['ww-adv-template'],
 		) );
 		print $form->render_field( array(
@@ -346,7 +346,7 @@ class WidgetPostType {
 		?>
 
         <hr>
-        <a class="toggle-next-content"><?php _e("Help & Hints"); ?></a>
+        <a class="toggle-next-content"><?php _e("Help & Hints", 'widgetwrangler'); ?></a>
         <div class="togglable-content">
             <h4><?php _e("In the Advanced Parsing area you can", 'widgetwrangler'); ?>:</h4>
             <ul class="list">
@@ -378,13 +378,13 @@ class WidgetPostType {
 		print $form->render_field( array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-display-logic-enabled',
-			'title' => __( 'Enable display logic' ),
+			'title' => __( 'Enable display logic', 'widgetwrangler' ),
 			'value' => $values['ww-display-logic-enabled'],
 		) );
 		print $form->render_field( array(
 			'type'  => 'textarea',
 			'name'  => 'ww-display-logic',
-			'description' => __( 'Site-wide raw PHP logic for displaying this widget' ),
+			'description' => __( 'Site-wide raw PHP logic for displaying this widget', 'widgetwrangler' ),
 			'value' => $values['ww-display-logic'],
 			'class' => 'code',
 			'attributes' => array(
@@ -394,7 +394,7 @@ class WidgetPostType {
 
 		?>
         <hr>
-        <a class="toggle-next-content"><?php _e("Help & Hints"); ?></a>
+        <a class="toggle-next-content"><?php _e("Help & Hints", 'widgetwrangler'); ?></a>
         <div class="togglable-content">
             <h4><?php _e("Display Logic", 'widgetwrangler'); ?></h4>
             <ul class="list">
@@ -402,7 +402,7 @@ class WidgetPostType {
                 <li><?php _e("Evaluate boolean true or false with php. Defaults to TRUE.", 'widgetwrangler'); ?></li>
                 <li><?php print sprintf(__("For simple logic, execute your conditions directly.  (For example, use WordPress Conditional Tags such as %s or %s).", 'widgetwrangler'), '<code>is_search()</code>', '<code>is_404()</code>'); ?></li>
                 <li><?php _e("For complex logic, return TRUE or FALSE as needed.", 'widgetwrangler'); ?></li>
-                <li><a href="https://codex.wordpress.org/Conditional_Tags" target="_blank"><?php _e('More Conditional Tags'); ?></a></li>
+                <li><a href="https://codex.wordpress.org/Conditional_Tags" target="_blank"><?php _e('More Conditional Tags', 'widgetwrangler'); ?></a></li>
             </ul>
         </div>
 		<?php
@@ -431,14 +431,14 @@ class WidgetPostType {
 				'type'  => 'checkbox',
 				'name'  => 'hide_title',
 				'name_prefix' => '[clone]',
-				'title' => __( 'Hide the widget title on display' ),
+				'title' => __( 'Hide the widget title on display', 'widgetwrangler' ),
 				'value' => $wp_widget_instance['hide_title'],
 			));
 			print $form->render_field(array(
 				'type'  => 'checkbox',
 				'name'  => 'ww-hide-from-wrangler',
-				'title' => __( 'Hide the widget from the drag and drop Wrangler.' ),
-				'help' => __('This is useful for widgets that are only meant to be used as shortcodes.'),
+				'title' => __( 'Hide the widget from the drag and drop Wrangler.', 'widgetwrangler' ),
+				'help' => __('This is useful for widgets that are only meant to be used as shortcodes.', 'widgetwrangler'),
 				'value' => $ww_hide_from_wrangler,
 			));
 			print $form->render_field(array(
@@ -451,14 +451,14 @@ class WidgetPostType {
 				'type'  => 'hidden',
 				'name'  => 'clone-instance',
 				'name_prefix' => '[clone]',
-				'value' => 'Placeholder',
+				'value' => __('Placeholder', 'widgetwrangler'),
 			));
 
 			print $instance_form;
 
 			?>
             <hr>
-            <a class="toggle-next-content"><?php _e("Instance details"); ?></a>
+            <a class="toggle-next-content"><?php _e("Instance details", 'widgetwrangler'); ?></a>
             <div class="togglable-content">
                 <h4>WP_Widget $instance</h4>
                 <pre class="code"><?php print htmlentities(print_r($wp_widget_instance,1)); ?></pre>
@@ -476,7 +476,7 @@ class WidgetPostType {
 		<?php
 		$values = $this->get_meta_values();
 		$options = array_combine($this->settings['override_elements'], $this->settings['override_elements']);
-		$options = array('_none_' => __('- None -') ) + $options;
+		$options = array('_none_' => __('- None -', 'widgetwrangler') ) + $options;
 
 		$form = new Form( array(
 			'field_prefix' => 'ww-data',
@@ -487,56 +487,56 @@ class WidgetPostType {
 		print $form->render_field(array(
 			'type'  => 'checkbox',
 			'name'  => 'ww-override-output-html',
-			'title' => __( 'Override HTML' ),
-			'description' => __('The values below will determine HTML output. This will override theme compatibility for this widget.'),
+			'title' => __( 'Override HTML', 'widgetwrangler' ),
+			'description' => __('The values below will determine HTML output. This will override theme compatibility for this widget.', 'widgetwrangler'),
 			'value' => $values['ww-override-output-html'],
 		));
 		print $form->render_field(array(
 			'type'  => 'select',
 			'name'  => 'ww-wrapper-element',
-			'title' => __( 'Wrapper Element' ),
+			'title' => __( 'Wrapper Element', 'widgetwrangler' ),
 			'value' => $values['ww-html-wrapper-element'],
 			'options' => $this->arrayKeyValueEnsure($options, $values['ww-html-wrapper-element']),
 		));
 		print $form->render_field(array(
 			'type'  => 'text',
 			'name'  => 'ww-html-wrapper-id',
-			'title' => __( 'Wrapper ID' ),
+			'title' => __( 'Wrapper ID', 'widgetwrangler' ),
 			'value' => $values['ww-html-wrapper-id'],
 		));
 		print $form->render_field(array(
 			'type'  => 'text',
 			'name'  => 'ww-html-wrapper-classes',
-			'title' => __( 'Wrapper Classes' ),
-			'help' => __('Separate multiple classes with spaces.'),
+			'title' => __( 'Wrapper Classes', 'widgetwrangler' ),
+			'help' => __('Separate multiple classes with spaces.', 'widgetwrangler'),
 			'value' => $values['ww-html-wrapper-classes'],
 		));
 		print $form->render_field(array(
 			'type'  => 'select',
 			'name'  => 'ww-html-title-element',
-			'title' => __( 'Title Element' ),
+			'title' => __( 'Title Element', 'widgetwrangler' ),
 			'value' => $values['ww-html-title-element'],
 			'options' => $this->arrayKeyValueEnsure($options, $values['ww-html-title-element']),
 		));
 		print $form->render_field(array(
 			'type'  => 'text',
 			'name'  => 'ww-html-title-classes',
-			'title' => __( 'Title Classes' ),
-			'help' => __('Separate multiple classes with spaces.'),
+			'title' => __( 'Title Classes', 'widgetwrangler' ),
+			'help' => __('Separate multiple classes with spaces.', 'widgetwrangler'),
 			'value' => $values['ww-html-title-classes'],
 		));
 		print $form->render_field(array(
 			'type'  => 'select',
 			'name'  => 'ww-html-content-element',
-			'title' => __( 'Content Element' ),
+			'title' => __( 'Content Element', 'widgetwrangler' ),
 			'value' => $values['ww-html-content-element'],
 			'options' => $this->arrayKeyValueEnsure($options, $values['ww-html-content-element']),
 		));
 		print $form->render_field(array(
 			'type'  => 'text',
 			'name'  => 'ww-html-content-classes',
-			'title' => __( 'Content Classes' ),
-			'help' => __('Separate multiple classes with spaces.'),
+			'title' => __( 'Content Classes', 'widgetwrangler' ),
+			'help' => __('Separate multiple classes with spaces.', 'widgetwrangler'),
 			'value' => $values['ww-html-content-classes'],
 		));
 		print $form->form_close_table();
@@ -612,15 +612,15 @@ class WidgetPostType {
 		print $form->render_field(array(
 			'type'  => 'text',
 			'name'  => 'ww-custom-template-suggestion',
-			'title' => __( 'Custom template suggestion' ),
-			'description' => __('Define a custom template name for this widget.'),
-			'help' => sprintf( __('The resulting filename will be: %s'), "<code>widget-{$result_suggestion}.php</code>"),
+			'title' => __( 'Custom template suggestion', 'widgetwrangler' ),
+			'description' => __('Define a custom template name for this widget.', 'widgetwrangler'),
+			'help' => __('The resulting filename will be: ', 'widgetwrangler') . "<code>widget-{$result_suggestion}.php</code>",
 			'value' => $widget->custom_template_suggestion,
 		));
 
 		?>
         <hr>
-        <a class="toggle-next-content"><?php _e("Help & Suggestions"); ?></a>
+        <a class="toggle-next-content"><?php _e("Help & Suggestions", 'widgetwrangler'); ?></a>
         <div class="togglable-content">
             <ul class="list">
                 <li><?php _e("Lowercase alphanumeric characters, dashes and underscores are allowed.", 'widgetwrangler'); ?></li>
@@ -639,9 +639,9 @@ class WidgetPostType {
                 <?php
             }
             ?>
-            <h4><?php _e('Starter Template'); ?></h4>
-            <p><?php _e('You can copy this template to your theme with one of the suggested file names above. The file name chosen determines what widgets your new template will apply to.'); ?></p>
-            <p><?php _e('For example, if your file name includes the corral slug, then the template will only apply to widgets in that corral. If your file name includes the widget ID or slug, then the template will only apply to that widget.'); ?></p>
+            <h4><?php _e('Starter Template', 'widgetwrangler'); ?></h4>
+            <p><?php _e('You can copy this template to your theme with one of the suggested file names above. The file name chosen determines what widgets your new template will apply to.', 'widgetwrangler'); ?></p>
+            <p><?php _e('For example, if your file name includes the corral slug, then the template will only apply to widgets in that corral. If your file name includes the widget ID or slug, then the template will only apply to that widget.', 'widgetwrangler'); ?></p>
             <pre class="code"><?php print htmlentities( file_get_contents( WW_PLUGIN_DIR.'/templates/widget-1x.php' ) ); ?></pre>
         </div>
         <?php
@@ -668,9 +668,9 @@ class WidgetPostType {
 			print $form->render_field(array(
 				'type'  => 'select',
 				'name'  => 'ww-preview-corral-slug',
-				'title' => __( 'Preview Corral Context' ),
-				'description' => __('This setting only affects the preview on this page, and helps provide accurate template suggestions.'),
-				'help' => __('This preview does not include your theme stylesheet, nor corral or sidebar styling.'),
+				'title' => __( 'Preview Corral Context', 'widgetwrangler' ),
+				'description' => __('This setting only affects the preview on this page, and helps provide accurate template suggestions.', 'widgetwrangler'),
+				'help' => __('This preview does not include your theme stylesheet, nor corral or sidebar styling.', 'widgetwrangler'),
 				'value' => $preview_corral_slug,
 				'options' => !empty($corrals) ? $corrals : array('' => '- No Corrals -'),
 			));
@@ -692,7 +692,7 @@ class WidgetPostType {
 		$widget = Widgets::get( intval( $_POST['widget_post_id'] ) );
 
 		if (!$widget) {
-			die(__('Widget not found'));
+			die(__('Widget not found', 'widgetwrangler'));
 		}
 
 		// buffer all of this in case of php errors
@@ -743,7 +743,7 @@ class WidgetPostType {
             </div>
 		<?php } ?>
         <hr />
-        <a class="toggle-next-content"><?php _e("View Output HTML"); ?></a>
+        <a class="toggle-next-content"><?php _e("View Output HTML", 'widgetwrangler'); ?></a>
         <pre class="togglable-content code"><?php print htmlentities($this->clean_html($preview)); ?></pre>
 		<?php
 		exit;

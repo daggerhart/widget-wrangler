@@ -1,7 +1,8 @@
 === Widget Wrangler ===
 Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
-Requires at least: 3
+Requires at least: 4
+Requires PHP: 5.6
 Tested up to: 4.5
 Stable tag: trunk
 
@@ -18,7 +19,7 @@ Widget Wrangler provides the following features:
 * Custom Widget templates
 * Control Widget visibility on any page (or post type)
 * Control Widget visibility globally (Display Logic)
-* Alter WP Sidebar HTML
+* Alter WordPress Sidebar HTML
 * Shortcodes for Widgets
 * Compatible with almost any existing WordPress Widget
 * Hide Widget Titles
@@ -99,9 +100,14 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
-= 2.2.5 =
+= 2.3.0 =
 
+* Improved UI
+* Significant rewrite of codebase
+* New documentation admin page
+* Fix: Widget preview using ajax to prevent widget form errors
 * Bug fix: Warning on activation
+
 
 = 2.2.4 =
 

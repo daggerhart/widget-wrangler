@@ -12,14 +12,14 @@ class AdminPageSidebars extends AdminPage {
 	 * @see AdminPage::title()
 	 */
 	function title() {
-		return __('Theme Sidebars');
+		return __('Theme Sidebars', 'widgetwrangler');
 	}
 
 	/**
 	 * @see AdminPage::menuTitle()
 	 */
 	function menuTitle() {
-		return __('Sidebars');
+		return __('Sidebars', 'widgetwrangler');
 	}
 
 	/**
@@ -34,7 +34,7 @@ class AdminPageSidebars extends AdminPage {
 	 */
 	function description() {
 		return array(
-            __('Modify the sidebar output registered by the current theme.'),
+            __('Modify the sidebar output registered by the current theme.', 'widgetwrangler'),
 		);
 	}
 
@@ -65,7 +65,7 @@ class AdminPageSidebars extends AdminPage {
 	 */
 	function actionUpdate() {
 		if ( empty( $_POST['ww-data']['sidebars'] ) || !is_array( $_POST['ww-data']['sidebars'] ) ) {
-			return $this->error( __('Error: Form data missing or malformed.') );
+			return $this->error( __('Error: Form data missing or malformed.', 'widgetwrangler') );
         }
 
         // clean up a little
@@ -78,7 +78,7 @@ class AdminPageSidebars extends AdminPage {
         }
         update_option('ww_alter_sidebars', $sidebars);
 
-        return $this->result( __('Sidebars modified.') );
+        return $this->result( __('Sidebars modified.', 'widgetwrangler') );
 	}
 
 	/**
@@ -123,14 +123,14 @@ class AdminPageSidebars extends AdminPage {
 
                     print $form->render_field(array(
                         'type' => 'checkbox',
-                        'title' => __('Alter Sidebar'),
+                        'title' => __('Alter Sidebar', 'widgetwrangler'),
                         'name' => 'ww_alter',
                         'name_prefix' => "[sidebars][{$slug}]",
                         'value' => !empty($sidebar['ww_alter']),
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
-                        'title' => __('Before Widget'),
+                        'title' => __('Before Widget', 'widgetwrangler'),
                         'name' => 'before_widget',
                         'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['before_widget'] ),
@@ -138,7 +138,7 @@ class AdminPageSidebars extends AdminPage {
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
-                        'title' => __('Before Title'),
+                        'title' => __('Before Title', 'widgetwrangler'),
                         'name' => 'before_title',
                         'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['before_title'] ),
@@ -146,7 +146,7 @@ class AdminPageSidebars extends AdminPage {
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
-                        'title' => __('After Title'),
+                        'title' => __('After Title', 'widgetwrangler'),
                         'name' => 'after_title',
                         'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['after_title'] ),
@@ -154,7 +154,7 @@ class AdminPageSidebars extends AdminPage {
                     ));
                     print $form->render_field(array(
                         'type' => 'text',
-                        'title' => __('After Widget'),
+                        'title' => __('After Widget', 'widgetwrangler'),
                         'name' => 'after_widget',
                         'name_prefix' => "[sidebars][{$slug}]",
                         'value' => htmlentities( $sidebar['after_widget'] ),

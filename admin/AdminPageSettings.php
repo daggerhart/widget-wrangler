@@ -11,14 +11,14 @@ class AdminPageSettings extends AdminPage {
 	 * @see AdminPage::title()
 	 */
 	function title() {
-		return __('Settings');
+		return __('Settings', 'widgetwrangler');
 	}
 
 	/**
 	 * @see AdminPage::menuTitle()
 	 */
 	function menuTitle() {
-		return __('Settings');
+		return __('Settings', 'widgetwrangler');
 	}
 
 	/**
@@ -60,62 +60,62 @@ class AdminPageSettings extends AdminPage {
 			'fields' => array(
 				'submit' =>array(
 					'type' => 'submit',
-					'value' => __('Save settings'),
+					'value' => __('Save settings', 'widgetwrangler'),
                     'class' => 'button button-large button-primary',
 				),
 				'post_types' => array(
 					'type' => 'checkboxes',
-					'title' => __('Post Types'),
-					'description' => __('Select which post types can control widgets individually.'),
+					'title' => __('Post Types', 'widgetwrangler'),
+					'description' => __('Select which post types can control widgets individually.', 'widgetwrangler'),
 					'options' => $this->postTypeOptions(),
 					'value' => $this->settings['post_types'],
 				),
 				'taxonomies' => array(
 					'type' => 'checkboxes',
-					'title' => __('Taxonomies'),
-					'description' => __('Select which taxonomies can control widgets individually.'),
+					'title' => __('Taxonomies', 'widgetwrangler'),
+					'description' => __('Select which taxonomies can control widgets individually.', 'widgetwrangler'),
 					'options' => $this->taxonomyOptions(),
 					'value' => $this->settings['taxonomies'],
 				),
 				'theme_compat' => array(
 					'type' => 'checkbox',
-					'title' => __('Theme Compatibility'),
-					'help' => __('If checked, widgets will include WordPress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget. -- Additionally, enabling theme compatibility provides an administration page for managing the current theme\'s registered sidebar html.'),
+					'title' => __('Theme Compatibility', 'widgetwrangler'),
+					'help' => __('If checked, widgets will include WordPress sidebar settings for the registered sidebar.  ie, $before_widget, $before_title, $after_title, $after_widget. -- Additionally, enabling theme compatibility provides an administration page for managing the current theme\'s registered sidebar html.', 'widgetwrangler'),
 					'value' => $this->settings['theme_compat'],
 				),
 				// Widget Post Type
 				'exclude_from_search' => array(
 					'type' => 'checkbox',
-					'title' => __('Exclude from search'),
-					'help' => __('If checked, widgets will be excluded from search results.'),
+					'title' => __('Exclude from search', 'widgetwrangler'),
+					'help' => __('If checked, widgets will be excluded from search results.', 'widgetwrangler'),
 					'value' => $this->settings['exclude_from_search'],
 				),
 				'advanced_capability' => array(
 					'type' => 'text',
-					'title' => __('Widget post type capability'),
-					'description' => __('This is primarily for incorporating third party permission systems.'),
-					'help' => __('Leave blank to use default post capabilities.'),
+					'title' => __('Widget post type capability', 'widgetwrangler'),
+					'description' => __('This is primarily for incorporating third party permission systems.', 'widgetwrangler'),
+					'help' => __('Leave blank to use default post capabilities.', 'widgetwrangler'),
 					'value' => $this->settings['advanced_capability'],
 				),
 				// Old & Deprecated stuff
 				'legacy_template_suggestions' => array(
 					'type' => 'checkbox',
-					'title' => __('Legacy Template Suggestions'),
-					'help' => __('This version of Widget Wrangler has been upgraded from 1.x. If you have created templates with the previous version, you should leave this checked.'),
+					'title' => __('Legacy Template Suggestions', 'widgetwrangler'),
+					'help' => __('This version of Widget Wrangler has been upgraded from 1.x. If you have created templates with the previous version, you should leave this checked.', 'widgetwrangler'),
 					'value' => $this->settings['legacy_template_suggestions'],
 					'access' => get_option('ww_previous_main_version', false),
 				),
 				'override_elements_enabled' => array(
 					'type' => 'checkbox',
-					'title' => __('Deprecated: Enable overriding widget HTML from the Post UI.'),
-					'help' => __('This is a deprecated feature that is only here for legacy systems.'),
+					'title' => __('Deprecated: Enable overriding widget HTML from the Post UI.', 'widgetwrangler'),
+					'help' => __('This is a deprecated feature that is only here for legacy systems.', 'widgetwrangler'),
 					'value' => $this->settings['override_elements_enabled'],
 					'access' => ( $this->settings['previously_pro'] ),
 				),
 				'override_elements' => array(
 					'type' => 'textarea',
-					'title' => __('Deprecated: HTML Override Elements'),
-					'help' => __('Allowed elements for override a widget\'s html output.  Place one element per line.'),
+					'title' => __('Deprecated: HTML Override Elements', 'widgetwrangler'),
+					'help' => __('Allowed elements for override a widget\'s html output.  Place one element per line.', 'widgetwrangler'),
 					'value' => implode( "\n", $this->settings['override_elements'] ),
 					'access' => ( $this->settings['previously_pro'] ),
 				),
@@ -131,12 +131,12 @@ class AdminPageSettings extends AdminPage {
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
-                    'title' => __('Setup Theme'),
-                    'description' => __('If you click this button, Widget Wrangler will create a Corral for each WordPress sidebar you have, and place a Widget Wrangler Corral Widget into each WordPress Sidebar.'),
-                    'value' => __('Setup Theme'),
+                    'title' => __('Setup Theme', 'widgetwrangler'),
+                    'description' => __('If you click this button, Widget Wrangler will create a Corral for each WordPress sidebar you have, and place a Widget Wrangler Corral Widget into each WordPress Sidebar.', 'widgetwrangler'),
+                    'value' => __('Setup Theme', 'widgetwrangler'),
                     'class' => 'button disabled',
                     'attributes' => array(
-                        'data-confirm' => __('Are you sure you want to replace the WordPress widgets in your sidebars with corrals?'),
+                        'data-confirm' => __('Are you sure you want to replace the WordPress widgets in your sidebars with corrals?', 'widgetwrangler'),
                     ),
                 )
             )
@@ -147,12 +147,12 @@ class AdminPageSettings extends AdminPage {
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
-                    'title' => __('Mass Reset'),
-                    'description' => __('If you click this button, all pages will lose their assigned widget settings and will fall back on the default preset.'),
-                    'value' => __('Reset All Widgets to Default'),
+                    'title' => __('Mass Reset', 'widgetwrangler'),
+                    'description' => __('If you click this button, all pages will lose their assigned widget settings and will fall back on the default preset.', 'widgetwrangler'),
+                    'value' => __('Reset All Widgets to Default', 'widgetwrangler'),
                     'class' => 'button disabled',
                     'attributes' => array(
-	                    'data-confirm' => __('Are you sure you want to set all post and page widget settings back to the default preset?'),
+	                    'data-confirm' => __('Are you sure you want to set all post and page widget settings back to the default preset?', 'widgetwrangler'),
                     ),
                 )
             )
@@ -163,12 +163,12 @@ class AdminPageSettings extends AdminPage {
             'fields' => array(
                 'submit' => array(
                     'type' => 'submit',
-                    'title' => __('Reset Settings'),
-                    'description' => __('If you click this button, Widget Wrangler settings will be reset to their default state.  This will not affect Corral or Widget data.'),
-                    'value' => __('Reset Settings'),
+                    'title' => __('Reset Settings', 'widgetwrangler'),
+                    'description' => __('If you click this button, Widget Wrangler settings will be reset to their default state.  This will not affect Corral or Widget data.', 'widgetwrangler'),
+                    'value' => __('Reset Settings', 'widgetwrangler'),
                     'class' => 'button disabled',
                     'attributes' => array(
-	                    'data-confirm' => __('Are you sure you want to reset the plugin settings back to default?'),
+	                    'data-confirm' => __('Are you sure you want to reset the plugin settings back to default?', 'widgetwrangler'),
                     ),
                 )
             )
@@ -176,8 +176,8 @@ class AdminPageSettings extends AdminPage {
         ?>
         <div class="ww-columns">
             <div class="ww-column col-25">
-                <h2><?php _e('General'); ?></h2>
-                <p><?php _e('Setup how Widget Wrangler works with other WordPress content.'); ?></p>
+                <h2><?php _e('General', 'widgetwrangler'); ?></h2>
+                <p><?php _e('Setup how Widget Wrangler works with other WordPress content.', 'widgetwrangler'); ?></p>
             </div>
             <div class="ww-column col-75">
 				<?php print $settings_form->render(); ?>
@@ -185,8 +185,8 @@ class AdminPageSettings extends AdminPage {
         </div>
         <div class="ww-columns">
             <div class="ww-column col-25">
-                <h2><?php _e('Tools'); ?></h2>
-                <p><?php _e('Actions that will modify Widget Wrangler data.'); ?></p>
+                <h2><?php _e('Tools', 'widgetwrangler'); ?></h2>
+                <p><?php _e('Actions that will modify Widget Wrangler data.', 'widgetwrangler'); ?></p>
             </div>
             <div class="ww-column col-75">
 				<?php
@@ -207,7 +207,7 @@ class AdminPageSettings extends AdminPage {
 		$query = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'ww_post_widgets' OR `meta_key` = 'ww_post_preset_id'";
 		$wpdb->query($query);
 
-		return $this->result( __('Widget data on all posts have been deleted.') );
+		return $this->result( __('Widget data on all posts have been deleted.', 'widgetwrangler') );
 	}
 
 	/**
@@ -219,7 +219,7 @@ class AdminPageSettings extends AdminPage {
 		$settings->save();
 		$this->settings = $settings->values;
 
-		return $this->result( __('Settings have been reset to default.') );
+		return $this->result( __('Settings have been reset to default.', 'widgetwrangler') );
     }
 
 	/**
@@ -242,7 +242,7 @@ class AdminPageSettings extends AdminPage {
 		$settings->save();
 		$this->settings = $settings->values;
 
-		return $this->result( __('Settings saved.') );
+		return $this->result( __('Settings saved.', 'widgetwrangler') );
 	}
 
 	/**
@@ -291,10 +291,10 @@ class AdminPageSettings extends AdminPage {
 		update_option('widget_widget-wrangler-sidebar', $new_widget_ww_sidebar);
 
 		if ( !empty( $new_corrals ) ) {
-			return $this->result( sprintf( __('New corrals created: %s'), implode(', ', $new_corrals) ) );
+			return $this->result( __('New corrals created: ', 'widgetwrangler') . implode(', ', $new_corrals) );
         }
 
-        return $this->result( __('No new corrals created. Appropriate Corrals have been assigned to their sidebars.') );
+        return $this->result( __('No new corrals created. Appropriate Corrals have been assigned to their sidebars.', 'widgetwrangler') );
 	}
 
 	/**
@@ -333,7 +333,7 @@ class AdminPageSettings extends AdminPage {
 					// taken from get_edit_term_link
 					// https://core.trac.wordpress.org/browser/tags/3.9.1/src/wp-includes/link-template.php#L894
 					$edit_link = add_query_arg( array( 'taxonomy' => $slug ), admin_url( 'edit-tags.php' ) );
-					$options[ $slug ].= sprintf( ' - <a href="%s">%s</a>', $edit_link, __('edit') );
+					$options[ $slug ].= sprintf( ' - <a href="%s">%s</a>', $edit_link, __('edit', 'widgetwrangler') );
                 }
 			}
 		}
