@@ -2,8 +2,8 @@
 Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 4
-Requires PHP: 5.6
-Tested up to: 4.5
+Requires PHP: 5.3
+Tested up to: 4.8.2
 Stable tag: trunk
 
 A plugin for managing the display of widgets on a page by page basis. Using widgets as a post type.
@@ -25,13 +25,9 @@ Widget Wrangler provides the following features:
 * Hide Widget Titles
 * Automatic Theme Setup
 
-= Screencasts =
+= Widget Wrangler Setup Screencast =
 
 http://www.youtube.com/watch?v=oW2NgtwUuHE
-
-* [Getting Started Screencast](http://youtu.be/oW2NgtwUuHE) *same as above
-* [Basic Examples w/ Advanced Parsing Screencast](http://screencast.com/t/NjI2NDYzY)
-* [Templating & PHP](http://screencast.com/t/YmI2Mjg1NT)
 
 
 == Installation ==
