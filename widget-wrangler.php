@@ -24,7 +24,7 @@ License: GPL2
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define('WW_VERSION', '2.3.0');
+define('WW_VERSION', '2.3.1');
 define('WW_DB_VERSION', '2001');
 define('WW_SCRIPT_VERSION', '2.3.0');
 
@@ -77,9 +77,9 @@ class Widget_Wrangler {
 	function __construct() {
 		include_once WW_PLUGIN_DIR.'/common/Context.php';
 		include_once WW_PLUGIN_DIR.'/common/Corrals.php';
-		include_once WW_PLUGIN_DIR.'/common/Display.php';
+		include_once WW_PLUGIN_DIR.'/common/display.php';
 		include_once WW_PLUGIN_DIR.'/common/Extras.php';
-		include_once WW_PLUGIN_DIR.'/common/Presets.php';
+		include_once WW_PLUGIN_DIR.'/common/presets.php';
 		include_once WW_PLUGIN_DIR.'/common/Settings.php';
 		include_once WW_PLUGIN_DIR.'/common/Updates.php';
 		include_once WW_PLUGIN_DIR.'/common/Utils.php';

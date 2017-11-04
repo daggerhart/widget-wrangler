@@ -96,7 +96,7 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
-= 2.3.0 =
+= 2.3.1 =
 
 * Improved UI
 * Significant rewrite of codebase
@@ -324,4 +324,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3 Various bug fixes and significant UI and documentation improvements.
+2.3.1 Various bug fixes and significant UI and documentation improvements.
