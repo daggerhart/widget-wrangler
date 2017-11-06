@@ -4,7 +4,7 @@ Plugin Name: Widget Wrangler
 Plugin URI: http://www.wranglerplugins.com
 Description: Widget Wrangler gives the WordPress admin a clean interface for managing widgets on a page by page basis. It also provides widgets as a post type, the ability to clone existing WordPress widgets, and granular control over widget templates.
 Author: Jonathan Daggerhart
-Version: 2.3.1
+Version: 2.3.2
 Requires PHP: 5.3
 Author URI: http://daggerhart.com
 Text Domain: widgetwrangler
@@ -24,7 +24,7 @@ License: GPL2
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define('WW_VERSION', '2.3.1');
+define('WW_VERSION', '2.3.2');
 define('WW_DB_VERSION', '2001');
 define('WW_SCRIPT_VERSION', '2.3.0');
 

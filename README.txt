@@ -96,6 +96,10 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.3.2 =
+
+* Admin screen bug fix
+
 = 2.3.1 =
 
 * Improved UI
@@ -324,4 +328,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3.1 Various bug fixes and significant UI and documentation improvements.
+2.3.2 Bug fix on admin screen from 2.3.1
