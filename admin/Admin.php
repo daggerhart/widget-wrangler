@@ -150,7 +150,7 @@ class Admin {
 		    }
 	    }
 	    // taxonomy
-	    else if ( !empty( $context['taxonomy'] && empty( $context['term'] ) ) ) {
+	    else if ( !empty( $context['taxonomy'] ) && empty( $context['term'] ) ) {
 		    $widgets = Presets::getCore('default')->widgets;
 
 		    $where = array(
