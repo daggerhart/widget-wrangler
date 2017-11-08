@@ -1,5 +1,5 @@
 
-var WidgetWranglerData =  WidgetWranglerData || { context: {} };
+var WidgetWranglerData = WidgetWranglerData || { context: {} };
 
 (function ($) {
 

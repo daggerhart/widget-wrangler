@@ -12,7 +12,7 @@ class Settings {
 	public $option_name = 'ww_settings';
 
 	// stored option values array
-	public $values = [];
+	public $values = array();
 
 	// default plugin settings values
 	public $default_settings = array(

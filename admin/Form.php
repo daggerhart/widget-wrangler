@@ -201,7 +201,7 @@ class Form {
 	 * @return array
 	 */
 	function get_form_attributes(){
-		$atts_keys=  array( 'id', 'action', 'method', 'class' );
+		$atts_keys = array( 'id', 'action', 'method', 'class' );
 		$attributes = array();
 
 		foreach( $atts_keys as $key ){

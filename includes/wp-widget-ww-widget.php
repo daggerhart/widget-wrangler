@@ -86,7 +86,7 @@ class WidgetWrangler_Widget_Widget extends WP_Widget {
 				{
 					$title = $widget->post_title;
 					if ($widget->post_status == "draft") {
-						$title.=  " - <em>(draft)</em>";
+						$title.= " - <em>(draft)</em>";
 					}
 					?>
                     <option <?php selected( $instance['post_id'], $widget->ID ); ?> value="<?php print $widget->ID; ?>"><?php print $title ?></option>

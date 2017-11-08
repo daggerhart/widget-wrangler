@@ -10,6 +10,8 @@ A plugin for managing the display of widgets on a page by page basis. Using widg
 
 == Description ==
 
+**As of version 2.3, Widget Wrangler requires PHP 5.3 or higher**
+
 Widget Wrangler is a plugin for WordPress that gives administrators a clean interface for managing widgets on a page by page basis.  On each page, you can control what widgets appear where.
 
 Widget Wrangler provides the following features:
@@ -95,6 +97,10 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 1. Widget Wrangler Corral Widget
 
 == Changelog ==
+
+= 2.3.3 =
+
+* PHP 5.3 support fix: Removing instance of short array syntax.
 
 = 2.3.2 =
 
@@ -328,4 +334,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3.2 Bug fix on admin screen from 2.3.1
+2.3.3 PHP < 5.4 syntax fix. NOTICE: Widget Wrangler now requires PHP 5.3+

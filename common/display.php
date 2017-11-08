@@ -364,7 +364,7 @@ class Display {
 
 			// handle final theme compat issues if the widget is in a corral,
 			if ($this->doing_corral && $this->theme_compat) {
-				$theme_compat =  $widget->wp_widget_args['before_widget'];
+				$theme_compat = $widget->wp_widget_args['before_widget'];
 
 				// title can also be NULL with clones
 				if ($widget->hidden_title && !$widget->hide_title) {
