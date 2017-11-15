@@ -71,6 +71,15 @@ class Widget_Wrangler {
     public $display;
 
 	/**
+	 * Store a copy of the contextual page widgets here for other plugins
+	 * and themes to use.
+	 * Backwards compatibility for WW 2.2-
+	 *
+	 * @var array
+	 */
+    public $page_widgets = array();
+
+	/**
 	 * Construct the widget wrangler object.
 	 *  - add dependencies
 	 */
@@ -105,6 +114,7 @@ class Widget_Wrangler {
 		register_activation_hook(WW_PLUGIN_FILE, 'WidgetWranglerUpdate::install');
 		add_action( 'widgets_init', array( $plugin, 'widgets_init' ) );
 		add_action( 'init', array( $plugin, 'register_post_types' ) );
+		add_action( 'wp', array( $plugin, 'load_page_widgets' ) );
 
 		// let all plugins load before gathering addons
 		add_action( 'plugins_loaded' , array( $plugin, 'plugins_loaded' ) );
@@ -195,6 +205,14 @@ class Widget_Wrangler {
 			'query_var' => 'widget',
 			'menu_icon' => WW_PLUGIN_URL.'/admin/images/lasso-menu.png'
 		));
+	}
+
+	/**
+	 * Keep a copy of the page widgets here within the global WW object for
+	 * other plugins or themes to use.
+	 */
+	function load_page_widgets() {
+		$this->page_widgets = \WidgetWrangler\Context::pageWidgets();
 	}
 
 	/**
