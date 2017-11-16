@@ -98,6 +98,10 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
+= 2.3.5 =
+
+* Bug fix: Older installations may have their settings data serialized multiple times.
+
 = 2.3.4 =
 
 * Bug fix: Changing the Preset on an individual page did not save correctly.
@@ -339,4 +343,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3.4 Bug fix when changing Preset on an individual page/post. NOTICE: Widget Wrangler now requires PHP 5.3+
+2.3.5 Bug fix with settings data when upgrading from older versions. Bug fix when changing Preset on an individual page/post. NOTICE: Widget Wrangler now requires PHP 5.3+
