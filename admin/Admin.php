@@ -178,13 +178,14 @@ class Admin {
 		$preset_id = 0;
 		$submitted_widgets = ( ! empty( $_POST['ww-data'] ) && ! empty( $_POST['ww-data']['widgets'] ) ) ? $_POST['ww-data']['widgets'] : array();
 		$submitted_preset_id = isset( $_POST['ww-preset-id-new'] ) ? intval( $_POST['ww-preset-id-new'] ) : 0;
+		$active_widgets = self::prepareSubmittedWidgetData( $submitted_widgets );
 
 		if ( $submitted_preset_id ) {
 			$preset = Presets::get( $submitted_preset_id );
 
 			// if the submitted widgets match the submitted preset widgets,
 			// then the user chose a preset, do not record the submitted widgets.
-			if ( $preset->widgets === $submitted_widgets ) {
+			if ( $preset->widgets === $active_widgets ) {
 				$preset_id = $submitted_preset_id;
 			}
 		}
@@ -201,13 +202,13 @@ class Admin {
 	}
 
 	/**
-	 * Take data from $_POST submit and convert in to serialized array as string
+	 * Build an array of widgets in corrals from submitted Wrangler interface.
 	 *
 	 * @param $submitted_widget_data
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public static function serializeWidgets( $submitted_widget_data ) {
+	public static function prepareSubmittedWidgetData( $submitted_widget_data ) {
 		$all_widgets = Widgets::all( array( 'publish', 'draft' ) );
 		$active_widgets = array();
 
@@ -228,6 +229,18 @@ class Admin {
 			}
 		}
 
+		return $active_widgets;
+	}
+
+	/**
+	 * Take data from $_POST submit and convert in to serialized array as string
+	 *
+	 * @param $submitted_widget_data
+	 *
+	 * @return string
+	 */
+	public static function serializeWidgets( $submitted_widget_data ) {
+		$active_widgets = self::prepareSubmittedWidgetData( $submitted_widget_data );
 		return serialize( $active_widgets );
 	}
 
