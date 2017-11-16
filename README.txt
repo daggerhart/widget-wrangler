@@ -3,7 +3,7 @@ Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 4
 Requires PHP: 5.3
-Tested up to: 4.8.3
+Tested up to: 4.9
 Stable tag: trunk
 
 A plugin for managing the display of widgets on a page by page basis. Using widgets as a post type.
@@ -97,6 +97,11 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 1. Widget Wrangler Corral Widget
 
 == Changelog ==
+
+= 2.3.4 =
+
+* Bug fix: Changing the Preset on an individual page did not save correctly.
+* Dev experience: Storing a copy of the page widgets within the global $widget_wrangler object for backwards compatibility.
 
 = 2.3.3 =
 
@@ -334,4 +339,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3.3 PHP < 5.4 syntax fix. NOTICE: Widget Wrangler now requires PHP 5.3+
+2.3.4 Bug fix when changing Preset on an individual page/post. NOTICE: Widget Wrangler now requires PHP 5.3+
