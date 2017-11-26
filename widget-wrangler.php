@@ -111,7 +111,7 @@ class Widget_Wrangler {
 		add_action('wp_loaded', array($plugin, 'wp_loaded'), 999);
 
 		// early wp hooks
-		register_activation_hook(WW_PLUGIN_FILE, 'WidgetWranglerUpdate::install');
+		register_activation_hook(WW_PLUGIN_FILE, '\WidgetWrangler\Updates::install');
 		add_action( 'widgets_init', array( $plugin, 'widgets_init' ) );
 		add_action( 'init', array( $plugin, 'register_post_types' ) );
 		add_action( 'wp', array( $plugin, 'load_page_widgets' ) );
