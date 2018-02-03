@@ -25,7 +25,7 @@ License: GPL2
 */
 
 define('WW_VERSION', '2.3.5');
-define('WW_DB_VERSION', '2001');
+define('WW_DB_VERSION', '2002');
 define('WW_SCRIPT_VERSION', '2.3.0');
 
 define('WW_PLUGIN_FILE', __FILE__);
