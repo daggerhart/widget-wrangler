@@ -3,7 +3,7 @@ Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 4
 Requires PHP: 5.3
-Tested up to: 4.9.2
+Tested up to: 5.3.2
 Stable tag: trunk
 
 A plugin for managing the display of widgets on a page by page basis. Using widgets as a post type.
