@@ -98,7 +98,7 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 
 == Changelog ==
 
-= 2.3.8 =
+= 2.3.9 =
 
 * Bug fix: jQuery version update compatibility
 
@@ -352,4 +352,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3.8 jQuery version update compatibility
+2.3.9 jQuery version update compatibility
