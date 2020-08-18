@@ -24,9 +24,9 @@ License: GPL2
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define('WW_VERSION', '2.3.7');
+define('WW_VERSION', '2.3.8');
 define('WW_DB_VERSION', '2002');
-define('WW_SCRIPT_VERSION', '2.3.0');
+define('WW_SCRIPT_VERSION', '2.3.8');
 
 define('WW_PLUGIN_FILE', __FILE__);
 define('WW_PLUGIN_DIR', dirname(WW_PLUGIN_FILE));

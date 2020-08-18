@@ -3,7 +3,7 @@ Contributors: daggerhart
 Tags: widget, admin, widgets, administration, sidebar, manage
 Requires at least: 4
 Requires PHP: 5.3
-Tested up to: 5.3.2
+Tested up to: 5.5
 Stable tag: trunk
 
 A plugin for managing the display of widgets on a page by page basis. Using widgets as a post type.
@@ -53,7 +53,7 @@ If you want to use a single Corral per WordPress sidebar (or are unsure what all
 
 A Corral is an arbitrary group of widgets.  WordPress calls them "sidebars", but they are not ultimately limited by that terminology.  You could have multiple Corrals appear within a single Sidebar if needed.
 
-= Where does a widget's html come from? = 
+= Where does a widget's html come from? =
 
 With the new "Theme compatibility" setting, it is possible for the widget's html to come from 2 places.
 If Theme Compatibility is not enabled, then all the html for widgets come from Widget Wrangler's widget template (widget.php).
@@ -97,6 +97,10 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 1. Widget Wrangler Corral Widget
 
 == Changelog ==
+
+= 2.3.8 =
+
+* Bug fix: jQuery version update compatibility
 
 = 2.3.6 =
 
@@ -244,7 +248,7 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 = 1.4.6 =
 
 * Bug fix: Child theme template discovery
-* Bug fix: Escape dollar sign in content & title 
+* Bug fix: Escape dollar sign in content & title
 * Feature: Exclude from search
 * Feature: Template widget with widget-post_name.php
 * Added versioning
@@ -348,4 +352,4 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3.6 Various bug fixes, mainly around new installations.
+2.3.8 jQuery version update compatibility
