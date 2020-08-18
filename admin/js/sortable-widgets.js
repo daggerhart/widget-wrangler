@@ -94,14 +94,14 @@ var WidgetWranglerData = WidgetWranglerData || { context: {} };
      */
     function fixEvents() {
         var $sortableFields = $sortableLists.find('select, input[type=text]');
-        $sortableFields.live('click', function(e) {
+        $sortableFields.on('click', function(e) {
             $(this).trigger({
                 type: 'mousedown',
                 which: 3
             });
         });
 
-        $sortableFields.live('mousedown', function(e) {
+        $sortableFields.on('mousedown', function(e) {
             if(e.which == 3){
                 $(this).focus();
             }
