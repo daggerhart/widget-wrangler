@@ -123,6 +123,10 @@ class Admin {
 	 * Ajax response for changing presets on the wrangler.
 	 */
     function ww_form_ajax() {
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ww_form_ajax' ) ) {
+			wp_die( -1, 403 );
+		}
+
 		if ( empty( $_POST['context'] ) ) {
 			exit;
 		}

@@ -65,6 +65,9 @@ class WidgetPostType {
 		    wp_enqueue_style('ww-admin');
 		    wp_enqueue_script('ww-admin');
 		    wp_enqueue_script('ww-widget-posttype');
+			wp_localize_script('ww-widget-posttype', 'WidgetWranglerPreviewData', array(
+				'nonce' => wp_create_nonce('ww_preview_ajax'),
+			));
         }
 	}
 
@@ -711,6 +714,10 @@ class WidgetPostType {
 	 * Widget preview meta box ajax action
 	 */
 	function preview_ajax() {
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'ww_preview_ajax' ) ) {
+			wp_die( -1, 403 );
+		}
+
 		// queries in widgets can cause problems, even when executed correctly
 
 		$settings = $this->settings;

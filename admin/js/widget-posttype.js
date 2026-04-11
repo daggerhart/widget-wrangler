@@ -19,6 +19,7 @@
             method: 'post',
             data: {
                 action: 'widget_wrangler_preview',
+                nonce: WidgetWranglerPreviewData.nonce,
                 widget_post_id: post_id,
                 form_state: ww_data
             }

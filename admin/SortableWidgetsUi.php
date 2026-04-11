@@ -29,6 +29,7 @@ class SortableWidgetsUi {
 		$data = array(
             'allWidgets' => Widgets::all(array('publish', 'draft')),
             'context' => Context::context(),
+            'nonce' => wp_create_nonce('ww_form_ajax'),
         );
 		wp_localize_script( 'ww-sortable-widgets', 'WidgetWranglerData', $data );
 	}

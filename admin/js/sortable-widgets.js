@@ -142,6 +142,7 @@ var WidgetWranglerData = WidgetWranglerData || { context: {} };
             type: 'POST',
             data: {
                 'action': 'ww_form_ajax',
+                'nonce': WidgetWranglerData.nonce,
                 'preset_id': $('select[name="ww-preset-id-new"]').val(),
                 'context' : WidgetWranglerData.context || {}
             },
