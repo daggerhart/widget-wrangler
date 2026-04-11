@@ -44,6 +44,10 @@ class Admin {
 	 * @return \WidgetWrangler\Admin
 	 */
 	public static function register($settings) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return null;
+		}
+
 		$plugin = new self($settings);
 
 		add_action( 'wp_loaded', array( $plugin, 'loaded' ) );

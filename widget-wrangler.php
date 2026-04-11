@@ -169,7 +169,22 @@ class Widget_Wrangler {
 	 */
 	function register_post_types() {
 		$settings = $this->settings->values;
-		$capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced_capability'])) ? $settings['advanced_capability'] : "page";
+		$capabilities = array(
+			'edit_post'              => 'manage_options',
+			'read_post'              => 'manage_options',
+			'delete_post'            => 'manage_options',
+			'edit_posts'             => 'manage_options',
+			'edit_others_posts'      => 'manage_options',
+			'publish_posts'          => 'manage_options',
+			'read_private_posts'     => 'manage_options',
+			'delete_posts'           => 'manage_options',
+			'delete_private_posts'   => 'manage_options',
+			'delete_published_posts' => 'manage_options',
+			'delete_others_posts'    => 'manage_options',
+			'edit_private_posts'     => 'manage_options',
+			'edit_published_posts'   => 'manage_options',
+			'create_posts'           => 'manage_options',
+		);
 
 		register_post_type('widget', array(
 			'labels' => array(
@@ -199,7 +214,7 @@ class Widget_Wrangler {
 			'show_ui' => true,
 			'_builtin' => false,
 			'_edit_link' => 'post.php?post=%d',
-			'capability_type' => $capability_type,
+			'capabilities' => $capabilities,
 			'hierarchical' => false,
 			'rewrite' => array('slug' => 'widget'),
 			'query_var' => 'widget',
