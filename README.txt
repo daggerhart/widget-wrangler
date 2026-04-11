@@ -10,6 +10,20 @@ A plugin for managing the display of widgets on a page by page basis. Using widg
 
 == Description ==
 
+**This plugin is deprecated and will receive no further updates. Please deactivate and remove it from your site.**
+
+Widget Wrangler is no longer maintained. The features it provides — page-by-page widget management, PHP in widgets — have better alternatives in modern WordPress (block editor, Full Site Editing, block widgets). Keeping this plugin installed is not recommended.
+
+= Security =
+
+Version 2.4.0 addresses a reported critical vulnerability (CVSS 9.1) in which users with Author-level access or higher could execute arbitrary PHP code via the Display Logic field. This release restricts the entire plugin to administrators only and adds additional hardening. However, the plugin's architecture relies on PHP `eval()` in multiple places and this will not be further remediated. **The safest course of action is to remove this plugin entirely.**
+
+If you are currently using Widget Wrangler, migrate to one of the following modern alternatives before removing it:
+
+* The WordPress block editor (Gutenberg) for per-page content control
+* Full Site Editing (FSE) for template-level widget placement
+* A maintained blocks plugin for sidebar and widget area management
+
 **As of version 2.3, Widget Wrangler requires PHP 5.3 or higher**
 
 Widget Wrangler is a plugin for WordPress that gives administrators a clean interface for managing widgets on a page by page basis.  On each page, you can control what widgets appear where.
@@ -97,6 +111,15 @@ When you Copy a WordPress widget, it creates a new widget post in the Widget Wra
 1. Widget Wrangler Corral Widget
 
 == Changelog ==
+
+= 2.4.0 =
+
+* Security: Restrict all plugin functionality to administrators (manage_options) only
+* Security: Restrict Display Logic field (eval'd PHP) to administrators only, with nonce verification on save
+* Security: Add nonce verification to all AJAX handlers
+* Security: Sanitize request variables in Context
+* Security: Escape output in admin pages
+* Deprecation: This plugin is no longer maintained. Please remove it from your site.
 
 = 2.3.9 =
 
@@ -352,4 +375,5 @@ Initial Release
 
 == Upgrade Notice ==
 
-2.3.9 jQuery version update compatibility
+= 2.4.0 =
+Critical security release. Restricts plugin access to administrators only and addresses a remote code execution vulnerability. This plugin is now deprecated — please remove it from your site after upgrading and migrating to another solution.
