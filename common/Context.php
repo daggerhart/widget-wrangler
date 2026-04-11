@@ -42,7 +42,7 @@ class Context {
 
 		// Admin page for presets
 		if ( is_admin() && isset( $_REQUEST['preset_id'] ) ) {
-			$context['preset'] = Presets::get( $_REQUEST['preset_id'] );
+			$context['preset'] = Presets::get( intval( $_REQUEST['preset_id'] ) );
 			$context['widgets'] = $context['preset']->widgets;
 
 			return $context;
@@ -56,11 +56,11 @@ class Context {
 
 		// Taxonomy &/ term: admin
 		if ( is_admin() && ( ! empty( $_GET['taxonomy'] ) ) ) {
-			$context = array_replace( $context, self::getTaxonomyContext( $_GET['taxonomy'] ) );
+			$context = array_replace( $context, self::getTaxonomyContext( sanitize_key( $_GET['taxonomy'] ) ) );
 
 			// term
 			if ( ! empty( $_GET['tag_ID'] ) ) {
-				$context = array_replace( $context, self::getTermContext( $_GET['tag_ID'] ) );
+				$context = array_replace( $context, self::getTermContext( intval( $_GET['tag_ID'] ) ) );
 			}
 		}
 
