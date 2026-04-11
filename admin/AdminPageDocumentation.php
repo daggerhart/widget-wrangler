@@ -53,11 +53,11 @@ class AdminPageDocumentation extends AdminPage {
 	function templateSection( $section ) {
 		ob_start();
 		?>
-        <a id="<?php print $section['key']; ?>" class="anchor"></a>
+        <a id="<?php print esc_attr( $section['key'] ); ?>" class="anchor"></a>
 		<div class="ww-columns ww-docs">
 			<div class="ww-column col-25">
-				<h2><?php print $section['title']; ?></h2>
-				<p><?php print $section['description']; ?></p>
+				<h2><?php print esc_html( $section['title'] ); ?></h2>
+				<p><?php print esc_html( $section['description'] ); ?></p>
 			</div>
 			<div class="ww-column col-75">
                 <div class="ww-box">

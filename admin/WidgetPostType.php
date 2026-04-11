@@ -134,11 +134,11 @@ class WidgetPostType {
 		switch ($column) {
 			case 'ww_type':
 				$widget_type = get_post_meta($post->ID, 'ww-widget-type', true);
-				print (!empty($widget_type) ? $widget_type : 'standard');
+				print esc_html( !empty($widget_type) ? $widget_type : 'standard' );
 				break;
 
             case 'ww_status':
-                print $post->post_status;
+                print esc_html( $post->post_status );
                 break;
 
 			case 'ww_description':
@@ -147,11 +147,11 @@ class WidgetPostType {
 
 			case 'ww_advanced_parsing':
 				$rewrite = get_post_meta($post->ID, 'ww-adv-enabled', true);
-				print (!empty($rewrite) ? $rewrite : '&nbsp;');
+				print (!empty($rewrite) ? esc_html( $rewrite ) : '&nbsp;');
 				break;
 
 			case 'ww_shortcode':
-				print "[ww_widget  id={$post->ID}]<hr />[ww_widget slug=\"{$post->post_name}\"]";
+				print '[ww_widget  id=' . intval( $post->ID ) . ']<hr />[ww_widget slug="' . esc_attr( $post->post_name ) . '"]';
 				break;
 		}
 	}
@@ -295,9 +295,9 @@ class WidgetPostType {
 	function meta_box_details() {
 		?>
         <ul>
-            <li><?php _e('Post ID', 'widgetwrangler'); ?> <code><?php print $this->post_id;?></code></li>
-            <li><?php _e('Shortcode by ID', 'widgetwrangler'); ?><br>- <code>[ww_widget id=<?php print $this->post_id; ?>]</code></li>
-            <li><?php _e('Shortcode by slug', 'widgetwrangler'); ?><br>- <code>[ww_widget slug="<?php print get_post()->post_name; ?>"]</code></li>
+            <li><?php _e('Post ID', 'widgetwrangler'); ?> <code><?php print intval( $this->post_id );?></code></li>
+            <li><?php _e('Shortcode by ID', 'widgetwrangler'); ?><br>- <code>[ww_widget id=<?php print intval( $this->post_id ); ?>]</code></li>
+            <li><?php _e('Shortcode by slug', 'widgetwrangler'); ?><br>- <code>[ww_widget slug="<?php print esc_attr( get_post()->post_name ); ?>"]</code></li>
         </ul>
         <?php
     }
