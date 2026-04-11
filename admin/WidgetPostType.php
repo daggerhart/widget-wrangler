@@ -171,8 +171,28 @@ class WidgetPostType {
 		// http://wordpress.org/support/topic/quickedit-deletes-code-in-advanced-parsing
 		if (isset($_REQUEST['_inline_edit'])) { return; }
 
+		// Verify nonce
+		if ( ! isset( $_POST['ww_display_logic_nonce'] ) || ! wp_verify_nonce( $_POST['ww_display_logic_nonce'], 'ww_save_display_logic_' . $post_id ) ) {
+			// Nonce missing or invalid — strip display logic fields from the save to prevent tampering
+			add_filter( 'ww_skip_meta_keys', function( $skip ) {
+				$skip[] = 'ww-display-logic';
+				$skip[] = 'ww-display-logic-enabled';
+				return $skip;
+			} );
+		}
+
+		$skip_keys = apply_filters( 'ww_skip_meta_keys', array() );
+
+		// Only administrators may save display logic (eval'd PHP)
+		if ( ! current_user_can( 'manage_options' ) ) {
+			$skip_keys[] = 'ww-display-logic';
+			$skip_keys[] = 'ww-display-logic-enabled';
+		}
+
 		// Loop through the public meta fields ($this->meta_box_fields) for $_POST data
 		foreach ($this->meta_box_fields as $key){
+			if ( in_array( $key, $skip_keys, true ) ) { continue; }
+
 			$value = @$_POST['ww-data'][$key];
 
 			// If value is a string it should be unique
@@ -375,22 +395,28 @@ class WidgetPostType {
 			'field_prefix' => 'ww-data',
 		) );
 
-		print $form->render_field( array(
-			'type'  => 'checkbox',
-			'name'  => 'ww-display-logic-enabled',
-			'title' => __( 'Enable display logic', 'widgetwrangler' ),
-			'value' => $values['ww-display-logic-enabled'],
-		) );
-		print $form->render_field( array(
-			'type'  => 'textarea',
-			'name'  => 'ww-display-logic',
-			'description' => __( 'Site-wide raw PHP logic for displaying this widget', 'widgetwrangler' ),
-			'value' => $values['ww-display-logic'],
-			'class' => 'code',
-			'attributes' => array(
-				'rows' => substr_count($values['ww-display-logic'], "\n") + 3,
-			)
-		) );
+		wp_nonce_field( 'ww_save_display_logic_' . $this->post_id, 'ww_display_logic_nonce' );
+
+		if ( current_user_can( 'manage_options' ) ) {
+			print $form->render_field( array(
+				'type'  => 'checkbox',
+				'name'  => 'ww-display-logic-enabled',
+				'title' => __( 'Enable display logic', 'widgetwrangler' ),
+				'value' => $values['ww-display-logic-enabled'],
+			) );
+			print $form->render_field( array(
+				'type'  => 'textarea',
+				'name'  => 'ww-display-logic',
+				'description' => __( 'Site-wide raw PHP logic for displaying this widget', 'widgetwrangler' ),
+				'value' => $values['ww-display-logic'],
+				'class' => 'code',
+				'attributes' => array(
+					'rows' => substr_count($values['ww-display-logic'], "\n") + 3,
+				)
+			) );
+		} else {
+			echo '<p><em>' . esc_html__( 'Display Logic requires administrator access.', 'widgetwrangler' ) . '</em></p>';
+		}
 
 		?>
         <hr>

@@ -169,7 +169,7 @@ class Widget_Wrangler {
 	 */
 	function register_post_types() {
 		$settings = $this->settings->values;
-		$capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced_capability'])) ? $settings['advanced_capability'] : "post";
+		$capability_type = ($settings['capabilities'] == "advanced" && isset($settings['advanced_capability'])) ? $settings['advanced_capability'] : "page";
 
 		register_post_type('widget', array(
 			'labels' => array(
